@@ -24,10 +24,10 @@ import java.util.List;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtDecoderConfig jwtDecoderConfig;
-    private static final String[] PUBLIC_POST_ENDPOINTS={};
+    private static final String[] PUBLIC_POST_ENDPOINTS = {};
     private static final String[] PUBLIC_GET_ENDPOINTS = {};
     private static final String[] PUBLIC_PUT_ENDPOINTS = {};
+    private final JwtDecoderConfig jwtDecoderConfig;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {

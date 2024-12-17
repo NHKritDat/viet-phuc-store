@@ -1,4 +1,4 @@
-package com.nextrad.vietphucstore.enums;
+package com.nextrad.vietphucstore.enums.user;
 
 public enum UserRole {
     STAFF,

@@ -1,12 +1,11 @@
 package com.nextrad.vietphucstore.repositories;
 
-import com.nextrad.vietphucstore.entities.Token;
+import com.nextrad.vietphucstore.entities.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
 @Repository
-public interface TokenRepository extends JpaRepository<Token, UUID> {
-    boolean existsByIdAndAvailable(UUID id, boolean available);
+public interface NotificationRepository extends JpaRepository<Notification, UUID> {
 }
