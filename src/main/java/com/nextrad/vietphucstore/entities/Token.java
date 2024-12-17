@@ -1,8 +1,6 @@
 package com.nextrad.vietphucstore.entities;
 
-import com.nextrad.vietphucstore.enums.TokenStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
@@ -26,9 +24,8 @@ public class Token {
     @Column(nullable = false, updatable = false)
     private Date expAt;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TokenStatus status = TokenStatus.ACTIVE;
+    private boolean available = true;
 
     @CreatedBy
     @Column(nullable = false, updatable = false)

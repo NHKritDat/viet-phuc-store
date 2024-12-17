@@ -1,6 +1,5 @@
 package com.nextrad.vietphucstore.entities;
 
-import com.nextrad.vietphucstore.enums.user.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,42 +15,35 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "users")
+@Table(name = "feedback")
 @EntityListeners(AuditingEntityListener.class)
-public class User {
+public class Feedback {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false, updatable = false)
+    @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(nullable = false)
-    private String fullName;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
-    @Column(nullable = false)
-    private String address;
+    private String content;
 
-    @Column(nullable = false)
-    private String phone;
+    private int rating;
 
-    private String avatar;
+    private boolean deleted;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
-    private UserRole role = UserRole.CUSTOMER;
-
-    @Column(nullable = false)
-    private boolean active = true;
-
     @CreatedBy
-    @Column(nullable = false, updatable = false)
     private String createdBy;
 
-    @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false, updatable = false)
+    @CreatedDate
     private Date createdDate;
 
     @LastModifiedBy

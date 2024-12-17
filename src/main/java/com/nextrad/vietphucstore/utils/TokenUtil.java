@@ -3,7 +3,7 @@ package com.nextrad.vietphucstore.utils;
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.TokenVerifier;
 import com.nextrad.vietphucstore.entities.User;
-import com.nextrad.vietphucstore.enums.ErrorCode;
+import com.nextrad.vietphucstore.enums.error.ErrorCode;
 import com.nextrad.vietphucstore.exceptions.AppException;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -49,7 +49,7 @@ public class TokenUtil {
         return genToken(user, refreshTokenExp);
     }
 
-    private String genToken(User user, long expTime)  {
+    private String genToken(User user, long expTime) {
         JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.HS256)
                 .type(JOSEObjectType.JWT)
                 .build();
@@ -62,7 +62,7 @@ public class TokenUtil {
                 .claim("id", user.getId().toString())
                 .claim("fullName", user.getFullName())
                 .claim("role", user.getRole().name())
-                .claim("status", user.getStatus().name())
+                .claim("status", user.isActive())
                 .claim("createdBy", user.getCreatedBy())
                 .claim("createdDate", user.getCreatedDate())
                 .claim("updatedBy", user.getUpdatedBy())
