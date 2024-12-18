@@ -1,6 +1,6 @@
 package com.nextrad.vietphucstore.exceptions;
 
-import com.nextrad.vietphucstore.dtos.responses.ApiItemResponse;
+import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

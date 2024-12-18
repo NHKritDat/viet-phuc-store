@@ -1,6 +1,6 @@
-package com.nextrad.vietphucstore.repositories;
+package com.nextrad.vietphucstore.repositories.order;
 
-import com.nextrad.vietphucstore.entities.Cart;
+import com.nextrad.vietphucstore.entities.order.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

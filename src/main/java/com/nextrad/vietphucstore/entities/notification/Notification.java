@@ -1,5 +1,6 @@
-package com.nextrad.vietphucstore.entities;
+package com.nextrad.vietphucstore.entities.notification;
 
+import com.nextrad.vietphucstore.entities.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

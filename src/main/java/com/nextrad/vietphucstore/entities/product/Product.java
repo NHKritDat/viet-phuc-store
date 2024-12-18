@@ -1,4 +1,4 @@
-package com.nextrad.vietphucstore.entities;
+package com.nextrad.vietphucstore.entities.product;
 
 import com.nextrad.vietphucstore.enums.product.ProductStatus;
 import jakarta.persistence.*;

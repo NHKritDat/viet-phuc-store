@@ -1,9 +1,6 @@
-package com.nextrad.vietphucstore.entities;
+package com.nextrad.vietphucstore.entities.product;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,10 +12,14 @@ import java.util.UUID;
 @Table(name = "product_sizes")
 public class ProductSize {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
+
+    @Column(nullable = false)
+    private boolean deleted = false;
 
 }

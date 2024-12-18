@@ -1,4 +1,4 @@
-package com.nextrad.vietphucstore.dtos.responses;
+package com.nextrad.vietphucstore.dtos.responses.standard;
 
 import java.util.List;
 

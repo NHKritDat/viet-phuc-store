@@ -1,9 +1,9 @@
-package com.nextrad.vietphucstore.entities;
+package com.nextrad.vietphucstore.entities.order;
 
+import com.nextrad.vietphucstore.entities.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.UUID;
 
@@ -11,7 +11,6 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "carts")
-@EntityListeners(AuditingEntityListener.class)
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

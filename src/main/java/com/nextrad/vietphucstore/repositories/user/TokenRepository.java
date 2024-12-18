@@ -1,6 +1,6 @@
-package com.nextrad.vietphucstore.repositories;
+package com.nextrad.vietphucstore.repositories.user;
 
-import com.nextrad.vietphucstore.entities.Token;
+import com.nextrad.vietphucstore.entities.user.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

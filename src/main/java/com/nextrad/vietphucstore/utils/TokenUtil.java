@@ -2,7 +2,7 @@ package com.nextrad.vietphucstore.utils;
 
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.TokenVerifier;
-import com.nextrad.vietphucstore.entities.User;
+import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
 import com.nextrad.vietphucstore.exceptions.AppException;
 import com.nimbusds.jose.*;
@@ -61,8 +61,11 @@ public class TokenUtil {
                 .subject(user.getEmail())
                 .claim("id", user.getId().toString())
                 .claim("fullName", user.getFullName())
+                .claim("address", user.getAddress())
+                .claim("phone", user.getPhone())
+                .claim("avatar", user.getAvatar() != null ? user.getAvatar() : "")
                 .claim("role", user.getRole().name())
-                .claim("status", user.isActive())
+                .claim("status", user.getStatus())
                 .claim("createdBy", user.getCreatedBy())
                 .claim("createdDate", user.getCreatedDate())
                 .claim("updatedBy", user.getUpdatedBy())

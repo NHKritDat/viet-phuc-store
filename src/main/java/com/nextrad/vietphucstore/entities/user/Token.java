@@ -1,4 +1,4 @@
-package com.nextrad.vietphucstore.entities;
+package com.nextrad.vietphucstore.entities.user;
 
 import jakarta.persistence.*;
 import lombok.Getter;
