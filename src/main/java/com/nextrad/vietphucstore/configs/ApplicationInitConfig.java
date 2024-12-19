@@ -18,7 +18,7 @@ public class ApplicationInitConfig {
     @Bean
     public ApplicationRunner applicationRunner(UserRepository userRepository) {
         return args -> {
-            if (userRepository.existsByFullName(ADMIN_FULL_NAME)) {
+            if (!userRepository.existsByFullName(ADMIN_FULL_NAME)) {
                 User user = new User();
                 user.setFullName(ADMIN_FULL_NAME);
                 user.setEmail(adminEmail);
@@ -27,8 +27,6 @@ public class ApplicationInitConfig {
                 user.setAvatar("");
                 user.setRole(UserRole.STAFF);
                 user.setStatus(UserStatus.VERIFIED);
-                user.setCreatedBy(ADMIN_FULL_NAME);
-                user.setUpdatedBy(ADMIN_FULL_NAME);
                 userRepository.save(user);
             }
         };

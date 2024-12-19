@@ -35,10 +35,10 @@ public class User {
     private String password = "$2a$12$OqwaI0/yLjyf/kkLLd3veelcs7M2ememzdyZiO1jgJPRlIz1mQYpy";
 
     @Column(nullable = false)
-    private String address;
+    private String address = "";
 
     @Column(nullable = false)
-    private String phone;
+    private String phone = "";
 
     private String avatar;
 
@@ -52,7 +52,7 @@ public class User {
 
     @CreatedBy
     @Column(nullable = false, updatable = false)
-    private String createdBy;
+    private String createdBy = email;
 
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
@@ -61,7 +61,7 @@ public class User {
 
     @LastModifiedBy
     @Column(nullable = false)
-    private String updatedBy;
+    private String updatedBy = email;
 
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
