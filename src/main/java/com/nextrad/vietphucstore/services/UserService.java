@@ -2,6 +2,9 @@ package com.nextrad.vietphucstore.services;
 
 import com.nextrad.vietphucstore.dtos.requests.user.*;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
+import com.nextrad.vietphucstore.dtos.responses.user.UserResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 
 import java.util.UUID;
 
@@ -25,4 +28,18 @@ public interface UserService {
     String resetPassword(ChangePasswordRequest request);
 
     String changePassword(ChangePasswordRequest request);
+
+    Page<UserResponse> getUsers(String search, int page, int size, Sort.Direction direction, String... properties);
+
+    UserResponse getUser(UUID id);
+
+    UserResponse getCurrentUser();
+
+    UserResponse createUser(UserModifyRequest request);
+
+    UserResponse updateUser(UUID id, UserModifyRequest request);
+
+    String deleteUser(UUID id);
+
+    UserResponse updateProfile(UpdateProfileRequest request);
 }

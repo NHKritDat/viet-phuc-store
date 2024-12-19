@@ -2,6 +2,7 @@ package com.nextrad.vietphucstore.services.imps;
 
 import com.nextrad.vietphucstore.dtos.requests.user.*;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
+import com.nextrad.vietphucstore.dtos.responses.user.UserResponse;
 import com.nextrad.vietphucstore.entities.user.Token;
 import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
@@ -15,6 +16,9 @@ import com.nextrad.vietphucstore.utils.EmailUtil;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import com.nextrad.vietphucstore.utils.TokenUtil;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,7 +44,7 @@ public class UserServiceImplement implements UserService {
 
     @Override
     public TokenResponse login(LoginPassword request) {
-        User user = userRepository.findByEmail(request.email())
+        User user = userRepository.findByEmailAndStatus((request.email()), UserStatus.VERIFIED)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if (!passwordEncoder.matches(request.password(), user.getPassword()))
             throw new AppException(ErrorCode.WRONG_PASSWORD);
@@ -52,7 +56,7 @@ public class UserServiceImplement implements UserService {
     @Override
     public TokenResponse login(AuthRequest request) {
         String[] info = tokenUtil.getInfo(request.auth());
-        Optional<User> user = userRepository.findByEmail(info[0]);
+        Optional<User> user = userRepository.findByEmailAndStatus(info[0], UserStatus.VERIFIED);
         if (user.isPresent()) {
             String refreshToken = tokenUtil.genRefreshToken(user.get());
             tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
@@ -114,7 +118,7 @@ public class UserServiceImplement implements UserService {
 
     @Override
     public String register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.email()))
+        if (userRepository.existsByEmailAndStatusNotLike(request.email(), UserStatus.DELETED))
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         if (!request.password().equals(request.confirmPassword()))
             throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
@@ -137,7 +141,7 @@ public class UserServiceImplement implements UserService {
     @Override
     public String verifyEmail(String token) {
         String[] info = tokenUtil.getJwtInfo(token);
-        User user = userRepository.findByEmail(info[3])
+        User user = userRepository.findByEmailAndStatus(info[3], UserStatus.UNVERIFIED)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setStatus(UserStatus.VERIFIED);
         userRepository.save(user);
@@ -147,7 +151,7 @@ public class UserServiceImplement implements UserService {
 
     @Override
     public String forgotPassword(AuthRequest request) {
-        User user = userRepository.findByEmail(request.auth())
+        User user = userRepository.findByEmailAndStatus(request.auth(), UserStatus.VERIFIED)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         emailUtil.resetPassword(user.getEmail(), user.getFullName(), tokenUtil.genAccessToken(user));
         return "Please check your email to reset your password.";
@@ -156,7 +160,7 @@ public class UserServiceImplement implements UserService {
     @Override
     public String resetPassword(ChangePasswordRequest request) {
         String[] info = tokenUtil.getJwtInfo(request.auth());
-        User user = userRepository.findByEmail(info[3])
+        User user = userRepository.findByEmailAndStatus(info[3], UserStatus.VERIFIED)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if (!request.newPassword().equals(request.confirmPassword()))
             throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
@@ -177,5 +181,89 @@ public class UserServiceImplement implements UserService {
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
         return "Your password has been changed successfully!";
+    }
+
+    @Override
+    public Page<UserResponse> getUsers(String search, int page, int size, Sort.Direction direction, String... properties) {
+        return userRepository.findByRoleNotLikeAndFullNameContainsIgnoreCase(UserRole.STAFF, search,
+                        pageableUtil.getPageable(User.class, page, size, direction, properties))
+                .map(user ->
+                        new UserResponse(user.id(), user.fullName(), user.email(), user.address(), user.phone(),
+                                user.avatar(), user.role(), user.status(), user.createdBy(), user.createdDate(),
+                                user.updatedBy(), user.updatedDate()));
+    }
+
+    @Override
+    public UserResponse getUser(UUID id) {
+        User user = userRepository.findByIdAndRoleNotLike(id, UserRole.STAFF)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getAddress(), user.getPhone(),
+                user.getAvatar(), user.getRole(), user.getStatus(), user.getCreatedBy(), user.getCreatedDate(),
+                user.getUpdatedBy(), user.getUpdatedDate());
+    }
+
+    @Override
+    public UserResponse getCurrentUser() {
+        User user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getAddress(), user.getPhone(),
+                user.getAvatar(), user.getRole(), user.getStatus(), user.getCreatedBy(), user.getCreatedDate(),
+                user.getUpdatedBy(), user.getUpdatedDate());
+    }
+
+    @Override
+    public UserResponse createUser(UserModifyRequest request) {
+        User user = new User();
+        return getUserResponse(request, user);
+    }
+
+    @Override
+    public UserResponse updateUser(UUID id, UserModifyRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return getUserResponse(request, user);
+    }
+
+    @Override
+    public String deleteUser(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        user.setStatus(UserStatus.DELETED);
+        userRepository.save(user);
+        return "Delete user successfully.";
+    }
+
+    @Override
+    public UserResponse updateProfile(UpdateProfileRequest request) {
+        User user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!request.fullName().isBlank())
+            user.setFullName(request.fullName());
+        if (!request.address().isBlank())
+            user.setAddress(request.address());
+        if (!request.phone().isBlank())
+            user.setPhone(request.phone());
+        if (!request.avatar().isBlank())
+            user.setAvatar(request.avatar());
+        userRepository.save(user);
+        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getAddress(), user.getPhone(),
+                user.getAvatar(), user.getRole(), user.getStatus(), user.getCreatedBy(), user.getCreatedDate(),
+                user.getUpdatedBy(), user.getUpdatedDate());
+    }
+
+    @NotNull
+    private UserResponse getUserResponse(UserModifyRequest request, User user) {
+        user.setFullName(request.fullName());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setAddress(request.address());
+        user.setPhone(request.phone());
+        user.setAvatar(request.avatar());
+        user.setRole(request.role());
+        user.setStatus(request.status());
+        userRepository.save(user);
+        return new UserResponse(user.getId(), user.getFullName(), user.getEmail(), user.getAddress(), user.getPhone(),
+                user.getAvatar(), user.getRole(), user.getStatus(), user.getCreatedBy(), user.getCreatedDate(),
+                user.getUpdatedBy(), user.getUpdatedDate());
     }
 }

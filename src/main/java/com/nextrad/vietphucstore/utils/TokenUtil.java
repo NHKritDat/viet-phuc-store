@@ -24,7 +24,7 @@ public class TokenUtil {
     private static final String ADDRESS_FIELD = "address";
     private static final String PHONE_FIELD = "phone";
     private static final String AVATAR_FIELD = "avatar";
-    private static final String ROLE_FIELD = "role";
+    private static final String ROLE_FIELD = "scope";
     private static final String STATUS_FIELD = "status";
     private static final String CREATED_BY_FIELD = "createdBy";
     private static final String CREATED_DATE_FIELD = "createdDate";
