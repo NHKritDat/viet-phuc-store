@@ -1,9 +1,6 @@
 package com.nextrad.vietphucstore.services.imps;
 
-import com.nextrad.vietphucstore.dtos.requests.user.LoginPassword;
-import com.nextrad.vietphucstore.dtos.requests.user.LogoutRequest;
-import com.nextrad.vietphucstore.dtos.requests.user.RegisterRequest;
-import com.nextrad.vietphucstore.dtos.requests.user.TokenRequest;
+import com.nextrad.vietphucstore.dtos.requests.user.*;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
 import com.nextrad.vietphucstore.entities.user.Token;
 import com.nextrad.vietphucstore.entities.user.User;
@@ -18,12 +15,10 @@ import com.nextrad.vietphucstore.utils.EmailUtil;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import com.nextrad.vietphucstore.utils.TokenUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,24 +41,23 @@ public class UserServiceImplement implements UserService {
     @Override
     public TokenResponse login(LoginPassword request) {
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(()->new AppException(ErrorCode.USER_NOT_FOUND));
-        if (!passwordEncoder.matches(request.password(),user.getPassword()))
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!passwordEncoder.matches(request.password(), user.getPassword()))
             throw new AppException(ErrorCode.WRONG_PASSWORD);
         String refreshToken = tokenUtil.genRefreshToken(user);
-        tokenRepository.save(tokenUtil.createEntity(refreshToken,true));
-        return new TokenResponse(tokenUtil.genAccessToken(user),refreshToken);
+        tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
+        return new TokenResponse(tokenUtil.genAccessToken(user), refreshToken);
     }
 
     @Override
-    public TokenResponse login(TokenRequest request) {
-        String[] info = tokenUtil.getInfo(request.token());
+    public TokenResponse login(AuthRequest request) {
+        String[] info = tokenUtil.getInfo(request.auth());
         Optional<User> user = userRepository.findByEmail(info[0]);
         if (user.isPresent()) {
             String refreshToken = tokenUtil.genRefreshToken(user.get());
-            tokenRepository.save(tokenUtil.createEntity(refreshToken,true));
-            return new TokenResponse(tokenUtil.genAccessToken(user.get()),refreshToken);
-        }
-        else {
+            tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
+            return new TokenResponse(tokenUtil.genAccessToken(user.get()), refreshToken);
+        } else {
             User newUser = new User();
             newUser.setEmail(info[0]);
             newUser.setFullName(info[1]);
@@ -72,16 +66,16 @@ public class UserServiceImplement implements UserService {
             newUser = userRepository.save(newUser);
 
             String refreshToken = tokenUtil.genRefreshToken(newUser);
-            tokenRepository.save(tokenUtil.createEntity(refreshToken,true));
-            return new TokenResponse(tokenUtil.genAccessToken(newUser),refreshToken);
+            tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
+            return new TokenResponse(tokenUtil.genAccessToken(newUser), refreshToken);
         }
     }
 
     @Override
-    public TokenResponse getAccessToken(TokenRequest request) {
-        String[] tokenId = tokenUtil.getJwtInfo(request.token());
+    public TokenResponse getAccessToken(AuthRequest request) {
+        String[] tokenId = tokenUtil.getJwtInfo(request.auth());
         Token token = tokenRepository.findById(UUID.fromString(tokenId[0]))
-                .orElseThrow(()->new AppException(ErrorCode.INVALID_TOKEN));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
         if (!token.isAvailable())
             throw new AppException(ErrorCode.UNAVAILABLE_TOKEN);
         token.setAvailable(false);
@@ -113,7 +107,7 @@ public class UserServiceImplement implements UserService {
         refreshToken.setAvailable(false);
         tokenRepository.save(refreshToken);
         tokenRepository.save(tokenUtil.createEntity(request.accessToken(), false));
-        return "Logout success";
+        return "Logout success.";
     }
 
     @Override
@@ -133,6 +127,51 @@ public class UserServiceImplement implements UserService {
         userRepository.save(user);
 
         emailUtil.verifyEmail(request.email(), request.fullName(), tokenUtil.genAccessToken(user));
-        return "Please check your email to verify your account";
+        return "Please check your email to verify your account.";
+    }
+
+    @Override
+    public String verifyEmail(String token) {
+        String[] info = tokenUtil.getJwtInfo(token);
+        User user = userRepository.findByEmail(info[3])
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        user.setStatus(UserStatus.VERIFIED);
+        userRepository.save(user);
+        tokenRepository.save(tokenUtil.createEntity(token, false));
+        return "Your email has been verified! Please login to continue.";
+    }
+
+    @Override
+    public String forgotPassword(AuthRequest request) {
+        User user = userRepository.findByEmail(request.auth())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        emailUtil.resetPassword(user.getEmail(), user.getFullName(), tokenUtil.genAccessToken(user));
+        return "Please check your email to reset your password.";
+    }
+
+    @Override
+    public String resetPassword(ChangePasswordRequest request) {
+        String[] info = tokenUtil.getJwtInfo(request.auth());
+        User user = userRepository.findByEmail(info[3])
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!request.newPassword().equals(request.confirmPassword()))
+            throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+        tokenRepository.save(tokenUtil.createEntity(request.auth(), false));
+        return "Your password has been reset successfully! Please login to continue.";
+    }
+
+    @Override
+    public String changePassword(ChangePasswordRequest request) {
+        User user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!passwordEncoder.matches(request.auth(), user.getPassword()))
+            throw new AppException(ErrorCode.WRONG_PASSWORD);
+        if (!request.newPassword().equals(request.confirmPassword()))
+            throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+        return "Your password has been changed successfully!";
     }
 }

@@ -22,11 +22,25 @@ public class EmailUtil {
     private String verifyEmailContent;
     @Value("${VERIFY_EMAIL_URL}")
     private String verifyEmailUrl;
+    @Value("${RESET_PASSWORD_SUBJECT}")
+    private String resetPasswordSubject;
+    @Value("${RESET_PASSWORD_CONTENT}")
+    private String resetPasswordContent;
+    @Value("${RESET_PASSWORD_URL}")
+    private String resetPasswordUrl;
+
+    @Async
+    public void resetPassword(String email, String fullName, String token) {
+        String subject = resetPasswordSubject;
+        String url = resetPasswordUrl + "?token=" + token;
+        String content = resetPasswordContent.formatted(fullName, url);
+        send(email, subject, content);
+    }
 
     @Async
     public void verifyEmail(String email, String fullName, String token) {
         String subject = verifyEmailSubject;
-        String url = verifyEmailUrl + "?token=" + token;
+        String url = verifyEmailUrl + "?auth=" + token;
         String content = verifyEmailContent.formatted(fullName, url);
         send(email, subject, content);
     }

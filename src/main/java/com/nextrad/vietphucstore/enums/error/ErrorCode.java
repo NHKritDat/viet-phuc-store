@@ -11,9 +11,9 @@ import org.springframework.http.HttpStatus;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public enum ErrorCode {
     //Token error
-    INVALID_TOKEN("This token is invalid", HttpStatus.BAD_REQUEST),
+    INVALID_TOKEN("This auth is invalid", HttpStatus.BAD_REQUEST),
     TOKEN_NOT_FOUND("Token not found", HttpStatus.NOT_FOUND),
-    UNAVAILABLE_TOKEN("This token is unavailable", HttpStatus.BAD_REQUEST),
+    UNAVAILABLE_TOKEN("This auth is unavailable", HttpStatus.BAD_REQUEST),
     SIGNATURE_VERIFICATION_FAILED("MAC signature verification failed", HttpStatus.INTERNAL_SERVER_ERROR),
     //Email error
     INVALID_EMAIL("This email is invalid", HttpStatus.BAD_REQUEST),

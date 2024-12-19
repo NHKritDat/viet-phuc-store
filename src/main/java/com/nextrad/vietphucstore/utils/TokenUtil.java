@@ -19,17 +19,6 @@ import java.util.UUID;
 
 @Component
 public class TokenUtil {
-    @Value("${ISSUER}")
-    private String issuer;
-    @Value("${AUDIENCE}")
-    private String audience;
-    @Value("${JWT_SECRET_KEY}")
-    private String secretKey;
-    @Value("${ACCESS_TOKEN_EXP}")
-    private long accessTokenExp;
-    @Value("${REFRESH_TOKEN_EXP}")
-    private long refreshTokenExp;
-
     private static final String ID_FIELD = "id";
     private static final String FULL_NAME_FIELD = "fullName";
     private static final String ADDRESS_FIELD = "address";
@@ -41,6 +30,16 @@ public class TokenUtil {
     private static final String CREATED_DATE_FIELD = "createdDate";
     private static final String UPDATED_BY_FIELD = "updatedBy";
     private static final String UPDATED_DATE_FIELD = "updatedDate";
+    @Value("${ISSUER}")
+    private String issuer;
+    @Value("${AUDIENCE}")
+    private String audience;
+    @Value("${JWT_SECRET_KEY}")
+    private String secretKey;
+    @Value("${ACCESS_TOKEN_EXP}")
+    private long accessTokenExp;
+    @Value("${REFRESH_TOKEN_EXP}")
+    private long refreshTokenExp;
 
     public String[] getJwtInfo(String token) {
         try {

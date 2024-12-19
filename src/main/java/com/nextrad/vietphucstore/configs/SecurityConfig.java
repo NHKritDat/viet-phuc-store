@@ -25,8 +25,13 @@ public class SecurityConfig {
     private static final String[] PUBLIC_POST_ENDPOINTS = {
             "/users/auth/**",
     };
-    private static final String[] PUBLIC_GET_ENDPOINTS = {};
-    private static final String[] PUBLIC_PUT_ENDPOINTS = {};
+    private static final String[] PUBLIC_GET_ENDPOINTS = {
+            "/users/auth/**",
+    };
+    private static final String[] PUBLIC_PUT_ENDPOINTS = {
+            "/users/auth/password/forgot",
+            "/users/auth/password/reset",
+    };
     private final JwtDecoderConfig jwtDecoderConfig;
 
     @Bean

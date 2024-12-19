@@ -31,6 +31,12 @@ public class VietPhucStoreApplication {
         System.setProperty("REFRESH_TOKEN_EXP", Objects.requireNonNull(dotenv.get("REFRESH_TOKEN_EXP")));
         System.setProperty("ISSUER", Objects.requireNonNull(dotenv.get("ISSUER")));
         System.setProperty("AUDIENCE", Objects.requireNonNull(dotenv.get("AUDIENCE")));
+        System.setProperty("VERIFY_EMAIL_SUBJECT", Objects.requireNonNull(dotenv.get("VERIFY_EMAIL_SUBJECT")));
+        System.setProperty("VERIFY_EMAIL_CONTENT", Objects.requireNonNull(dotenv.get("VERIFY_EMAIL_CONTENT")));
+        System.setProperty("VERIFY_EMAIL_URL", Objects.requireNonNull(dotenv.get("VERIFY_EMAIL_URL")));
+        System.setProperty("RESET_PASSWORD_SUBJECT", Objects.requireNonNull(dotenv.get("RESET_PASSWORD_SUBJECT")));
+        System.setProperty("RESET_PASSWORD_CONTENT", Objects.requireNonNull(dotenv.get("RESET_PASSWORD_CONTENT")));
+        System.setProperty("RESET_PASSWORD_URL", Objects.requireNonNull(dotenv.get("RESET_PASSWORD_URL")));
     }
 
 }
