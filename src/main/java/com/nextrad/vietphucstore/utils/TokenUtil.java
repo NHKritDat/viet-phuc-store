@@ -2,6 +2,7 @@ package com.nextrad.vietphucstore.utils;
 
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.TokenVerifier;
+import com.nextrad.vietphucstore.entities.user.Token;
 import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
 import com.nextrad.vietphucstore.exceptions.AppException;
@@ -18,6 +19,17 @@ import java.util.UUID;
 
 @Component
 public class TokenUtil {
+    private static final String ID_FIELD = "id";
+    private static final String FULL_NAME_FIELD = "fullName";
+    private static final String ADDRESS_FIELD = "address";
+    private static final String PHONE_FIELD = "phone";
+    private static final String AVATAR_FIELD = "avatar";
+    private static final String ROLE_FIELD = "scope";
+    private static final String STATUS_FIELD = "status";
+    private static final String CREATED_BY_FIELD = "createdBy";
+    private static final String CREATED_DATE_FIELD = "createdDate";
+    private static final String UPDATED_BY_FIELD = "updatedBy";
+    private static final String UPDATED_DATE_FIELD = "updatedDate";
     @Value("${ISSUER}")
     private String issuer;
     @Value("${AUDIENCE}")
@@ -28,6 +40,54 @@ public class TokenUtil {
     private long accessTokenExp;
     @Value("${REFRESH_TOKEN_EXP}")
     private long refreshTokenExp;
+
+    public String[] getJwtInfo(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+            return new String[]{
+                    claimsSet.getJWTID(),
+                    claimsSet.getStringClaim(ID_FIELD),
+                    claimsSet.getStringClaim(FULL_NAME_FIELD),
+                    claimsSet.getSubject(),
+                    claimsSet.getStringClaim(ADDRESS_FIELD),
+                    claimsSet.getStringClaim(PHONE_FIELD),
+                    claimsSet.getStringClaim(AVATAR_FIELD),
+                    claimsSet.getStringClaim(ROLE_FIELD),
+                    claimsSet.getStringClaim(STATUS_FIELD),
+                    claimsSet.getStringClaim(CREATED_BY_FIELD),
+                    claimsSet.getClaim(CREATED_DATE_FIELD).toString(),
+                    claimsSet.getStringClaim(UPDATED_BY_FIELD),
+                    claimsSet.getClaim(UPDATED_DATE_FIELD).toString()
+            };
+        } catch (ParseException e) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+    }
+
+    public String[] getInfo(String token) {
+        JsonWebToken.Payload payload = getPayload(token);
+        return new String[]{
+                payload.getSubject(),
+                payload.get(FULL_NAME_FIELD).toString(),
+                payload.get(AVATAR_FIELD).toString()
+        };
+    }
+
+    public Token createEntity(String token, boolean available) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            Token entity = new Token();
+            entity.setId(UUID.fromString(signedJWT.getJWTClaimsSet().getJWTID()));
+            entity.setAvailable(available);
+            entity.setCreatedBy(signedJWT.getJWTClaimsSet().getSubject());
+            entity.setUpdatedBy(signedJWT.getJWTClaimsSet().getSubject());
+            entity.setExpAt(signedJWT.getJWTClaimsSet().getExpirationTime());
+            return entity;
+        } catch (ParseException e) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+    }
 
     private JsonWebToken.Payload getPayload(String token) {
         TokenVerifier verifier = TokenVerifier.newBuilder()
@@ -59,17 +119,17 @@ public class TokenUtil {
                 .expirationTime(new Date(System.currentTimeMillis() + expTime))
                 .jwtID(UUID.randomUUID().toString())
                 .subject(user.getEmail())
-                .claim("id", user.getId().toString())
-                .claim("fullName", user.getFullName())
-                .claim("address", user.getAddress())
-                .claim("phone", user.getPhone())
-                .claim("avatar", user.getAvatar() != null ? user.getAvatar() : "")
-                .claim("role", user.getRole().name())
-                .claim("status", user.getStatus())
-                .claim("createdBy", user.getCreatedBy())
-                .claim("createdDate", user.getCreatedDate())
-                .claim("updatedBy", user.getUpdatedBy())
-                .claim("updatedDate", user.getUpdatedDate())
+                .claim(ID_FIELD, user.getId().toString())
+                .claim(FULL_NAME_FIELD, user.getFullName())
+                .claim(ADDRESS_FIELD, user.getAddress())
+                .claim(PHONE_FIELD, user.getPhone())
+                .claim(AVATAR_FIELD, user.getAvatar() != null ? user.getAvatar() : "")
+                .claim(ROLE_FIELD, user.getRole().name())
+                .claim(STATUS_FIELD, user.getStatus())
+                .claim(CREATED_BY_FIELD, user.getCreatedBy())
+                .claim(CREATED_DATE_FIELD, user.getCreatedDate())
+                .claim(UPDATED_BY_FIELD, user.getUpdatedBy())
+                .claim(UPDATED_DATE_FIELD, user.getUpdatedDate())
                 .build();
         Payload payload = new Payload(claimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(header, payload);
@@ -83,8 +143,7 @@ public class TokenUtil {
 
     public String getJwtId(String token) {
         try {
-            SignedJWT signedJWT = SignedJWT.parse(token);
-            return signedJWT.getJWTClaimsSet().getJWTID();
+            return SignedJWT.parse(token).getJWTClaimsSet().getJWTID();
         } catch (ParseException e) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
