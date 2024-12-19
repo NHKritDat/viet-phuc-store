@@ -63,6 +63,8 @@ public class UserServiceImplement implements UserService {
             newUser.setFullName(info[1]);
             newUser.setAvatar(info[2]);
             newUser.setStatus(UserStatus.VERIFIED);
+            newUser.setCreatedBy(info[0]);
+            newUser.setUpdatedBy(info[0]);
             newUser = userRepository.save(newUser);
 
             String refreshToken = tokenUtil.genRefreshToken(newUser);
@@ -124,6 +126,8 @@ public class UserServiceImplement implements UserService {
         user.setAddress(request.address());
         user.setPhone(request.phone());
         user.setAvatar(request.avatar());
+        user.setCreatedBy(request.email());
+        user.setUpdatedBy(request.email());
         userRepository.save(user);
 
         emailUtil.verifyEmail(request.email(), request.fullName(), tokenUtil.genAccessToken(user));

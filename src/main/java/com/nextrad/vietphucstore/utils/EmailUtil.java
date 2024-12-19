@@ -31,17 +31,17 @@ public class EmailUtil {
 
     @Async
     public void resetPassword(String email, String fullName, String token) {
-        String subject = resetPasswordSubject;
+        String subject = resetPasswordSubject.substring(1, resetPasswordSubject.length() - 1);
         String url = resetPasswordUrl + "?token=" + token;
-        String content = resetPasswordContent.formatted(fullName, url);
+        String content = resetPasswordContent.substring(1, resetPasswordContent.length() - 1).formatted(fullName, url);
         send(email, subject, content);
     }
 
     @Async
     public void verifyEmail(String email, String fullName, String token) {
-        String subject = verifyEmailSubject;
-        String url = verifyEmailUrl + "?auth=" + token;
-        String content = verifyEmailContent.formatted(fullName, url);
+        String subject = verifyEmailSubject.substring(1, verifyEmailSubject.length() - 1);
+        String url = verifyEmailUrl + "?token=" + token;
+        String content = verifyEmailContent.substring(1, verifyEmailContent.length() - 1).formatted(fullName, url);
         send(email, subject, content);
     }
 

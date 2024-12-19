@@ -52,7 +52,7 @@ public class User {
 
     @CreatedBy
     @Column(nullable = false, updatable = false)
-    private String createdBy = email;
+    private String createdBy;
 
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
@@ -61,7 +61,7 @@ public class User {
 
     @LastModifiedBy
     @Column(nullable = false)
-    private String updatedBy = email;
+    private String updatedBy;
 
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
