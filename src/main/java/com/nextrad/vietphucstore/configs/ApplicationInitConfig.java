@@ -18,7 +18,7 @@ public class ApplicationInitConfig {
     @Bean
     public ApplicationRunner applicationRunner(UserRepository userRepository) {
         return args -> {
-            if (!userRepository.existsByFullName(ADMIN_FULL_NAME)) {
+            if (userRepository.findByEmail(adminEmail).isEmpty()) {
                 User user = new User();
                 user.setFullName(ADMIN_FULL_NAME);
                 user.setEmail(adminEmail);
