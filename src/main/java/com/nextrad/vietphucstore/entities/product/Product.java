@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -26,16 +28,11 @@ public class Product {
     @Column(nullable = false)
     private double unitPrice;
 
-    @Column(nullable = false)
-    private int quantity;
-
-    private String picture;
+    private String pictures;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProductStatus status = ProductStatus.IN_STOCK;
-
-    private String sizes;
 
     @ManyToOne
     @JoinColumn(name = "product_collection_id")
@@ -44,5 +41,8 @@ public class Product {
     @ManyToOne(optional = false)
     @JoinColumn(name = "product_type_id", nullable = false)
     private ProductType productType;
+
+    @OneToMany(mappedBy = "product", orphanRemoval = true)
+    private Set<ProductQuantity> productQuantities = new LinkedHashSet<>();
 
 }
