@@ -1,5 +1,6 @@
 package com.nextrad.vietphucstore.controllers;
 
+import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.requests.user.*;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
@@ -76,7 +77,7 @@ public class UserController {
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
             @RequestParam(defaultValue = "id", required = false) String... properties
     ) {
-        Page<UserResponse> users = userService.getUsers(search, page - 1, size, direction, properties);
+        Page<UserResponse> users = userService.getUsers(search, new PageableRequest(page - 1, size, direction, properties));
         return ResponseEntity.ok(new ApiListItemResponse<>(
                 users.getContent(),
                 users.getSize(),

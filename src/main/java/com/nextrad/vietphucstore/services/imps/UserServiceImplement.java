@@ -1,5 +1,6 @@
 package com.nextrad.vietphucstore.services.imps;
 
+import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.requests.user.*;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.UserResponse;
@@ -18,7 +19,6 @@ import com.nextrad.vietphucstore.utils.TokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -184,9 +184,9 @@ public class UserServiceImplement implements UserService {
     }
 
     @Override
-    public Page<UserResponse> getUsers(String search, int page, int size, Sort.Direction direction, String... properties) {
+    public Page<UserResponse> getUsers(String search, PageableRequest request) {
         return userRepository.findByRoleNotLikeAndFullNameContainsIgnoreCase(UserRole.STAFF, search,
-                        pageableUtil.getPageable(User.class, page, size, direction, properties))
+                        pageableUtil.getPageable(User.class, request))
                 .map(user ->
                         new UserResponse(user.id(), user.fullName(), user.email(), user.address(), user.phone(),
                                 user.avatar(), user.role(), user.status(), user.createdBy(), user.createdDate(),
