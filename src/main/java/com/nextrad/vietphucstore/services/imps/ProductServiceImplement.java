@@ -28,7 +28,7 @@ public class ProductServiceImplement implements ProductService {
                                            PageableRequest request) {
         Page<Product> products = productRepository.findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                 search,
-                ProductStatus.REMOVED,
+                ProductStatus.DELETED,
                 Arrays.asList(types),
                 Arrays.asList(collections),
                 Arrays.asList(sizes),
@@ -51,7 +51,7 @@ public class ProductServiceImplement implements ProductService {
     }
 
     private SearchProduct convertProductToSearchProduct(Product product) {
-        return new SearchProduct(product.getName(), product.getUnitPrice());
+        return new SearchProduct(product.getId(), product.getName(), product.getUnitPrice());
     }
 
 }
