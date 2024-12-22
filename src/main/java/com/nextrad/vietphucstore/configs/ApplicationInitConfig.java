@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ApplicationInitConfig {
-    private static final String ADMIN_FULL_NAME = "admin";
     @Value("${MAIL_USERNAME}")
     private String adminEmail;
 
@@ -20,13 +19,12 @@ public class ApplicationInitConfig {
         return args -> {
             if (userRepository.findByEmail(adminEmail).isEmpty()) {
                 User user = new User();
-                user.setFullName(ADMIN_FULL_NAME);
+                user.setName("admin");
                 user.setEmail(adminEmail);
-                user.setAddress("HCM");
-                user.setPhone("0123456789");
-                user.setAvatar("");
                 user.setRole(UserRole.STAFF);
                 user.setStatus(UserStatus.VERIFIED);
+                user.setCreatedBy(adminEmail);
+                user.setUpdatedBy(adminEmail);
                 userRepository.save(user);
             }
         };

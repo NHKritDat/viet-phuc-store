@@ -20,7 +20,9 @@ import java.util.UUID;
 @Component
 public class TokenUtil {
     private static final String ID_FIELD = "id";
-    private static final String FULL_NAME_FIELD = "fullName";
+    private static final String NAME_FIELD = "name";
+    private static final String DOB_FIELD = "dob";
+    private static final String GENDER_FIELD = "gender";
     private static final String ADDRESS_FIELD = "address";
     private static final String PHONE_FIELD = "phone";
     private static final String AVATAR_FIELD = "avatar";
@@ -30,6 +32,7 @@ public class TokenUtil {
     private static final String CREATED_DATE_FIELD = "createdDate";
     private static final String UPDATED_BY_FIELD = "updatedBy";
     private static final String UPDATED_DATE_FIELD = "updatedDate";
+
     @Value("${ISSUER}")
     private String issuer;
     @Value("${AUDIENCE}")
@@ -41,6 +44,10 @@ public class TokenUtil {
     @Value("${REFRESH_TOKEN_EXP}")
     private long refreshTokenExp;
 
+    public String getEmailFromJwt(String token) {
+        return getPayload(token).getSubject();
+    }
+
     public String[] getJwtInfo(String token) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
@@ -48,7 +55,7 @@ public class TokenUtil {
             return new String[]{
                     claimsSet.getJWTID(),
                     claimsSet.getStringClaim(ID_FIELD),
-                    claimsSet.getStringClaim(FULL_NAME_FIELD),
+                    claimsSet.getStringClaim(NAME_FIELD),
                     claimsSet.getSubject(),
                     claimsSet.getStringClaim(ADDRESS_FIELD),
                     claimsSet.getStringClaim(PHONE_FIELD),
@@ -58,7 +65,9 @@ public class TokenUtil {
                     claimsSet.getStringClaim(CREATED_BY_FIELD),
                     claimsSet.getClaim(CREATED_DATE_FIELD).toString(),
                     claimsSet.getStringClaim(UPDATED_BY_FIELD),
-                    claimsSet.getClaim(UPDATED_DATE_FIELD).toString()
+                    claimsSet.getClaim(UPDATED_DATE_FIELD).toString(),
+                    claimsSet.getClaim(DOB_FIELD).toString(),
+                    claimsSet.getStringClaim(GENDER_FIELD)
             };
         } catch (ParseException e) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
@@ -69,7 +78,7 @@ public class TokenUtil {
         JsonWebToken.Payload payload = getPayload(token);
         return new String[]{
                 payload.getSubject(),
-                payload.get(FULL_NAME_FIELD).toString(),
+                payload.get(NAME_FIELD).toString(),
                 payload.get(AVATAR_FIELD).toString()
         };
     }
@@ -120,7 +129,9 @@ public class TokenUtil {
                 .jwtID(UUID.randomUUID().toString())
                 .subject(user.getEmail())
                 .claim(ID_FIELD, user.getId().toString())
-                .claim(FULL_NAME_FIELD, user.getFullName())
+                .claim(NAME_FIELD, user.getName())
+                .claim(DOB_FIELD, user.getDob())
+                .claim(GENDER_FIELD, user.getGender().name())
                 .claim(ADDRESS_FIELD, user.getAddress())
                 .claim(PHONE_FIELD, user.getPhone())
                 .claim(AVATAR_FIELD, user.getAvatar() != null ? user.getAvatar() : "")

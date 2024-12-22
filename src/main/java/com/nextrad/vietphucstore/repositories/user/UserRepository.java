@@ -1,6 +1,6 @@
 package com.nextrad.vietphucstore.repositories.user;
 
-import com.nextrad.vietphucstore.dtos.responses.user.UserResponse;
+import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
 import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.user.UserRole;
 import com.nextrad.vietphucstore.enums.user.UserStatus;
@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByEmailAndStatusNotLike(String email, UserStatus status);
 
-    Page<UserResponse> findByRoleNotLikeAndFullNameContainsIgnoreCase(UserRole role, String fullName, Pageable pageable);
+    Page<UserDetail> findByRoleNotLikeAndNameContainsIgnoreCase(UserRole role, String name, Pageable pageable);
 
     Optional<User> findByIdAndRoleNotLike(UUID id, UserRole role);
 
