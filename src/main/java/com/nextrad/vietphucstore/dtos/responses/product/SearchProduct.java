@@ -5,6 +5,7 @@ import java.util.UUID;
 public record SearchProduct(
         UUID id,
         String name,
-        double unitPrice
+        double unitPrice,
+        String picture
 ) {
 }

@@ -1,8 +1,12 @@
 package com.nextrad.vietphucstore.services;
 
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
+import com.nextrad.vietphucstore.dtos.requests.product.CreateProduct;
+import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
 import org.springframework.data.domain.Page;
+
+import java.util.UUID;
 
 public interface ProductService {
     Page<SearchProduct> getProducts(String search, String[] sizes, String[] types, String[] collections,
@@ -10,4 +14,7 @@ public interface ProductService {
 
     Page<SearchProduct> getProductsForStaff(String search, String[] sizes, String[] types, String[] collections,
                                             PageableRequest request);
+
+    ProductDetail getProduct(UUID id);
+
 }

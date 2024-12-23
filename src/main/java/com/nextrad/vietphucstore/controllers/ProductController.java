@@ -1,7 +1,10 @@
 package com.nextrad.vietphucstore.controllers;
 
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
+import com.nextrad.vietphucstore.dtos.requests.product.CreateProduct;
+import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
+import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
 import com.nextrad.vietphucstore.services.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +13,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
@@ -66,4 +69,10 @@ public class ProductController {
                 null
         ));
     }
+
+    @GetMapping("/product")
+    public ResponseEntity<ApiItemResponse<ProductDetail>> getProduct(@RequestParam UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(productService.getProduct(id), null));
+    }
+
 }
