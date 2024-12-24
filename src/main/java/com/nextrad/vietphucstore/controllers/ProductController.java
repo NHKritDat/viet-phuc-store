@@ -70,28 +70,28 @@ public class ProductController {
         ));
     }
 
-    @GetMapping("/product")
-    public ResponseEntity<ApiItemResponse<ProductDetail>> getProduct(@RequestParam UUID id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiItemResponse<ProductDetail>> getProduct(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.getProduct(id), null));
     }
 
-    @PostMapping("/product")
+    @PostMapping("/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductDetail>> createProduct(@RequestBody ModifyProductRequest request) {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.createProduct(request), null));
     }
 
-    @PutMapping("/product")
+    @PutMapping("/staff/{id}")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductDetail>> updateProduct(
-            @RequestParam UUID id,
+            @PathVariable UUID id,
             @RequestBody ModifyProductRequest request) {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.updateProduct(id, request), null));
     }
 
-    @DeleteMapping("/product")
+    @DeleteMapping("/staff/{id}")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiItemResponse<String>> deleteProduct(@RequestParam UUID id) {
+    public ResponseEntity<ApiItemResponse<String>> deleteProduct(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(null, productService.deleteProduct(id)));
     }
 }

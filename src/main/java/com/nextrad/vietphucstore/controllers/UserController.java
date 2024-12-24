@@ -69,7 +69,7 @@ public class UserController {
         return ResponseEntity.ok(new ApiItemResponse<>(null, userService.changePassword(request)));
     }
 
-    @GetMapping
+    @GetMapping("/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiListItemResponse<SearchUser>> getUsers(
             @RequestParam(defaultValue = "", required = false) String search,
@@ -88,9 +88,9 @@ public class UserController {
                 null));
     }
 
-    @GetMapping("/user")
+    @GetMapping("/staff/{id}")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiItemResponse<UserDetail>> getUser(@RequestParam UUID id) {
+    public ResponseEntity<ApiItemResponse<UserDetail>> getUser(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.getUser(id), null));
     }
 
@@ -99,23 +99,23 @@ public class UserController {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.getCurrentUser(), null));
     }
 
-    @PostMapping
+    @PostMapping("/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<UserDetail>> createUser(@RequestBody UserModifyRequest request) {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.createUser(request), null));
     }
 
-    @PutMapping("/user")
+    @PutMapping("/staff/{id}")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<UserDetail>> updateUser(
-            @RequestParam UUID id,
+            @PathVariable UUID id,
             @RequestBody UserModifyRequest request) {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.updateUser(id, request), null));
     }
 
-    @DeleteMapping("/user")
+    @DeleteMapping("/staff/{id}")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiItemResponse<Object>> deleteUser(@RequestParam UUID id) {
+    public ResponseEntity<ApiItemResponse<Object>> deleteUser(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(null, userService.deleteUser(id)));
     }
 
