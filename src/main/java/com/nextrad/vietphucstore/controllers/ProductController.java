@@ -1,7 +1,7 @@
 package com.nextrad.vietphucstore.controllers;
 
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.requests.product.CreateProduct;
+import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
@@ -75,4 +75,23 @@ public class ProductController {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.getProduct(id), null));
     }
 
+    @PostMapping("/product")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<ProductDetail>> createProduct(@RequestBody ModifyProductRequest request) {
+        return ResponseEntity.ok(new ApiItemResponse<>(productService.createProduct(request), null));
+    }
+
+    @PutMapping("/product")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<ProductDetail>> updateProduct(
+            @RequestParam UUID id,
+            @RequestBody ModifyProductRequest request) {
+        return ResponseEntity.ok(new ApiItemResponse<>(productService.updateProduct(id, request), null));
+    }
+
+    @DeleteMapping("/product")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<String>> deleteProduct(@RequestParam UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(null, productService.deleteProduct(id)));
+    }
 }

@@ -1,7 +1,7 @@
 package com.nextrad.vietphucstore.services.imps;
 
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.requests.product.CreateProduct;
+import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
 import com.nextrad.vietphucstore.entities.product.Product;
@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -68,6 +67,57 @@ public class ProductServiceImplement implements ProductService {
         return convertProductToProductDetail(product);
     }
 
+    @Override
+    public ProductDetail createProduct(ModifyProductRequest request) {
+        Product product = setProduct(request, new Product());
+        productRepository.save(product);
+        request.sizeQuantities().forEach((sizeId, quantity) -> {
+            ProductQuantity productQuantity = new ProductQuantity();
+            productQuantity.setProduct(product);
+            productQuantity.setProductSize(productSizeRepository.findById(sizeId)
+                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND)));
+            productQuantity.setQuantity(quantity);
+            productQuantityRepository.save(productQuantity);
+        });
+        return convertProductToProductDetail(product);
+    }
+
+    @Override
+    public ProductDetail updateProduct(UUID id, ModifyProductRequest request) {
+        Product product = setProduct(request, productRepository.findByIdAndStatusNot(id, ProductStatus.DELETED)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)));
+        product.getProductQuantities().forEach(pq->{
+            if(!request.sizeQuantities().containsKey(pq.getProductSize().getId())){
+                productQuantityRepository.delete(pq);
+            }
+        });
+        request.sizeQuantities().forEach((sizeId, quantity) -> {
+            ProductQuantity productQuantity = product.getProductQuantities().stream()
+                    .filter(pq -> pq.getProductSize().getId().equals(sizeId))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        ProductQuantity pq = new ProductQuantity();
+                        pq.setProduct(product);
+                        pq.setProductSize(productSizeRepository.findById(sizeId)
+                                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND)));
+                        return pq;
+                    });
+            productQuantity.setQuantity(quantity);
+            productQuantityRepository.save(productQuantity);
+        });
+        productRepository.save(product);
+        return convertProductToProductDetail(product);
+    }
+
+    @Override
+    public String deleteProduct(UUID id) {
+        Product product = productRepository.findByIdAndStatusNot(id, ProductStatus.DELETED)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        product.setStatus(ProductStatus.DELETED);
+        productRepository.save(product);
+        return "Delete product successfully.";
+    }
+
     @NotNull
     private ProductDetail convertProductToProductDetail(Product product) {
         return new ProductDetail(
@@ -94,6 +144,20 @@ public class ProductServiceImplement implements ProductService {
                                 .substring(1, product.getPictures().length() - 1)
                                 .split(", "))
                         .get(0));
+    }
+
+    @NotNull
+    private Product setProduct(ModifyProductRequest request, Product product) {
+        product.setName(request.name());
+        product.setDescription(request.description());
+        product.setUnitPrice(request.unitPrice());
+        product.setPictures(request.pictures().toString());
+        product.setStatus(request.status());
+        product.setProductType(productTypeRepository.findByIdAndDeleted(request.typeId(), false)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND)));
+        product.setProductCollection(productCollectionRepository.findByIdAndDeleted(request.collectionId(), false)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)));
+        return product;
     }
 
 }

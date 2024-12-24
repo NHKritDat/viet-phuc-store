@@ -1,7 +1,7 @@
 package com.nextrad.vietphucstore.services;
 
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.requests.product.CreateProduct;
+import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
 import org.springframework.data.domain.Page;
@@ -17,4 +17,9 @@ public interface ProductService {
 
     ProductDetail getProduct(UUID id);
 
+    ProductDetail createProduct(ModifyProductRequest request);
+
+    ProductDetail updateProduct(UUID id, ModifyProductRequest request);
+
+    String deleteProduct(UUID id);
 }
