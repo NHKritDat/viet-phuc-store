@@ -87,7 +87,7 @@ public class ProductController {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.createProduct(request), null));
     }
 
-    @PutMapping("/staff/{id}")
+    @PutMapping("/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductDetail>> updateProduct(
             @PathVariable UUID id,
@@ -95,7 +95,7 @@ public class ProductController {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.updateProduct(id, request), null));
     }
 
-    @DeleteMapping("/staff/{id}")
+    @DeleteMapping("/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<String>> deleteProduct(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(null, productService.deleteProduct(id)));
@@ -142,7 +142,7 @@ public class ProductController {
         ));
     }
 
-    @GetMapping("/sizes/staff/{id}")
+    @GetMapping("/sizes/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductSize>> getProductSize(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.getSize(id), null));
@@ -154,7 +154,7 @@ public class ProductController {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.createProductSize(request), null));
     }
 
-    @PutMapping("/sizes/staff/{id}")
+    @PutMapping("/sizes/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductSize>> updateProductSize(
             @PathVariable UUID id,
@@ -163,7 +163,7 @@ public class ProductController {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.updateProductSize(id, request), null));
     }
 
-    @DeleteMapping("/sizes/staff/{id}")
+    @DeleteMapping("/sizes/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<String>> deleteProductSize(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(null, productService.deleteProductSize(id)));
@@ -210,7 +210,7 @@ public class ProductController {
         ));
     }
 
-    @GetMapping("/types/staff/{id}")
+    @GetMapping("/types/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductType>> getProductType(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.getProductType(id), null));
@@ -222,7 +222,7 @@ public class ProductController {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.createProductType(request), null));
     }
 
-    @PutMapping("/types/staff/{id}")
+    @PutMapping("/types/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductType>> updateProductType(
             @PathVariable UUID id,
@@ -231,7 +231,7 @@ public class ProductController {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.updateProductType(id, request), null));
     }
 
-    @DeleteMapping("/types/staff/{id}")
+    @DeleteMapping("/types/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<String>> deleteProductType(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(null, productService.deleteProductType(id)));
@@ -278,7 +278,7 @@ public class ProductController {
         ));
     }
 
-    @GetMapping("/collections/staff/{id}")
+    @GetMapping("/collections/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductCollection>> getCollection(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.getProductCollection(id), null));
@@ -290,7 +290,7 @@ public class ProductController {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.createProductCollection(request), null));
     }
 
-    @PutMapping("/collections/staff/{id}")
+    @PutMapping("/collections/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductCollection>> updateCollection(
             @PathVariable UUID id,
@@ -299,7 +299,7 @@ public class ProductController {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.updateProductCollection(id, request), null));
     }
 
-    @DeleteMapping("/collections/staff/{id}")
+    @DeleteMapping("/collections/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<String>> deleteCollection(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(null, productService.deleteProductCollection(id)));

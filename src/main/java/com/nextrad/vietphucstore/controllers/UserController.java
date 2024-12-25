@@ -88,7 +88,7 @@ public class UserController {
                 null));
     }
 
-    @GetMapping("/staff/{id}")
+    @GetMapping("/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<UserDetail>> getUser(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.getUser(id), null));
@@ -105,7 +105,7 @@ public class UserController {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.createUser(request), null));
     }
 
-    @PutMapping("/staff/{id}")
+    @PutMapping("/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<UserDetail>> updateUser(
             @PathVariable UUID id,
@@ -113,7 +113,7 @@ public class UserController {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.updateUser(id, request), null));
     }
 
-    @DeleteMapping("/staff/{id}")
+    @DeleteMapping("/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<Object>> deleteUser(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(null, userService.deleteUser(id)));
