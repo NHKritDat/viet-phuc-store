@@ -15,7 +15,6 @@ import com.nextrad.vietphucstore.repositories.product.*;
 import com.nextrad.vietphucstore.services.ProductService;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -243,7 +242,6 @@ public class ProductServiceImplement implements ProductService {
         return "Delete collection successfully.";
     }
 
-    @NotNull
     private ProductDetail convertProductToProductDetail(Product product) {
         return new ProductDetail(
                 product.getId(), product.getName(), product.getDescription(), product.getUnitPrice(),
@@ -261,7 +259,6 @@ public class ProductServiceImplement implements ProductService {
         );
     }
 
-    @NotNull
     private SearchProduct convertProductToSearchProduct(Product product) {
         return new SearchProduct(product.getId(), product.getName(), product.getUnitPrice(),
                 Arrays
@@ -271,7 +268,6 @@ public class ProductServiceImplement implements ProductService {
                         .get(0));
     }
 
-    @NotNull
     private Product setProduct(ModifyProductRequest request, Product product) {
         product.setName(request.name());
         product.setDescription(request.description());

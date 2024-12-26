@@ -16,32 +16,50 @@ import org.springframework.stereotype.Component;
 public class EmailUtil {
     private final JavaMailSender javaMailSender;
 
-    @Value("${VERIFY_EMAIL_SUBJECT}")
-    private String verifyEmailSubject;
-    @Value("${VERIFY_EMAIL_CONTENT}")
-    private String verifyEmailContent;
-    @Value("${VERIFY_EMAIL_URL}")
-    private String verifyEmailUrl;
-    @Value("${RESET_PASSWORD_SUBJECT}")
-    private String resetPasswordSubject;
-    @Value("${RESET_PASSWORD_CONTENT}")
-    private String resetPasswordContent;
     @Value("${RESET_PASSWORD_URL}")
     private String resetPasswordUrl;
 
     @Async
     public void resetPassword(String email, String fullName, String token) {
-        String subject = resetPasswordSubject.substring(1, resetPasswordSubject.length() - 1);
+        String subject = "Reset your password";
         String url = resetPasswordUrl + "?token=" + token;
-        String content = resetPasswordContent.substring(1, resetPasswordContent.length() - 1).formatted(fullName, url);
+        String content = """
+                <div>
+                    Dear %s,
+                    <br>
+                    If you want to reset your password, please <a href="%s" target="_blank">Click here</a>
+                    <br>
+                    <br>
+                    <div style="border-top:1px solid #eaeaea; padding-top:10px;">
+                        Best Regards,
+                        <br>
+                        Ticket Resell team
+                        <br>
+                    </div>
+                </div>
+                """.formatted(fullName, url);
         send(email, subject, content);
     }
 
     @Async
     public void verifyEmail(String email, String fullName, String token) {
-        String subject = verifyEmailSubject.substring(1, verifyEmailSubject.length() - 1);
-        String url = verifyEmailUrl + "?token=" + token;
-        String content = verifyEmailContent.substring(1, verifyEmailContent.length() - 1).formatted(fullName, url);
+        String subject = "Verify your email";
+        String url = "http://localhost:8081/nextrad/api/users/auth/email/verify" + "?token=" + token;
+        String content = """
+                <div>
+                    Dear %s,
+                    <br>
+                    If you want to verify your email, please <a href="%s" target="_blank">Click here</a>
+                    <br>
+                    <br>
+                    <div style="border-top:1px solid #eaeaea; padding-top:10px;">
+                        Best Regards,
+                        <br>
+                        Ticket Resell team
+                        <br>
+                    </div>
+                </div>
+                """.formatted(fullName, url);
         send(email, subject, content);
     }
 

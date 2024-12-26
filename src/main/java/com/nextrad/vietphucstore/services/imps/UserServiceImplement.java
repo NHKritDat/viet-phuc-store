@@ -19,7 +19,6 @@ import com.nextrad.vietphucstore.utils.EmailUtil;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import com.nextrad.vietphucstore.utils.TokenUtil;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -254,7 +253,6 @@ public class UserServiceImplement implements UserService {
         return convertToUserDetail(user);
     }
 
-    @NotNull
     private UserDetail getUserResponse(UserModifyRequest request, User user) {
         user.setName(request.name());
         user.setDob(request.dob());
@@ -270,7 +268,6 @@ public class UserServiceImplement implements UserService {
         return convertToUserDetail(user);
     }
 
-    @NotNull
     private UserDetail convertToUserDetail(User user) {
         return new UserDetail(user.getId(), user.getName(), user.getDob(), user.getGender(), user.getEmail(),
                 user.getAddress(), user.getPhone(), user.getAvatar(), user.getRole(), user.getStatus(),
