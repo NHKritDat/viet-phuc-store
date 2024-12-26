@@ -1,10 +1,11 @@
 package com.nextrad.vietphucstore.services;
 
+import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.requests.user.*;
+import com.nextrad.vietphucstore.dtos.responses.user.SearchUser;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
-import com.nextrad.vietphucstore.dtos.responses.user.UserResponse;
+import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 
 import java.util.UUID;
 
@@ -29,17 +30,19 @@ public interface UserService {
 
     String changePassword(ChangePasswordRequest request);
 
-    Page<UserResponse> getUsers(String search, int page, int size, Sort.Direction direction, String... properties);
+    Page<SearchUser> getUsers(String search, PageableRequest request);
 
-    UserResponse getUser(UUID id);
+    UserDetail getUser(UUID id);
 
-    UserResponse getCurrentUser();
+    UserDetail getCurrentUser();
 
-    UserResponse createUser(UserModifyRequest request);
+    UserDetail createUser(UserModifyRequest request);
 
-    UserResponse updateUser(UUID id, UserModifyRequest request);
+    UserDetail updateUser(UUID id, UserModifyRequest request);
 
     String deleteUser(UUID id);
 
-    UserResponse updateProfile(UpdateProfileRequest request);
+    UserDetail updateProfile(UpdateProfileRequest request);
+
+    UserDetail updateAvatar(UpdateAvatarRequest request);
 }

@@ -22,6 +22,11 @@ public enum ErrorCode {
     WRONG_PASSWORD("Wrong password", HttpStatus.UNAUTHORIZED),
     PASSWORD_NOT_MATCH("Password not match", HttpStatus.BAD_REQUEST),
     EMAIL_EXISTED("This email is existed", HttpStatus.BAD_REQUEST),
+    //Product error
+    PRODUCT_NOT_FOUND("Product not found", HttpStatus.NOT_FOUND),
+    PRODUCT_TYPE_NOT_FOUND("Product type not found", HttpStatus.NOT_FOUND),
+    PRODUCT_COLLECTION_NOT_FOUND("Product collection not found", HttpStatus.NOT_FOUND),
+    PRODUCT_SIZE_NOT_FOUND("Product size not found", HttpStatus.NOT_FOUND),
     ;
     String message;
     HttpStatus status;

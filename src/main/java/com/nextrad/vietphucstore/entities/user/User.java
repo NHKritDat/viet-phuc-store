@@ -1,5 +1,6 @@
 package com.nextrad.vietphucstore.entities.user;
 
+import com.nextrad.vietphucstore.enums.user.UserGender;
 import com.nextrad.vietphucstore.enums.user.UserRole;
 import com.nextrad.vietphucstore.enums.user.UserStatus;
 import jakarta.persistence.*;
@@ -26,7 +27,13 @@ public class User {
     private UUID id;
 
     @Column(nullable = false)
-    private String fullName;
+    private String name;
+
+    private Date dob = new Date();
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserGender gender = UserGender.OTHER;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -40,7 +47,7 @@ public class User {
     @Column(nullable = false)
     private String phone = "";
 
-    private String avatar;
+    private String avatar = "";
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

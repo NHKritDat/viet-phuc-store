@@ -1,9 +1,14 @@
 package com.nextrad.vietphucstore.dtos.requests.user;
 
+import com.nextrad.vietphucstore.enums.user.UserGender;
+
+import java.util.Date;
+
 public record UpdateProfileRequest(
-        String fullName,
+        String name,
+        Date dob,
+        UserGender gender,
         String address,
-        String phone,
-        String avatar
+        String phone
 ) {
 }
