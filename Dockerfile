@@ -18,6 +18,6 @@ WORKDIR /app
 #Copy the JAR file from the build stage
 COPY --from=build /build/target/viet-phuc-store-*.jar .
 #Expose the port
-EXPOSE 8082
+EXPOSE 8088
 #Run the application
 ENTRYPOINT ["java", "-jar", "/app/viet-phuc-store-0.0.1-SNAPSHOT.jar"]
