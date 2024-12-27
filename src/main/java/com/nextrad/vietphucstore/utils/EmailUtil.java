@@ -33,7 +33,7 @@ public class EmailUtil {
                     <div style="border-top:1px solid #eaeaea; padding-top:10px;">
                         Best Regards,
                         <br>
-                        Ticket Resell team
+                        Dap Viet
                         <br>
                     </div>
                 </div>
@@ -44,7 +44,7 @@ public class EmailUtil {
     @Async
     public void verifyEmail(String email, String fullName, String token) {
         String subject = "Verify your email";
-        String url = "http://localhost:8081/nextrad/api/users/auth/email/verify" + "?token=" + token;
+        String url = "http://localhost:8082/nextrad/api/users/auth/email/verify" + "?token=" + token;
         String content = """
                 <div>
                     Dear %s,
@@ -55,7 +55,7 @@ public class EmailUtil {
                     <div style="border-top:1px solid #eaeaea; padding-top:10px;">
                         Best Regards,
                         <br>
-                        Ticket Resell team
+                        Dap Viet
                         <br>
                     </div>
                 </div>

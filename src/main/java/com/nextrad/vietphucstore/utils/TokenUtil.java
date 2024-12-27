@@ -55,7 +55,11 @@ public class TokenUtil {
     }
 
     public String getEmailFromJwt(String token) {
-        return getPayload(token).getSubject();
+        try {
+            return SignedJWT.parse(token).getJWTClaimsSet().getSubject();
+        } catch (ParseException e) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
     }
 
     public String[] getJwtInfo(String token) {
