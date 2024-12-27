@@ -15,7 +15,6 @@ import com.nextrad.vietphucstore.repositories.product.*;
 import com.nextrad.vietphucstore.services.ProductService;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -36,29 +35,145 @@ public class ProductServiceImplement implements ProductService {
     @Override
     public Page<SearchProduct> getProducts(String search, String[] sizes, String[] types, String[] collections,
                                            PageableRequest request) {
-        Page<Product> products = productRepository
-                .findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
-                        search,
-                        ProductStatus.DELETED,
-                        Arrays.asList(types),
-                        Arrays.asList(collections),
-                        Arrays.asList(sizes),
-                        pageableUtil.getPageable(Product.class, request)
-                );
+        Page<Product> products;
+        if (sizes.length != 0 && types.length != 0 && collections.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                            search,
+                            ProductStatus.DELETED,
+                            Arrays.asList(types),
+                            Arrays.asList(collections),
+                            Arrays.asList(sizes),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else if (sizes.length != 0 && types.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
+                            search,
+                            ProductStatus.DELETED,
+                            Arrays.asList(types),
+                            Arrays.asList(sizes),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else if (sizes.length != 0 && collections.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndStatusNotAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                            search,
+                            ProductStatus.DELETED,
+                            Arrays.asList(collections),
+                            Arrays.asList(sizes),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else if (types.length != 0 && collections.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductCollection_NameIn(
+                            search,
+                            ProductStatus.DELETED,
+                            Arrays.asList(types),
+                            Arrays.asList(collections),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else if (sizes.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndStatusNotAndProductQuantities_ProductSize_NameIn(
+                            search,
+                            ProductStatus.DELETED,
+                            Arrays.asList(sizes),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else if (types.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameIn(
+                            search,
+                            ProductStatus.DELETED,
+                            Arrays.asList(types),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else if (collections.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndStatusNotAndProductCollection_NameIn(
+                            search,
+                            ProductStatus.DELETED,
+                            Arrays.asList(collections),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndStatusNot(
+                            search,
+                            ProductStatus.DELETED,
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+
+        }
         return products.map(this::convertProductToSearchProduct);
     }
 
     @Override
     public Page<SearchProduct> getProductsForStaff(String search, String[] sizes, String[] types, String[] collections,
                                                    PageableRequest request) {
-        Page<Product> products = productRepository
-                .findByNameContainsIgnoreCaseAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
-                        search,
-                        Arrays.asList(types),
-                        Arrays.asList(collections),
-                        Arrays.asList(sizes),
-                        pageableUtil.getPageable(Product.class, request)
-                );
+        Page<Product> products;
+        if (sizes.length != 0 && types.length != 0 && collections.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                            search,
+                            Arrays.asList(types),
+                            Arrays.asList(collections),
+                            Arrays.asList(sizes),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else if (sizes.length != 0 && types.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
+                            search,
+                            Arrays.asList(types),
+                            Arrays.asList(sizes),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else if (sizes.length != 0 && collections.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                            search,
+                            Arrays.asList(collections),
+                            Arrays.asList(sizes),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else if (types.length != 0 && collections.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndProductType_NameInAndProductCollection_NameIn(
+                            search,
+                            Arrays.asList(types),
+                            Arrays.asList(collections),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else if (sizes.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndProductQuantities_ProductSize_NameIn(
+                            search,
+                            Arrays.asList(sizes),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else if (types.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndProductType_NameIn(
+                            search,
+                            Arrays.asList(types),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else if (collections.length != 0) {
+            products = productRepository
+                    .findByNameContainsIgnoreCaseAndProductCollection_NameIn(
+                            search,
+                            Arrays.asList(collections),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        } else {
+            products = productRepository
+                    .findByNameContainsIgnoreCase(
+                            search,
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        }
         return products.map(this::convertProductToSearchProduct);
     }
 
@@ -243,7 +358,6 @@ public class ProductServiceImplement implements ProductService {
         return "Delete collection successfully.";
     }
 
-    @NotNull
     private ProductDetail convertProductToProductDetail(Product product) {
         return new ProductDetail(
                 product.getId(), product.getName(), product.getDescription(), product.getUnitPrice(),
@@ -261,7 +375,6 @@ public class ProductServiceImplement implements ProductService {
         );
     }
 
-    @NotNull
     private SearchProduct convertProductToSearchProduct(Product product) {
         return new SearchProduct(product.getId(), product.getName(), product.getUnitPrice(),
                 Arrays
@@ -271,7 +384,6 @@ public class ProductServiceImplement implements ProductService {
                         .get(0));
     }
 
-    @NotNull
     private Product setProduct(ModifyProductRequest request, Product product) {
         product.setName(request.name());
         product.setDescription(request.description());
@@ -280,8 +392,9 @@ public class ProductServiceImplement implements ProductService {
         product.setStatus(request.status());
         product.setProductType(productTypeRepository.findByIdAndDeleted(request.typeId(), false)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND)));
-        product.setProductCollection(productCollectionRepository.findByIdAndDeleted(request.collectionId(), false)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)));
+        if (!request.collectionId().toString().isBlank())
+            product.setProductCollection(productCollectionRepository.findByIdAndDeleted(request.collectionId(), false)
+                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)));
         return product;
     }
 

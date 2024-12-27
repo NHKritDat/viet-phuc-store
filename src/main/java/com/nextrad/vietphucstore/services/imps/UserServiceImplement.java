@@ -2,6 +2,7 @@ package com.nextrad.vietphucstore.services.imps;
 
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.requests.user.*;
+import com.nextrad.vietphucstore.dtos.responses.user.CheckTokenResult;
 import com.nextrad.vietphucstore.dtos.responses.user.SearchUser;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
@@ -19,7 +20,6 @@ import com.nextrad.vietphucstore.utils.EmailUtil;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import com.nextrad.vietphucstore.utils.TokenUtil;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -116,7 +116,9 @@ public class UserServiceImplement implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.TOKEN_NOT_FOUND));
         refreshToken.setAvailable(false);
         tokenRepository.save(refreshToken);
-        tokenRepository.save(tokenUtil.createEntity(request.accessToken(), false));
+        CheckTokenResult result = tokenUtil.checkToken(request.accessToken(), false);
+        if (result.valid())
+            tokenRepository.save(result.token());
         return "Logout success.";
     }
 
@@ -146,7 +148,9 @@ public class UserServiceImplement implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setStatus(UserStatus.VERIFIED);
         userRepository.save(user);
-        tokenRepository.save(tokenUtil.createEntity(token, false));
+        CheckTokenResult result = tokenUtil.checkToken(token, false);
+        if (result.valid())
+            tokenRepository.save(result.token());
         return "Your email has been verified! Please login to continue.";
     }
 
@@ -167,7 +171,9 @@ public class UserServiceImplement implements UserService {
             throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
-        tokenRepository.save(tokenUtil.createEntity(request.auth(), false));
+        CheckTokenResult result = tokenUtil.checkToken(request.auth(), false);
+        if (result.valid())
+            tokenRepository.save(result.token());
         return "Your password has been reset successfully! Please login to continue.";
     }
 
@@ -254,7 +260,6 @@ public class UserServiceImplement implements UserService {
         return convertToUserDetail(user);
     }
 
-    @NotNull
     private UserDetail getUserResponse(UserModifyRequest request, User user) {
         user.setName(request.name());
         user.setDob(request.dob());
@@ -270,7 +275,6 @@ public class UserServiceImplement implements UserService {
         return convertToUserDetail(user);
     }
 
-    @NotNull
     private UserDetail convertToUserDetail(User user) {
         return new UserDetail(user.getId(), user.getName(), user.getDob(), user.getGender(), user.getEmail(),
                 user.getAddress(), user.getPhone(), user.getAvatar(), user.getRole(), user.getStatus(),
