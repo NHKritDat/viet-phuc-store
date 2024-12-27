@@ -2,6 +2,7 @@ package com.nextrad.vietphucstore.utils;
 
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.TokenVerifier;
+import com.nextrad.vietphucstore.dtos.responses.user.CheckTokenResult;
 import com.nextrad.vietphucstore.entities.user.Token;
 import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
@@ -43,6 +44,15 @@ public class TokenUtil {
     private long accessTokenExp;
     @Value("${REFRESH_TOKEN_EXP}")
     private long refreshTokenExp;
+
+    public CheckTokenResult checkToken(String token, boolean available) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            return new CheckTokenResult(true, setEntity(signedJWT, available));
+        } catch (ParseException e) {
+            return new CheckTokenResult(false, null);
+        }
+    }
 
     public String getEmailFromJwt(String token) {
         return getPayload(token).getSubject();
@@ -86,6 +96,14 @@ public class TokenUtil {
     public Token createEntity(String token, boolean available) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
+            return setEntity(signedJWT, available);
+        } catch (ParseException e) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+    }
+
+    private Token setEntity(SignedJWT signedJWT, boolean available) {
+        try {
             Token entity = new Token();
             entity.setId(UUID.fromString(signedJWT.getJWTClaimsSet().getJWTID()));
             entity.setAvailable(available);
