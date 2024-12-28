@@ -4,6 +4,7 @@ import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
 import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.CartInfo;
+import com.nextrad.vietphucstore.dtos.responses.order.SearchOrder;
 import org.springframework.data.domain.Page;
 
 public interface OrderService {
@@ -19,5 +20,8 @@ public interface OrderService {
 
     String previousStatus(String orderId);
 
+    Page<SearchOrder> getHistoryOrders(PageableRequest request);
+
+    Page<SearchOrder> getOrdersForStaff(PageableRequest request);
 
 }

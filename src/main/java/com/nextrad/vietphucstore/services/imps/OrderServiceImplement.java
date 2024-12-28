@@ -4,6 +4,7 @@ import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
 import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.CartInfo;
+import com.nextrad.vietphucstore.dtos.responses.order.SearchOrder;
 import com.nextrad.vietphucstore.entities.order.Cart;
 import com.nextrad.vietphucstore.entities.order.Order;
 import com.nextrad.vietphucstore.entities.order.OrderDetail;
@@ -161,5 +162,41 @@ public class OrderServiceImplement implements OrderService {
             order.setStatus(OrderStatus.PENDING);
         orderRepository.save(order);
         return "Reverse order status successfully";
+    }
+
+    @Override
+    public Page<SearchOrder> getHistoryOrders(PageableRequest request) {
+        Page<OrderDetail> orderDetails = orderDetailRepository
+                .findByOrder_User_EmailAndOrder_Status(
+                        SecurityContextHolder.getContext().getAuthentication().getName(),
+                        OrderStatus.DELIVERED,
+                        pageableUtil.getPageable(OrderDetail.class, request)
+                );
+        return orderDetails.map(this::toSearchOrder);
+    }
+
+    @Override
+    public Page<SearchOrder> getOrdersForStaff(PageableRequest request) {
+        Page<OrderDetail> orderDetails = orderDetailRepository.findAll(
+                pageableUtil.getPageable(OrderDetail.class, request)
+        );
+        return orderDetails.map(this::toSearchOrder);
+    }
+
+    private SearchOrder toSearchOrder(OrderDetail od) {
+        return new SearchOrder(
+                od.getOrder().getId(),
+                od.getId(),
+                od.getProductQuantity().getProduct().getPictures()
+                        .substring(1,
+                                od.getProductQuantity().getProduct()
+                                        .getPictures().length() - 1)
+                        .split(", ")[0],
+                od.getProductQuantity().getProduct().getName(),
+                od.getOrder().getPaymentMethod(),
+                od.getProductQuantity().getProductSize().getName(),
+                od.getQuantity(),
+                od.getProductQuantity().getProduct().getUnitPrice()
+        );
     }
 }

@@ -4,6 +4,7 @@ import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
 import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.CartInfo;
+import com.nextrad.vietphucstore.dtos.responses.order.SearchOrder;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
 import com.nextrad.vietphucstore.services.OrderService;
@@ -56,15 +57,56 @@ public class OrderController {
         return ResponseEntity.ok(new ApiItemResponse<>(null, orderService.checkout(request)));
     }
 
-    @PutMapping("/{id}/next-status")
+    @PutMapping("/{id}/next-status/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<Object>> nextStatus(@PathVariable String id) {
         return ResponseEntity.ok(new ApiItemResponse<>(null, orderService.nextStatus(id)));
     }
 
-    @PutMapping("/{id}/previous-status")
+    @PutMapping("/{id}/previous-status/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<Object>> previousStatus(@PathVariable String id) {
         return ResponseEntity.ok(new ApiItemResponse<>(null, orderService.previousStatus(id)));
+    }
+
+    @GetMapping("/current")
+    public ResponseEntity<ApiListItemResponse<SearchOrder>> getHistoryOrders(
+            @RequestParam(defaultValue = "1", required = false) int page,
+            @RequestParam(defaultValue = "10", required = false) int size,
+            @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
+            @RequestParam(defaultValue = "id", required = false) String... properties
+    ) {
+        Page<SearchOrder> response = orderService.getHistoryOrders(
+                new PageableRequest(page - 1, size, direction, properties)
+        );
+        return ResponseEntity.ok(new ApiListItemResponse<>(
+                response.getContent(),
+                response.getSize(),
+                response.getNumber() + 1,
+                response.getTotalElements(),
+                response.getTotalPages(),
+                null
+        ));
+    }
+
+    @GetMapping("/staff")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiListItemResponse<SearchOrder>> getOrdersForStaff(
+            @RequestParam(defaultValue = "1", required = false) int page,
+            @RequestParam(defaultValue = "10", required = false) int size,
+            @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
+            @RequestParam(defaultValue = "id", required = false) String... properties
+    ) {
+        Page<SearchOrder> response = orderService.getOrdersForStaff(
+                new PageableRequest(page - 1, size, direction, properties)
+        );
+        return ResponseEntity.ok(new ApiListItemResponse<>(
+                response.getContent(),
+                response.getSize(),
+                response.getNumber() + 1,
+                response.getTotalElements(),
+                response.getTotalPages(),
+                null
+        ));
     }
 }
