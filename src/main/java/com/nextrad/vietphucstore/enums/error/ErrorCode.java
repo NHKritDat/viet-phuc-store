@@ -27,6 +27,9 @@ public enum ErrorCode {
     PRODUCT_TYPE_NOT_FOUND("Product type not found", HttpStatus.NOT_FOUND),
     PRODUCT_COLLECTION_NOT_FOUND("Product collection not found", HttpStatus.NOT_FOUND),
     PRODUCT_SIZE_NOT_FOUND("Product size not found", HttpStatus.NOT_FOUND),
+    PRODUCT_QUANTITY_NOT_FOUND("Product quantity not found", HttpStatus.NOT_FOUND),
+    //Order error
+    CART_NOT_FOUND("Cart not found", HttpStatus.NOT_FOUND),
     ;
     String message;
     HttpStatus status;
