@@ -1,11 +1,14 @@
 package com.nextrad.vietphucstore.services.imps;
 
 import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
+import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.CartInfo;
+import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
 import com.nextrad.vietphucstore.dtos.responses.order.SearchOrder;
 import com.nextrad.vietphucstore.entities.order.Cart;
+import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.order.Order;
 import com.nextrad.vietphucstore.entities.order.OrderDetail;
 import com.nextrad.vietphucstore.entities.product.ProductQuantity;
@@ -29,6 +32,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -181,6 +185,55 @@ public class OrderServiceImplement implements OrderService {
                 pageableUtil.getPageable(OrderDetail.class, request)
         );
         return orderDetails.map(this::toSearchOrder);
+    }
+
+    @Override
+    public FeedbackResponse doFeedback(UUID orderDetailId, FeedbackRequest request) {
+        Optional<Feedback> feedback = feedbackRepository.findByOrderDetail_Id(orderDetailId);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (feedback.isPresent()) {
+            if (!feedback.get().getOrderDetail().getOrder().getUser().getEmail().equals(email))
+                throw new AppException(ErrorCode.NO_PERMISSION);
+            return setFeedbackResponse(setFeedback(request, feedback.get()));
+        } else {
+            OrderDetail orderDetail = orderDetailRepository.findById(orderDetailId)
+                    .orElseThrow(() -> new AppException(ErrorCode.ORDER_DETAIL_NOT_FOUND));
+            if (!orderDetail.getOrder().getUser().getEmail().equals(email))
+                throw new AppException(ErrorCode.NO_PERMISSION);
+            Feedback newFeedback = new Feedback();
+            newFeedback.setUser(userRepository.findByEmail(email)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
+            newFeedback.setOrderDetail(orderDetail);
+            return setFeedbackResponse(setFeedback(request, newFeedback));
+        }
+    }
+
+    @Override
+    public FeedbackResponse getFeedback(UUID orderDetailId) {
+        Feedback feedback = feedbackRepository.findByOrderDetail_Id(orderDetailId)
+                .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND));
+        return setFeedbackResponse(feedback);
+    }
+
+    private Feedback setFeedback(FeedbackRequest request, Feedback feedback) {
+        feedback.setRating(request.rating());
+        feedback.setContent(request.content());
+        return feedbackRepository.save(feedback);
+    }
+
+    private FeedbackResponse setFeedbackResponse(Feedback feedback) {
+        return new FeedbackResponse(
+                feedback.getId(),
+                feedback.getOrderDetail().getProductQuantity().getProduct().getName(),
+                feedback.getOrderDetail().getProductQuantity().getProduct().getPictures()
+                        .substring(1,
+                                feedback.getOrderDetail().getProductQuantity().getProduct()
+                                        .getPictures().length() - 1)
+                        .split(", ")[0],
+                feedback.getContent(),
+                feedback.getRating(),
+                feedback.getCreatedDate()
+        );
     }
 
     private SearchOrder toSearchOrder(OrderDetail od) {

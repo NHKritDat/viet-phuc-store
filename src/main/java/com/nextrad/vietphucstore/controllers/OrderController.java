@@ -1,9 +1,11 @@
 package com.nextrad.vietphucstore.controllers;
 
 import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
+import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.CartInfo;
+import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
 import com.nextrad.vietphucstore.dtos.responses.order.SearchOrder;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
@@ -15,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
@@ -109,4 +113,18 @@ public class OrderController {
                 null
         ));
     }
+
+    @GetMapping("/order-details/{id}/feedbacks")
+    public ResponseEntity<ApiItemResponse<FeedbackResponse>> doFeedback(
+            @PathVariable UUID id,
+            @RequestBody FeedbackRequest request
+    ) {
+        return ResponseEntity.ok(new ApiItemResponse<>(orderService.doFeedback(id, request), null));
+    }
+
+    @GetMapping("/order-details/{id}/feedbacks")
+    public ResponseEntity<ApiItemResponse<FeedbackResponse>> getFeedback(@PathVariable UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(orderService.getFeedback(id), null));
+    }
 }
+

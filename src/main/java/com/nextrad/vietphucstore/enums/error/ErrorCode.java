@@ -32,6 +32,10 @@ public enum ErrorCode {
     CART_NOT_FOUND("Cart not found", HttpStatus.NOT_FOUND),
     CART_EMPTY("Cart is empty", HttpStatus.BAD_REQUEST),
     ORDER_NOT_FOUND("Order not found", HttpStatus.NOT_FOUND),
+    ORDER_DETAIL_NOT_FOUND("Order detail not found", HttpStatus.NOT_FOUND),
+    FEEDBACK_NOT_FOUND("Feedback not found", HttpStatus.NOT_FOUND),
+    //Permission error
+    NO_PERMISSION("You are not allowed to do this!", HttpStatus.FORBIDDEN),
     ;
     String message;
     HttpStatus status;
