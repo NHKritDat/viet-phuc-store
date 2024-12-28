@@ -1,11 +1,15 @@
 package com.nextrad.vietphucstore.services.imps;
 
+import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
 import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.CartInfo;
 import com.nextrad.vietphucstore.entities.order.Cart;
+import com.nextrad.vietphucstore.entities.order.Order;
+import com.nextrad.vietphucstore.entities.order.OrderDetail;
 import com.nextrad.vietphucstore.entities.product.ProductQuantity;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
+import com.nextrad.vietphucstore.enums.order.OrderStatus;
 import com.nextrad.vietphucstore.exceptions.AppException;
 import com.nextrad.vietphucstore.repositories.order.CartRepository;
 import com.nextrad.vietphucstore.repositories.order.FeedbackRepository;
@@ -14,12 +18,15 @@ import com.nextrad.vietphucstore.repositories.order.OrderRepository;
 import com.nextrad.vietphucstore.repositories.product.ProductQuantityRepository;
 import com.nextrad.vietphucstore.repositories.user.UserRepository;
 import com.nextrad.vietphucstore.services.OrderService;
+import com.nextrad.vietphucstore.utils.IdUtil;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -32,6 +39,7 @@ public class OrderServiceImplement implements OrderService {
     private final PageableUtil pageableUtil;
     private final UserRepository userRepository;
     private final ProductQuantityRepository productQuantityRepository;
+    private final IdUtil idUtil;
 
     @Override
     public String addToCart(ModifyCartRequest request) {
@@ -86,5 +94,72 @@ public class OrderServiceImplement implements OrderService {
                 cart.getProductQuantity().getProductSize().getName(),
                 cart.getQuantity()
         ));
+    }
+
+    @Override
+    public String checkout(CreateOrder request) {
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Order order = new Order();
+        order.setUser(userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
+        order.setEmail(request.email());
+        order.setName(request.name());
+        order.setAddress(request.address());
+        order.setPhone(request.phone());
+        List<Cart> carts = cartRepository.findByUser_Email(currentUserEmail);
+        if (carts.isEmpty())
+            throw new AppException(ErrorCode.CART_EMPTY);
+        double productTotal = carts.stream().mapToDouble(
+                cart -> cart.getProductQuantity().getProduct().getUnitPrice() * cart.getQuantity()
+        ).sum();
+        order.setProductTotal(productTotal);
+        order.setShippingFee(request.shippingFee());
+        order.setPaymentMethod(request.paymentMethod());
+        order.setId(idUtil.genId(productTotal + request.shippingFee(), new Date()));
+        orderRepository.save(order);
+
+        carts.forEach(cart -> {
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrder(order);
+            orderDetail.setProductQuantity(cart.getProductQuantity());
+            orderDetail.setQuantity(cart.getQuantity());
+            orderDetailRepository.save(orderDetail);
+            cartRepository.delete(cart);
+        });
+
+        return "Order successfully";
+    }
+
+    @Override
+    public String nextStatus(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        if (order.getStatus() == OrderStatus.PENDING)
+            order.setStatus(OrderStatus.AWAITING_PICKUP);
+        else if (order.getStatus() == OrderStatus.AWAITING_PICKUP)
+            order.setStatus(OrderStatus.AWAITING_DELIVERY);
+        else if (order.getStatus() == OrderStatus.AWAITING_DELIVERY)
+            order.setStatus(OrderStatus.IN_TRANSIT);
+        else if (order.getStatus() == OrderStatus.IN_TRANSIT)
+            order.setStatus(OrderStatus.DELIVERED);
+        orderRepository.save(order);
+        return "Update order status successfully";
+    }
+
+    @Override
+    public String previousStatus(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        if (order.getStatus() == OrderStatus.DELIVERED)
+            order.setStatus(OrderStatus.IN_TRANSIT);
+        else if (order.getStatus() == OrderStatus.IN_TRANSIT)
+            order.setStatus(OrderStatus.AWAITING_DELIVERY);
+        else if (order.getStatus() == OrderStatus.AWAITING_DELIVERY)
+            order.setStatus(OrderStatus.AWAITING_PICKUP);
+        else if (order.getStatus() == OrderStatus.AWAITING_PICKUP)
+            order.setStatus(OrderStatus.PENDING);
+        orderRepository.save(order);
+        return "Reverse order status successfully";
     }
 }

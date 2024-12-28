@@ -1,6 +1,6 @@
 package com.nextrad.vietphucstore.entities.order;
 
-import com.nextrad.vietphucstore.entities.product.Product;
+import com.nextrad.vietphucstore.entities.product.ProductQuantity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,28 +25,23 @@ public class OrderDetail {
     private UUID id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(nullable = false, updatable = false)
     private Order order;
 
-    @OneToOne(optional = false, orphanRemoval = true)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "product_quantity_id", nullable = false)
+    private ProductQuantity productQuantity;
 
     @Column(nullable = false)
     private int quantity;
 
-    @Column(nullable = false)
-    private double unitPrice;
-
-    private String note;
-
     @CreatedBy
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private String createdBy;
 
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private Date createdDate;
 
     @LastModifiedBy

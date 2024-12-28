@@ -30,6 +30,8 @@ public enum ErrorCode {
     PRODUCT_QUANTITY_NOT_FOUND("Product quantity not found", HttpStatus.NOT_FOUND),
     //Order error
     CART_NOT_FOUND("Cart not found", HttpStatus.NOT_FOUND),
+    CART_EMPTY("Cart is empty", HttpStatus.BAD_REQUEST),
+    ORDER_NOT_FOUND("Order not found", HttpStatus.NOT_FOUND),
     ;
     String message;
     HttpStatus status;

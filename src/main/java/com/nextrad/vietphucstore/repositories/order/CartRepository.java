@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,4 +15,6 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
     Optional<Cart> findByProductQuantity_Id(UUID productQuantityId);
 
     Page<Cart> findByUser_Email(String userEmail, Pageable pageable);
+
+    List<Cart> findByUser_Email(String userEmail);
 }
