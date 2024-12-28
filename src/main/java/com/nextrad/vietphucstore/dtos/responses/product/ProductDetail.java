@@ -15,6 +15,6 @@ public record ProductDetail(
         ProductStatus status,
         String collectionName,
         String typeName,
-        Map<String, Integer> sizeQuantities
+        Map<UUID, SizeQuantityResponse> sizeQuantities
 ) {
 }

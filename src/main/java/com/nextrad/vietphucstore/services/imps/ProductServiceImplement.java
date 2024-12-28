@@ -7,6 +7,7 @@ import com.nextrad.vietphucstore.dtos.requests.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
+import com.nextrad.vietphucstore.dtos.responses.product.SizeQuantityResponse;
 import com.nextrad.vietphucstore.entities.product.*;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
 import com.nextrad.vietphucstore.enums.product.ProductStatus;
@@ -364,12 +365,13 @@ public class ProductServiceImplement implements ProductService {
                                 .substring(1, product.getPictures().length() - 1)
                                 .split(", ")),
                 product.getStatus(), product.getProductCollection().getName(), product.getProductType().getName(),
-                product.getProductQuantities().stream().collect(
-                        Collectors.toMap(
-                                pq -> pq.getProductSize().getName(),
-                                ProductQuantity::getQuantity
+                product.getProductQuantities().stream().collect(Collectors.toMap(
+                        pq -> pq.getProductSize().getId(),
+                        productQuantity -> new SizeQuantityResponse(
+                                productQuantity.getProductSize().getName(),
+                                productQuantity.getQuantity()
                         )
-                )
+                ))
         );
     }
 
