@@ -1,5 +1,6 @@
 package com.nextrad.vietphucstore.controllers;
 
+import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
 import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.CartInfo;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,5 +49,22 @@ public class OrderController {
     @DeleteMapping("/carts")
     public ResponseEntity<ApiItemResponse<Object>> removeFromCart(@RequestBody ModifyCartRequest request) {
         return ResponseEntity.ok(new ApiItemResponse<>(null, orderService.removeFromCart(request)));
+    }
+
+    @PostMapping("/checkout")
+    public ResponseEntity<ApiItemResponse<Object>> checkout(@RequestBody CreateOrder request) {
+        return ResponseEntity.ok(new ApiItemResponse<>(null, orderService.checkout(request)));
+    }
+
+    @PutMapping("/{id}/next-status")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<Object>> nextStatus(@PathVariable String id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(null, orderService.nextStatus(id)));
+    }
+
+    @PutMapping("/{id}/previous-status")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<Object>> previousStatus(@PathVariable String id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(null, orderService.previousStatus(id)));
     }
 }
