@@ -6,7 +6,7 @@ import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.CartInfo;
 import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
-import com.nextrad.vietphucstore.dtos.responses.order.SearchOrder;
+import com.nextrad.vietphucstore.dtos.responses.order.OrderHistory;
 import com.nextrad.vietphucstore.entities.order.Cart;
 import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.order.Order;
@@ -169,22 +169,22 @@ public class OrderServiceImplement implements OrderService {
     }
 
     @Override
-    public Page<SearchOrder> getHistoryOrders(PageableRequest request) {
+    public Page<OrderHistory> getHistoryOrders(PageableRequest request) {
         Page<OrderDetail> orderDetails = orderDetailRepository
                 .findByOrder_User_EmailAndOrder_Status(
                         SecurityContextHolder.getContext().getAuthentication().getName(),
                         OrderStatus.DELIVERED,
                         pageableUtil.getPageable(OrderDetail.class, request)
                 );
-        return orderDetails.map(this::toSearchOrder);
+        return orderDetails.map(this::toOrderHistory);
     }
 
     @Override
-    public Page<SearchOrder> getOrdersForStaff(PageableRequest request) {
+    public Page<OrderHistory> getOrdersForStaff(PageableRequest request) {
         Page<OrderDetail> orderDetails = orderDetailRepository.findAll(
                 pageableUtil.getPageable(OrderDetail.class, request)
         );
-        return orderDetails.map(this::toSearchOrder);
+        return orderDetails.map(this::toOrderHistory);
     }
 
     @Override
@@ -236,8 +236,8 @@ public class OrderServiceImplement implements OrderService {
         );
     }
 
-    private SearchOrder toSearchOrder(OrderDetail od) {
-        return new SearchOrder(
+    private OrderHistory toOrderHistory(OrderDetail od) {
+        return new OrderHistory(
                 od.getOrder().getId(),
                 od.getId(),
                 od.getProductQuantity().getProduct().getPictures()

@@ -4,7 +4,7 @@ import com.nextrad.vietphucstore.enums.order.PaymentMethod;
 
 import java.util.UUID;
 
-public record SearchOrder(
+public record OrderHistory(
         String orderId,
         UUID orderDetailId,
         String image,

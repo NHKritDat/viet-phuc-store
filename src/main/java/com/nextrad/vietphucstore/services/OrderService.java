@@ -6,7 +6,7 @@ import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.CartInfo;
 import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
-import com.nextrad.vietphucstore.dtos.responses.order.SearchOrder;
+import com.nextrad.vietphucstore.dtos.responses.order.OrderHistory;
 import org.springframework.data.domain.Page;
 
 import java.util.UUID;
@@ -24,9 +24,9 @@ public interface OrderService {
 
     String previousStatus(String orderId);
 
-    Page<SearchOrder> getHistoryOrders(PageableRequest request);
+    Page<OrderHistory> getHistoryOrders(PageableRequest request);
 
-    Page<SearchOrder> getOrdersForStaff(PageableRequest request);
+    Page<OrderHistory> getOrdersForStaff(PageableRequest request);
 
     FeedbackResponse doFeedback(UUID orderDetailId, FeedbackRequest request);
 
