@@ -19,6 +19,10 @@ public class ProductCollection {
     @Column(nullable = false, unique = true)
     private String name;
 
+    private String description;
+
+    private String images;
+
     @Column(nullable = false)
     private boolean deleted = false;
 

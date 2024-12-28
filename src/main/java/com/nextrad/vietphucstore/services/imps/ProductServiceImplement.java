@@ -336,16 +336,14 @@ public class ProductServiceImplement implements ProductService {
 
     @Override
     public ProductCollection createProductCollection(ModifyCollectionRequest request) {
-        ProductCollection collection = new ProductCollection();
-        collection.setName(request.name());
+        ProductCollection collection = setCollection(request, new ProductCollection());
         return productCollectionRepository.save(collection);
     }
 
     @Override
     public ProductCollection updateProductCollection(UUID id, ModifyCollectionRequest request) {
-        ProductCollection collection = productCollectionRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND));
-        collection.setName(request.name());
+        ProductCollection collection = setCollection(request, productCollectionRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)));
         return productCollectionRepository.save(collection);
     }
 
@@ -396,6 +394,13 @@ public class ProductServiceImplement implements ProductService {
             product.setProductCollection(productCollectionRepository.findByIdAndDeleted(request.collectionId(), false)
                     .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)));
         return product;
+    }
+
+    private ProductCollection setCollection(ModifyCollectionRequest request, ProductCollection collection) {
+        collection.setName(request.name());
+        collection.setDescription(request.description());
+        collection.setImages(request.images().toString());
+        return collection;
     }
 
 }
