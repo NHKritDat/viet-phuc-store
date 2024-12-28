@@ -9,6 +9,7 @@ public record FeedbackResponse(
         String productImage,
         String content,
         int rating,
+        String username,
         Date createdAt
 ) {
 }

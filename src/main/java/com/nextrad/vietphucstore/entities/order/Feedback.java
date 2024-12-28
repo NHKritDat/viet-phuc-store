@@ -1,6 +1,5 @@
 package com.nextrad.vietphucstore.entities.order;
 
-import com.nextrad.vietphucstore.entities.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,10 +22,6 @@ public class Feedback {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 
     @OneToOne(optional = false, orphanRemoval = true)
     @JoinColumn(name = "order_detail_id", nullable = false)

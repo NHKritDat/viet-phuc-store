@@ -201,8 +201,6 @@ public class OrderServiceImplement implements OrderService {
             if (!orderDetail.getOrder().getUser().getEmail().equals(email))
                 throw new AppException(ErrorCode.NO_PERMISSION);
             Feedback newFeedback = new Feedback();
-            newFeedback.setUser(userRepository.findByEmail(email)
-                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
             newFeedback.setOrderDetail(orderDetail);
             return setFeedbackResponse(setFeedback(request, newFeedback));
         }
@@ -232,6 +230,7 @@ public class OrderServiceImplement implements OrderService {
                         .split(", ")[0],
                 feedback.getContent(),
                 feedback.getRating(),
+                feedback.getOrderDetail().getOrder().getUser().getName(),
                 feedback.getCreatedDate()
         );
     }

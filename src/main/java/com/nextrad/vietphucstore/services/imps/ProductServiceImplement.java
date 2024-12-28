@@ -5,13 +5,16 @@ import com.nextrad.vietphucstore.dtos.requests.product.ModifyCollectionRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyTypeRequest;
+import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
 import com.nextrad.vietphucstore.dtos.responses.product.SizeQuantityResponse;
+import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.product.*;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
 import com.nextrad.vietphucstore.enums.product.ProductStatus;
 import com.nextrad.vietphucstore.exceptions.AppException;
+import com.nextrad.vietphucstore.repositories.order.FeedbackRepository;
 import com.nextrad.vietphucstore.repositories.product.*;
 import com.nextrad.vietphucstore.services.ProductService;
 import com.nextrad.vietphucstore.utils.PageableUtil;
@@ -31,6 +34,7 @@ public class ProductServiceImplement implements ProductService {
     private final ProductCollectionRepository productCollectionRepository;
     private final ProductSizeRepository productSizeRepository;
     private final ProductQuantityRepository productQuantityRepository;
+    private final FeedbackRepository feedbackRepository;
     private final PageableUtil pageableUtil;
 
     @Override
@@ -355,6 +359,43 @@ public class ProductServiceImplement implements ProductService {
         collection.setDeleted(true);
         productCollectionRepository.save(collection);
         return "Delete collection successfully.";
+    }
+
+    @Override
+    public Page<FeedbackResponse> getFeedbacks(UUID productId, PageableRequest request) {
+        Page<Feedback> feedbacks = feedbackRepository
+                .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
+                        productId,
+                        false,
+                        pageableUtil.getPageable(Feedback.class, request)
+                );
+        return feedbacks.map(this::setFeedbackResponse);
+    }
+
+    @Override
+    public Page<FeedbackResponse> getFeedbacksForStaff(UUID productId, PageableRequest request) {
+        Page<Feedback> feedbacks = feedbackRepository
+                .findByOrderDetail_ProductQuantity_Product_Id(
+                        productId,
+                        pageableUtil.getPageable(Feedback.class, request)
+                );
+        return feedbacks.map(this::setFeedbackResponse);
+    }
+
+    private FeedbackResponse setFeedbackResponse(Feedback feedback) {
+        return new FeedbackResponse(
+                feedback.getId(),
+                feedback.getOrderDetail().getProductQuantity().getProduct().getName(),
+                feedback.getOrderDetail().getProductQuantity().getProduct().getPictures()
+                        .substring(1,
+                                feedback.getOrderDetail().getProductQuantity().getProduct()
+                                        .getPictures().length() - 1)
+                        .split(", ")[0],
+                feedback.getContent(),
+                feedback.getRating(),
+                feedback.getOrderDetail().getOrder().getUser().getName(),
+                feedback.getCreatedDate()
+        );
     }
 
     private ProductDetail convertProductToProductDetail(Product product) {
