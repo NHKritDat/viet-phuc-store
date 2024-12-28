@@ -114,7 +114,7 @@ public class OrderController {
 //        ));
 //    }
 
-    @GetMapping("/order-details/{id}/feedbacks")
+    @PostMapping("/order-details/{id}/feedbacks")
     public ResponseEntity<ApiItemResponse<FeedbackResponse>> doFeedback(
             @PathVariable UUID id,
             @RequestBody FeedbackRequest request
