@@ -1,10 +1,12 @@
 package com.nextrad.vietphucstore.controllers;
 
+import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.requests.user.*;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
+import com.nextrad.vietphucstore.dtos.responses.user.SearchUser;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
-import com.nextrad.vietphucstore.dtos.responses.user.UserResponse;
+import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
 import com.nextrad.vietphucstore.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,7 +30,7 @@ public class UserController {
     }
 
     @PostMapping("/auth/login/google")
-    public ResponseEntity<ApiItemResponse<TokenResponse>> loginGoogle(@RequestBody AuthRequest request) {
+    public ResponseEntity<ApiItemResponse<TokenResponse>> loginGoogle(@RequestBody LoginGoogle request) {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.login(request), null));
     }
 
@@ -67,16 +69,16 @@ public class UserController {
         return ResponseEntity.ok(new ApiItemResponse<>(null, userService.changePassword(request)));
     }
 
-    @GetMapping
+    @GetMapping("/staff")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiListItemResponse<UserResponse>> getUsers(
+    public ResponseEntity<ApiListItemResponse<SearchUser>> getUsers(
             @RequestParam(defaultValue = "", required = false) String search,
             @RequestParam(defaultValue = "1", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int size,
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
             @RequestParam(defaultValue = "id", required = false) String... properties
     ) {
-        Page<UserResponse> users = userService.getUsers(search, page - 1, size, direction, properties);
+        Page<SearchUser> users = userService.getUsers(search, new PageableRequest(page - 1, size, direction, properties));
         return ResponseEntity.ok(new ApiListItemResponse<>(
                 users.getContent(),
                 users.getSize(),
@@ -86,39 +88,44 @@ public class UserController {
                 null));
     }
 
-    @GetMapping("/user")
+    @GetMapping("/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiItemResponse<UserResponse>> getUser(@RequestParam UUID id) {
+    public ResponseEntity<ApiItemResponse<UserDetail>> getUser(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.getUser(id), null));
     }
 
     @GetMapping("/current")
-    public ResponseEntity<ApiItemResponse<UserResponse>> getCurrentUser() {
+    public ResponseEntity<ApiItemResponse<UserDetail>> getCurrentUser() {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.getCurrentUser(), null));
     }
 
-    @PostMapping
+    @PostMapping("/staff")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiItemResponse<UserResponse>> createUser(@RequestBody UserModifyRequest request) {
+    public ResponseEntity<ApiItemResponse<UserDetail>> createUser(@RequestBody UserModifyRequest request) {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.createUser(request), null));
     }
 
-    @PutMapping("/user")
+    @PutMapping("/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiItemResponse<UserResponse>> updateUser(
-            @RequestParam UUID id,
+    public ResponseEntity<ApiItemResponse<UserDetail>> updateUser(
+            @PathVariable UUID id,
             @RequestBody UserModifyRequest request) {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.updateUser(id, request), null));
     }
 
-    @DeleteMapping("/user")
+    @DeleteMapping("/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiItemResponse<Object>> deleteUser(@RequestParam UUID id) {
+    public ResponseEntity<ApiItemResponse<Object>> deleteUser(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(null, userService.deleteUser(id)));
     }
 
     @PutMapping("/current")
-    public ResponseEntity<ApiItemResponse<UserResponse>> updateProfile(@RequestBody UpdateProfileRequest request) {
+    public ResponseEntity<ApiItemResponse<UserDetail>> updateProfile(@RequestBody UpdateProfileRequest request) {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.updateProfile(request), null));
+    }
+
+    @PutMapping("/current/avatar")
+    public ResponseEntity<ApiItemResponse<UserDetail>> updateAvatar(@RequestBody UpdateAvatarRequest request) {
+        return ResponseEntity.ok(new ApiItemResponse<>(userService.updateAvatar(request), null));
     }
 }

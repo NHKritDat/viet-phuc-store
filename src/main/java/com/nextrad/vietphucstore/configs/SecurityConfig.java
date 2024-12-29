@@ -27,6 +27,12 @@ public class SecurityConfig {
     };
     private static final String[] PUBLIC_GET_ENDPOINTS = {
             "/users/auth/**",
+            "/products",
+            "/products/{id}",
+            "/products/{id}/feedbacks",
+            "/products/sizes",
+            "/products/types",
+            "/products/collections",
     };
     private static final String[] PUBLIC_PUT_ENDPOINTS = {
             "/users/auth/password/forgot",
