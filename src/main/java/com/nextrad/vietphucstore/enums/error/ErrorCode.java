@@ -19,7 +19,7 @@ public enum ErrorCode {
     INVALID_EMAIL("This email is invalid", HttpStatus.BAD_REQUEST),
     //User error
     USER_NOT_FOUND("User not found", HttpStatus.NOT_FOUND),
-    WRONG_PASSWORD("Wrong password", HttpStatus.UNAUTHORIZED),
+    WRONG_PASSWORD("Wrong password", HttpStatus.FORBIDDEN),
     PASSWORD_NOT_MATCH("Password not match", HttpStatus.BAD_REQUEST),
     EMAIL_EXISTED("This email is existed", HttpStatus.BAD_REQUEST),
     //Product error
