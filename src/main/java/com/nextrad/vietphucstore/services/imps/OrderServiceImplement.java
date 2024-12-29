@@ -96,6 +96,7 @@ public class OrderServiceImplement implements OrderService {
                 cart.getProductQuantity().getId(),
                 cart.getProductQuantity().getProduct().getName(),
                 cart.getProductQuantity().getProduct().getUnitPrice(),
+                cart.getProductQuantity().getProduct().getWeight(),
                 cart.getProductQuantity().getProductSize().getName(),
                 cart.getQuantity()
         ));

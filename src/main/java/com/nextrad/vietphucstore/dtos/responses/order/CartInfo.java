@@ -6,6 +6,7 @@ public record CartInfo(
         UUID productQuantityId,
         String name,
         double unitPrice,
+        int weight,
         String size,
         int quantity
 ) {

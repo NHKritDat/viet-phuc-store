@@ -247,7 +247,7 @@ public class UserServiceImplement implements UserService {
         if (request.gender() != null)
             user.setGender(request.gender());
 
-        if(!request.province().isBlank())
+        if (!request.province().isBlank())
             user.setProvince(request.province());
 
         if (!request.district().isBlank())

@@ -405,7 +405,7 @@ public class ProductServiceImplement implements ProductService {
                         .asList(product.getPictures()
                                 .substring(1, product.getPictures().length() - 1)
                                 .split(", ")),
-                product.getStatus(),
+                product.getWeight(), product.getStatus(),
                 product.getProductCollection() != null ? product.getProductCollection().getName() : null,
                 product.getProductType().getName(),
                 product.getProductQuantities().stream().collect(Collectors.toMap(
@@ -435,6 +435,7 @@ public class ProductServiceImplement implements ProductService {
         product.setDescription(request.description());
         product.setUnitPrice(request.unitPrice());
         product.setPictures(request.pictures().toString());
+        product.setWeight(request.weight());
         product.setStatus(request.status());
         product.setProductType(productTypeRepository.findByIdAndDeleted(request.typeId(), false)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND)));

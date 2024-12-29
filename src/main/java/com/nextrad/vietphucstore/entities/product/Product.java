@@ -30,6 +30,8 @@ public class Product {
 
     private String pictures;
 
+    private int weight;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProductStatus status = ProductStatus.IN_STOCK;

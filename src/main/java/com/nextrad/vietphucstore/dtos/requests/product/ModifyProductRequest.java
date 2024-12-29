@@ -11,6 +11,7 @@ public record ModifyProductRequest(
         String description,
         double unitPrice,
         List<String> pictures,
+        int weight,
         ProductStatus status,
         UUID collectionId,
         UUID typeId,
