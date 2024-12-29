@@ -1,6 +1,7 @@
 package com.nextrad.vietphucstore.exceptions;
 
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
+import org.hibernate.LazyInitializationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -33,5 +34,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiItemResponse<String>> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         return ResponseEntity.status(400)
                 .body(new ApiItemResponse<>(e.getName(), e.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiItemResponse<StackTraceElement[]>> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.status(500)
+                .body(new ApiItemResponse<>(e.getStackTrace(), e.getMessage()));
+    }
+
+    @ExceptionHandler(LazyInitializationException.class)
+    public ResponseEntity<ApiItemResponse<StackTraceElement[]>> handleLazyInitializationException(LazyInitializationException e) {
+        return ResponseEntity.status(500)
+                .body(new ApiItemResponse<>(e.getStackTrace(), e.getMessage()));
     }
 }

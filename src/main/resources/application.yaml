@@ -4,12 +4,17 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    database: mysql
+    open-in-view: false
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    hikari:
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+      validation-timeout: 10000
+      idle-timeout: 600000
   mail:
     host: smtp.gmail.com
     port: 587

@@ -405,7 +405,9 @@ public class ProductServiceImplement implements ProductService {
                         .asList(product.getPictures()
                                 .substring(1, product.getPictures().length() - 1)
                                 .split(", ")),
-                product.getStatus(), product.getProductCollection().getName(), product.getProductType().getName(),
+                product.getStatus(),
+                product.getProductCollection() != null ? product.getProductCollection().getName() : null,
+                product.getProductType().getName(),
                 product.getProductQuantities().stream().collect(Collectors.toMap(
                         pq -> pq.getProductSize().getId(),
                         productQuantity -> new SizeQuantityResponse(
@@ -433,7 +435,7 @@ public class ProductServiceImplement implements ProductService {
         product.setStatus(request.status());
         product.setProductType(productTypeRepository.findByIdAndDeleted(request.typeId(), false)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND)));
-        if (!request.collectionId().toString().isBlank())
+        if (request.collectionId() != null)
             product.setProductCollection(productCollectionRepository.findByIdAndDeleted(request.collectionId(), false)
                     .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)));
         return product;

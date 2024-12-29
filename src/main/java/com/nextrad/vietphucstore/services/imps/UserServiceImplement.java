@@ -104,6 +104,8 @@ public class UserServiceImplement implements UserService {
         user.setUpdatedDate(new Date(Long.parseLong(tokenId[12])));
         user.setDob(new Date(Long.parseLong(tokenId[13])));
         user.setGender(UserGender.valueOf(tokenId[14]));
+        user.setProvince(tokenId[15]);
+        user.setDistrict(tokenId[16]);
 
         String refreshToken = tokenUtil.genRefreshToken(user);
         tokenRepository.save(tokenUtil.createEntity(refreshToken, true));

@@ -42,7 +42,7 @@ public class Product {
     @JoinColumn(name = "product_type_id", nullable = false)
     private ProductType productType;
 
-    @OneToMany(mappedBy = "product", orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
     private Set<ProductQuantity> productQuantities = new LinkedHashSet<>();
 
 }

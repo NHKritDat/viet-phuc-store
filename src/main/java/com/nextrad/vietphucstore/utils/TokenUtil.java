@@ -73,8 +73,6 @@ public class TokenUtil {
                     claimsSet.getStringClaim(ID_FIELD),
                     claimsSet.getStringClaim(NAME_FIELD),
                     claimsSet.getSubject(),
-                    claimsSet.getStringClaim(PROVINCE_FIELD),
-                    claimsSet.getStringClaim(DISTRICT_FIELD),
                     claimsSet.getStringClaim(ADDRESS_FIELD),
                     claimsSet.getStringClaim(PHONE_FIELD),
                     claimsSet.getStringClaim(AVATAR_FIELD),
@@ -85,7 +83,9 @@ public class TokenUtil {
                     claimsSet.getStringClaim(UPDATED_BY_FIELD),
                     claimsSet.getClaim(UPDATED_DATE_FIELD).toString(),
                     claimsSet.getClaim(DOB_FIELD).toString(),
-                    claimsSet.getStringClaim(GENDER_FIELD)
+                    claimsSet.getStringClaim(GENDER_FIELD),
+                    claimsSet.getStringClaim(PROVINCE_FIELD),
+                    claimsSet.getStringClaim(DISTRICT_FIELD)
             };
         } catch (ParseException e) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
