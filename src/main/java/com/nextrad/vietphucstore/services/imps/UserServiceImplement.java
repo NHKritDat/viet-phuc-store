@@ -56,21 +56,20 @@ public class UserServiceImplement implements UserService {
     }
 
     @Override
-    public TokenResponse login(AuthRequest request) {
-        String[] info = tokenUtil.getInfo(request.auth());
-        Optional<User> user = userRepository.findByEmailAndStatus(info[0], UserStatus.VERIFIED);
+    public TokenResponse login(LoginGoogle request) {
+        Optional<User> user = userRepository.findByEmailAndStatus(request.email(), UserStatus.VERIFIED);
         if (user.isPresent()) {
             String refreshToken = tokenUtil.genRefreshToken(user.get());
             tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
             return new TokenResponse(tokenUtil.genAccessToken(user.get()), refreshToken);
         } else {
             User newUser = new User();
-            newUser.setEmail(info[0]);
-            newUser.setName(info[1]);
-            newUser.setAvatar(info[2]);
+            newUser.setEmail(request.email());
+            newUser.setName(request.name());
+            newUser.setAvatar(request.avatar());
             newUser.setStatus(UserStatus.VERIFIED);
-            newUser.setCreatedBy(info[0]);
-            newUser.setUpdatedBy(info[0]);
+            newUser.setCreatedBy(request.email());
+            newUser.setUpdatedBy(request.email());
             newUser = userRepository.save(newUser);
 
             String refreshToken = tokenUtil.genRefreshToken(newUser);

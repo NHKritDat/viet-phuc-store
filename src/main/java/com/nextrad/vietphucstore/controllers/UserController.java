@@ -30,7 +30,7 @@ public class UserController {
     }
 
     @PostMapping("/auth/login/google")
-    public ResponseEntity<ApiItemResponse<TokenResponse>> loginGoogle(@RequestBody AuthRequest request) {
+    public ResponseEntity<ApiItemResponse<TokenResponse>> loginGoogle(@RequestBody LoginGoogle request) {
         return ResponseEntity.ok(new ApiItemResponse<>(userService.login(request), null));
     }
 
