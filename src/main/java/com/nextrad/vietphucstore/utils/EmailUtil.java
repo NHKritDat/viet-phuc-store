@@ -24,7 +24,7 @@ public class EmailUtil {
     @Async
     public void resetPassword(String email, String fullName, String token) {
         String subject = "Reset your password";
-        String url = resetPasswordUrl + "?token=" + token;
+        String url = resetPasswordUrl + token;
         String content = """
                 <div>
                     Dear %s,
@@ -46,7 +46,7 @@ public class EmailUtil {
     @Async
     public void verifyEmail(String email, String fullName, String token) {
         String subject = "Verify your email";
-        String url = verifyEmailUrl + "?token=" + token;
+        String url = verifyEmailUrl + token;
         String content = """
                 <div>
                     Dear %s,
