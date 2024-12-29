@@ -110,6 +110,8 @@ public class OrderServiceImplement implements OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
         order.setEmail(request.email());
         order.setName(request.name());
+        order.setProvince(request.province());
+        order.setDistrict(request.district());
         order.setAddress(request.address());
         order.setPhone(request.phone());
         List<Cart> carts = cartRepository.findByUser_Email(currentUserEmail);

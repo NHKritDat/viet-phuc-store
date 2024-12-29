@@ -8,6 +8,8 @@ public record UpdateProfileRequest(
         String name,
         Date dob,
         UserGender gender,
+        String province,
+        String district,
         String address,
         String phone
 ) {

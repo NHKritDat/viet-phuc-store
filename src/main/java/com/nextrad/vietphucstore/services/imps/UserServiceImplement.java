@@ -243,6 +243,10 @@ public class UserServiceImplement implements UserService {
             user.setDob(request.dob());
         if (request.gender() != null)
             user.setGender(request.gender());
+        if(!request.province().isBlank())
+            user.setProvince(request.province());
+        if (!request.district().isBlank())
+            user.setDistrict(request.district());
         if (!request.address().isBlank())
             user.setAddress(request.address());
         if (!request.phone().isBlank())
@@ -266,6 +270,8 @@ public class UserServiceImplement implements UserService {
         user.setGender(request.gender());
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
+        user.setProvince(request.province());
+        user.setDistrict(request.district());
         user.setAddress(request.address());
         user.setPhone(request.phone());
         user.setAvatar(request.avatar());
@@ -277,7 +283,8 @@ public class UserServiceImplement implements UserService {
 
     private UserDetail convertToUserDetail(User user) {
         return new UserDetail(user.getId(), user.getName(), user.getDob(), user.getGender(), user.getEmail(),
-                user.getAddress(), user.getPhone(), user.getAvatar(), user.getRole(), user.getStatus(),
+                user.getProvince(), user.getDistrict(), user.getAddress(), user.getPhone(),
+                user.getAvatar(), user.getRole(), user.getStatus(),
                 user.getCreatedBy(), user.getCreatedDate(), user.getUpdatedBy(), user.getUpdatedDate());
     }
 }

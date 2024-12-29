@@ -28,26 +28,32 @@ public class Order {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
+    private String province;
+
+    @Column(nullable = false)
+    private String district;
+
+    @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private String phone;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private double productTotal;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private double shippingFee;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private PaymentMethod paymentMethod;
 
     @Enumerated(EnumType.STRING)

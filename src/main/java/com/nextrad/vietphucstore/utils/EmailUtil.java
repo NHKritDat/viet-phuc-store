@@ -18,6 +18,8 @@ public class EmailUtil {
 
     @Value("${RESET_PASSWORD_URL}")
     private String resetPasswordUrl;
+    @Value("${VERIFY_EMAIL_URL}")
+    private String verifyEmailUrl;
 
     @Async
     public void resetPassword(String email, String fullName, String token) {
@@ -44,7 +46,7 @@ public class EmailUtil {
     @Async
     public void verifyEmail(String email, String fullName, String token) {
         String subject = "Verify your email";
-        String url = "http://localhost:8082/nextrad/api/users/auth/email/verify" + "?token=" + token;
+        String url = verifyEmailUrl + "?token=" + token;
         String content = """
                 <div>
                     Dear %s,

@@ -42,6 +42,12 @@ public class User {
     private String password = "$2a$12$OqwaI0/yLjyf/kkLLd3veelcs7M2ememzdyZiO1jgJPRlIz1mQYpy";
 
     @Column(nullable = false)
+    private String province = "";
+
+    @Column(nullable = false)
+    private String district = "";
+
+    @Column(nullable = false)
     private String address = "";
 
     @Column(nullable = false)

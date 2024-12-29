@@ -13,6 +13,8 @@ public record UserDetail(
         Date dob,
         UserGender gender,
         String email,
+        String province,
+        String district,
         String address,
         String phone,
         String avatar,

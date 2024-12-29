@@ -12,6 +12,8 @@ public record UserModifyRequest(
         UserGender gender,
         String email,
         String password,
+        String province,
+        String district,
         String address,
         String phone,
         String avatar,
