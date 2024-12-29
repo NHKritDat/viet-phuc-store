@@ -4,6 +4,7 @@ import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.user.UserRole;
 import com.nextrad.vietphucstore.enums.user.UserStatus;
 import com.nextrad.vietphucstore.repositories.user.UserRepository;
+import com.nextrad.vietphucstore.services.ViettelService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +17,7 @@ public class ApplicationInitConfig {
     private String adminEmail;
 
     @Bean
-    public ApplicationRunner applicationRunner(UserRepository userRepository) {
+    public ApplicationRunner applicationRunner(UserRepository userRepository, ViettelService viettelService) {
         return args -> {
             if (userRepository.findByEmail(adminEmail).isEmpty()) {
                 User user = new User();
@@ -28,6 +29,7 @@ public class ApplicationInitConfig {
                 user.setUpdatedBy(adminEmail);
                 userRepository.save(user);
             }
+            viettelService.setToken(viettelService.getAccessToken());
         };
     }
 

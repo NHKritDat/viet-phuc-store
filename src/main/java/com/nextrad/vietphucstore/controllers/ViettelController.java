@@ -1,15 +1,15 @@
 package com.nextrad.vietphucstore.controllers;
 
+import com.nextrad.vietphucstore.dtos.requests.viettel.ShippingFee;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.viettel.DistrictResponse;
+import com.nextrad.vietphucstore.dtos.responses.viettel.PricingResponse;
 import com.nextrad.vietphucstore.dtos.responses.viettel.ProvinceResponse;
 import com.nextrad.vietphucstore.services.ViettelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,5 +31,10 @@ public class ViettelController {
             @RequestParam(defaultValue = "-1") int id
     ) {
         return ResponseEntity.ok(new ApiItemResponse<>(viettelService.getDistricts(id), null));
+    }
+
+    @PostMapping("/pricing")
+    public ResponseEntity<ApiItemResponse<PricingResponse>> getShippingFee(@RequestBody ShippingFee request) {
+        return ResponseEntity.ok(new ApiItemResponse<>(viettelService.getShippingFee(request), null));
     }
 }
