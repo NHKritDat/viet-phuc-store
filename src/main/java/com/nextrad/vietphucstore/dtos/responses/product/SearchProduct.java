@@ -6,6 +6,7 @@ public record SearchProduct(
         UUID id,
         String name,
         double unitPrice,
-        String picture
+        String picture,
+        double rating
 ) {
 }

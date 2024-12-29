@@ -420,11 +420,14 @@ public class ProductServiceImplement implements ProductService {
 
     private SearchProduct convertProductToSearchProduct(Product product) {
         return new SearchProduct(product.getId(), product.getName(), product.getUnitPrice(),
-                Arrays
-                        .asList(product.getPictures()
-                                .substring(1, product.getPictures().length() - 1)
-                                .split(", "))
-                        .get(0));
+                product.getPictures()
+                        .substring(1, product.getPictures().length() - 1)
+                        .split(", ")[0],
+                feedbackRepository.findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
+                        product.getId(),
+                        false
+                ).stream().mapToDouble(Feedback::getRating).average().orElse(0)
+        );
     }
 
     private Product setProduct(ModifyProductRequest request, Product product) {

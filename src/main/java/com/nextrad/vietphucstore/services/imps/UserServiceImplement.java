@@ -241,14 +241,18 @@ public class UserServiceImplement implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if (!request.name().isBlank())
             user.setName(request.name());
+
         if (request.dob() != null)
             user.setDob(request.dob());
         if (request.gender() != null)
             user.setGender(request.gender());
+
         if(!request.province().isBlank())
             user.setProvince(request.province());
+
         if (!request.district().isBlank())
             user.setDistrict(request.district());
+
         if (!request.address().isBlank())
             user.setAddress(request.address());
         if (!request.phone().isBlank())

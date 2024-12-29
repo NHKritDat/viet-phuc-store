@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 
 @ControllerAdvice
@@ -44,6 +45,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(LazyInitializationException.class)
     public ResponseEntity<ApiItemResponse<StackTraceElement[]>> handleLazyInitializationException(LazyInitializationException e) {
+        return ResponseEntity.status(500)
+                .body(new ApiItemResponse<>(e.getStackTrace(), e.getMessage()));
+    }
+
+    @ExceptionHandler(SQLException.class)
+    public ResponseEntity<ApiItemResponse<StackTraceElement[]>> handleSQLException(SQLException e) {
         return ResponseEntity.status(500)
                 .body(new ApiItemResponse<>(e.getStackTrace(), e.getMessage()));
     }
