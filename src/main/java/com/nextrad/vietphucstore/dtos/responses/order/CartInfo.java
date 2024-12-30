@@ -5,6 +5,7 @@ import java.util.UUID;
 public record CartInfo(
         UUID productQuantityId,
         String name,
+        String image,
         double unitPrice,
         int weight,
         String size,

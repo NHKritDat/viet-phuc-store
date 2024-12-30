@@ -6,6 +6,7 @@ import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
+import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
@@ -239,13 +240,13 @@ public class ProductController {
     }
 
     @GetMapping("/collections")
-    public ResponseEntity<ApiListItemResponse<ProductCollection>> getCollections(
+    public ResponseEntity<ApiListItemResponse<ProductCollectionResponse>> getCollections(
             @RequestParam(defaultValue = "1", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int size,
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
             @RequestParam(defaultValue = "id", required = false) String... properties
     ) {
-        Page<ProductCollection> response = productService.getProductCollections(
+        Page<ProductCollectionResponse> response = productService.getProductCollections(
                 new PageableRequest(page - 1, size, direction, properties)
         );
         return ResponseEntity.ok(new ApiListItemResponse<>(
@@ -260,13 +261,13 @@ public class ProductController {
 
     @GetMapping("/collections/staff")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiListItemResponse<ProductCollection>> getCollectionsForStaff(
+    public ResponseEntity<ApiListItemResponse<ProductCollectionResponse>> getCollectionsForStaff(
             @RequestParam(defaultValue = "1", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int size,
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
             @RequestParam(defaultValue = "id", required = false) String... properties
     ) {
-        Page<ProductCollection> response = productService.getProductCollectionsForStaff(
+        Page<ProductCollectionResponse> response = productService.getProductCollectionsForStaff(
                 new PageableRequest(page - 1, size, direction, properties)
         );
         return ResponseEntity.ok(new ApiListItemResponse<>(
@@ -281,19 +282,19 @@ public class ProductController {
 
     @GetMapping("/collections/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiItemResponse<ProductCollection>> getCollection(@PathVariable UUID id) {
+    public ResponseEntity<ApiItemResponse<ProductCollectionResponse>> getCollection(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.getProductCollection(id), null));
     }
 
     @PostMapping("/collections/staff")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiItemResponse<ProductCollection>> createCollection(@RequestBody ModifyCollectionRequest request) {
+    public ResponseEntity<ApiItemResponse<ProductCollectionResponse>> createCollection(@RequestBody ModifyCollectionRequest request) {
         return ResponseEntity.ok(new ApiItemResponse<>(productService.createProductCollection(request), null));
     }
 
     @PutMapping("/collections/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiItemResponse<ProductCollection>> updateCollection(
+    public ResponseEntity<ApiItemResponse<ProductCollectionResponse>> updateCollection(
             @PathVariable UUID id,
             @RequestBody ModifyCollectionRequest request
     ) {
