@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
-    types:
-      - closed
 
 env:
   ACCESS_TOKEN_EXP: ${{ vars.ACCESS_TOKEN_EXP }}
@@ -37,7 +32,6 @@ env:
 
 jobs:
   compile:
-    if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     name: Compile Project
     steps:
@@ -52,11 +46,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Set executable permission for mvnw
+        run: chmod +x mvnw
+
       - name: Compile project
         run: ./mvnw clean compile
 
   test:
-    if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     name: Run Unit Tests
     steps:
@@ -70,6 +66,9 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: Set executable permission for mvnw
+        run: chmod +x mvnw
 
       - name: Run unit tests
         run: ./mvnw clean test
@@ -91,6 +90,9 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: Set executable permission for mvnw
+        run: chmod +x mvnw
 
       - name: Package project
         run: ./mvnw clean package -DskipTests
