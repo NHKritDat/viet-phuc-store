@@ -6,6 +6,7 @@ import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
+import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
 import com.nextrad.vietphucstore.entities.product.ProductCollection;
@@ -54,15 +55,15 @@ public interface ProductService {
 
     String deleteProductType(UUID id);
 
-    Page<ProductCollection> getProductCollections(PageableRequest request);
+    Page<ProductCollectionResponse> getProductCollections(PageableRequest request);
 
-    Page<ProductCollection> getProductCollectionsForStaff(PageableRequest request);
+    Page<ProductCollectionResponse> getProductCollectionsForStaff(PageableRequest request);
 
-    ProductCollection getProductCollection(UUID id);
+    ProductCollectionResponse getProductCollection(UUID id);
 
-    ProductCollection createProductCollection(ModifyCollectionRequest request);
+    ProductCollectionResponse createProductCollection(ModifyCollectionRequest request);
 
-    ProductCollection updateProductCollection(UUID id, ModifyCollectionRequest request);
+    ProductCollectionResponse updateProductCollection(UUID id, ModifyCollectionRequest request);
 
     String deleteProductCollection(UUID id);
 

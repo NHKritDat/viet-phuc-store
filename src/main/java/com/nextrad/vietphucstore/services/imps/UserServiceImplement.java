@@ -194,8 +194,12 @@ public class UserServiceImplement implements UserService {
     @Override
     public Page<SearchUser> getUsers(String search, PageableRequest request) {
         return userRepository
-                .findByRoleNotLikeAndNameContainsIgnoreCase(UserRole.STAFF, search, pageableUtil.getPageable(User.class, request))
-                .map(user -> new SearchUser(user.id(), user.name(), user.email(), user.avatar(), user.status()));
+                .findByRoleNotLikeAndNameContainsIgnoreCase(UserRole.STAFF,
+                        search, pageableUtil.getPageable(User.class, request))
+                .map(user ->
+                        new SearchUser(user.getId(), user.getName(), user.getEmail(),
+                                user.getAvatar(), user.getStatus())
+                );
     }
 
     @Override

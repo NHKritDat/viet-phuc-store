@@ -23,6 +23,7 @@ import com.nextrad.vietphucstore.repositories.product.ProductQuantityRepository;
 import com.nextrad.vietphucstore.repositories.user.UserRepository;
 import com.nextrad.vietphucstore.services.OrderService;
 import com.nextrad.vietphucstore.utils.IdUtil;
+import com.nextrad.vietphucstore.utils.ImagesUtil;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -45,6 +46,7 @@ public class OrderServiceImplement implements OrderService {
     private final UserRepository userRepository;
     private final ProductQuantityRepository productQuantityRepository;
     private final IdUtil idUtil;
+    private final ImagesUtil imagesUtil;
 
     @Override
     public String addToCart(ModifyCartRequest request) {
@@ -95,6 +97,7 @@ public class OrderServiceImplement implements OrderService {
         return carts.map(cart -> new CartInfo(
                 cart.getProductQuantity().getId(),
                 cart.getProductQuantity().getProduct().getName(),
+                imagesUtil.convertStringToImages(cart.getProductQuantity().getProduct().getPictures()).get(0),
                 cart.getProductQuantity().getProduct().getUnitPrice(),
                 cart.getProductQuantity().getProduct().getWeight(),
                 cart.getProductQuantity().getProductSize().getName(),
@@ -226,11 +229,8 @@ public class OrderServiceImplement implements OrderService {
         return new FeedbackResponse(
                 feedback.getId(),
                 feedback.getOrderDetail().getProductQuantity().getProduct().getName(),
-                feedback.getOrderDetail().getProductQuantity().getProduct().getPictures()
-                        .substring(1,
-                                feedback.getOrderDetail().getProductQuantity().getProduct()
-                                        .getPictures().length() - 1)
-                        .split(", ")[0],
+                imagesUtil.convertStringToImages(feedback.getOrderDetail()
+                        .getProductQuantity().getProduct().getPictures()).get(0),
                 feedback.getContent(),
                 feedback.getRating(),
                 feedback.getOrderDetail().getOrder().getUser().getName(),
@@ -242,11 +242,8 @@ public class OrderServiceImplement implements OrderService {
         return new OrderHistory(
                 od.getOrder().getId(),
                 od.getId(),
-                od.getProductQuantity().getProduct().getPictures()
-                        .substring(1,
-                                od.getProductQuantity().getProduct()
-                                        .getPictures().length() - 1)
-                        .split(", ")[0],
+                imagesUtil.convertStringToImages(od
+                        .getProductQuantity().getProduct().getPictures()).get(0),
                 od.getProductQuantity().getProduct().getName(),
                 od.getOrder().getPaymentMethod(),
                 od.getProductQuantity().getProductSize().getName(),

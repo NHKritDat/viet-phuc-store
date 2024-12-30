@@ -6,6 +6,7 @@ import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
+import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
 import com.nextrad.vietphucstore.dtos.responses.product.SizeQuantityResponse;
@@ -17,6 +18,7 @@ import com.nextrad.vietphucstore.exceptions.AppException;
 import com.nextrad.vietphucstore.repositories.order.FeedbackRepository;
 import com.nextrad.vietphucstore.repositories.product.*;
 import com.nextrad.vietphucstore.services.ProductService;
+import com.nextrad.vietphucstore.utils.ImagesUtil;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,6 +38,7 @@ public class ProductServiceImplement implements ProductService {
     private final ProductQuantityRepository productQuantityRepository;
     private final FeedbackRepository feedbackRepository;
     private final PageableUtil pageableUtil;
+    private final ImagesUtil imagesUtil;
 
     @Override
     public Page<SearchProduct> getProducts(String search, String[] sizes, String[] types, String[] collections,
@@ -201,7 +204,8 @@ public class ProductServiceImplement implements ProductService {
             productQuantity.setQuantity(quantity);
             productQuantityRepository.save(productQuantity);
         });
-        return convertProductToProductDetail(product);
+        return convertProductToProductDetail(productRepository.findById(product.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)));
     }
 
     @Override
@@ -323,33 +327,35 @@ public class ProductServiceImplement implements ProductService {
     }
 
     @Override
-    public Page<ProductCollection> getProductCollections(PageableRequest request) {
+    public Page<ProductCollectionResponse> getProductCollections(PageableRequest request) {
         return productCollectionRepository.findByDeleted(false,
-                pageableUtil.getPageable(ProductCollection.class, request));
+                        pageableUtil.getPageable(ProductCollection.class, request))
+                .map(this::setProductCollectionResponse);
     }
 
     @Override
-    public Page<ProductCollection> getProductCollectionsForStaff(PageableRequest request) {
-        return productCollectionRepository.findAll(pageableUtil.getPageable(ProductCollection.class, request));
+    public Page<ProductCollectionResponse> getProductCollectionsForStaff(PageableRequest request) {
+        return productCollectionRepository.findAll(pageableUtil.getPageable(ProductCollection.class, request))
+                .map(this::setProductCollectionResponse);
     }
 
     @Override
-    public ProductCollection getProductCollection(UUID id) {
-        return productCollectionRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND));
+    public ProductCollectionResponse getProductCollection(UUID id) {
+        return setProductCollectionResponse(productCollectionRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)));
     }
 
     @Override
-    public ProductCollection createProductCollection(ModifyCollectionRequest request) {
+    public ProductCollectionResponse createProductCollection(ModifyCollectionRequest request) {
         ProductCollection collection = setCollection(request, new ProductCollection());
-        return productCollectionRepository.save(collection);
+        return setProductCollectionResponse(productCollectionRepository.save(collection));
     }
 
     @Override
-    public ProductCollection updateProductCollection(UUID id, ModifyCollectionRequest request) {
+    public ProductCollectionResponse updateProductCollection(UUID id, ModifyCollectionRequest request) {
         ProductCollection collection = setCollection(request, productCollectionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)));
-        return productCollectionRepository.save(collection);
+        return setProductCollectionResponse(productCollectionRepository.save(collection));
     }
 
     @Override
@@ -382,15 +388,23 @@ public class ProductServiceImplement implements ProductService {
         return feedbacks.map(this::setFeedbackResponse);
     }
 
+    private ProductCollectionResponse setProductCollectionResponse(ProductCollection collection) {
+        return new ProductCollectionResponse(
+                collection.getId(),
+                collection.getName(),
+                collection.getDescription(),
+                imagesUtil.convertStringToImages(collection.getImages()),
+                collection.isDeleted()
+        );
+    }
+
     private FeedbackResponse setFeedbackResponse(Feedback feedback) {
         return new FeedbackResponse(
                 feedback.getId(),
                 feedback.getOrderDetail().getProductQuantity().getProduct().getName(),
-                feedback.getOrderDetail().getProductQuantity().getProduct().getPictures()
-                        .substring(1,
-                                feedback.getOrderDetail().getProductQuantity().getProduct()
-                                        .getPictures().length() - 1)
-                        .split(", ")[0],
+                imagesUtil.convertStringToImages(
+                        feedback.getOrderDetail().getProductQuantity().getProduct().getPictures()
+                ).get(0),
                 feedback.getContent(),
                 feedback.getRating(),
                 feedback.getOrderDetail().getOrder().getUser().getName(),
@@ -401,10 +415,7 @@ public class ProductServiceImplement implements ProductService {
     private ProductDetail convertProductToProductDetail(Product product) {
         return new ProductDetail(
                 product.getId(), product.getName(), product.getDescription(), product.getUnitPrice(),
-                Arrays
-                        .asList(product.getPictures()
-                                .substring(1, product.getPictures().length() - 1)
-                                .split(", ")),
+                imagesUtil.convertStringToImages(product.getPictures()),
                 product.getWeight(), product.getStatus(),
                 product.getProductCollection() != null ? product.getProductCollection().getName() : null,
                 product.getProductType().getName(),
@@ -420,9 +431,7 @@ public class ProductServiceImplement implements ProductService {
 
     private SearchProduct convertProductToSearchProduct(Product product) {
         return new SearchProduct(product.getId(), product.getName(), product.getUnitPrice(),
-                product.getPictures()
-                        .substring(1, product.getPictures().length() - 1)
-                        .split(", ")[0],
+                imagesUtil.convertStringToImages(product.getPictures()).get(0),
                 feedbackRepository.findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
                         product.getId(),
                         false
