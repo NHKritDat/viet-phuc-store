@@ -134,9 +134,7 @@ jobs:
           file: ./Dockerfile
           push: true
           platforms: linux/amd64
-          tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }}
-            ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }},${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:latest
 
   deploy:
     needs:
