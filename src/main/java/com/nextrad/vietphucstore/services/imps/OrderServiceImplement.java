@@ -23,7 +23,7 @@ import com.nextrad.vietphucstore.repositories.product.ProductQuantityRepository;
 import com.nextrad.vietphucstore.repositories.user.UserRepository;
 import com.nextrad.vietphucstore.services.OrderService;
 import com.nextrad.vietphucstore.utils.IdUtil;
-import com.nextrad.vietphucstore.utils.ImagesUtil;
+import com.nextrad.vietphucstore.utils.ObjectMapperUtil;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -46,7 +46,7 @@ public class OrderServiceImplement implements OrderService {
     private final UserRepository userRepository;
     private final ProductQuantityRepository productQuantityRepository;
     private final IdUtil idUtil;
-    private final ImagesUtil imagesUtil;
+    private final ObjectMapperUtil objectMapperUtil;
 
     @Override
     public String addToCart(ModifyCartRequest request) {
@@ -94,15 +94,7 @@ public class OrderServiceImplement implements OrderService {
                 SecurityContextHolder.getContext().getAuthentication().getName(),
                 pageableUtil.getPageable(Cart.class, request)
         );
-        return carts.map(cart -> new CartInfo(
-                cart.getProductQuantity().getId(),
-                cart.getProductQuantity().getProduct().getName(),
-                imagesUtil.convertStringToImages(cart.getProductQuantity().getProduct().getPictures()).get(0),
-                cart.getProductQuantity().getProduct().getUnitPrice(),
-                cart.getProductQuantity().getProduct().getWeight(),
-                cart.getProductQuantity().getProductSize().getName(),
-                cart.getQuantity()
-        ));
+        return carts.map(objectMapperUtil::mapCartInfo);
     }
 
     @Override
@@ -182,7 +174,7 @@ public class OrderServiceImplement implements OrderService {
                         OrderStatus.DELIVERED,
                         pageableUtil.getPageable(OrderDetail.class, request)
                 );
-        return orderDetails.map(this::toOrderHistory);
+        return orderDetails.map(objectMapperUtil::mapOrderHistory);
     }
 
     @Override
@@ -190,7 +182,7 @@ public class OrderServiceImplement implements OrderService {
         Page<OrderDetail> orderDetails = orderDetailRepository.findAll(
                 pageableUtil.getPageable(OrderDetail.class, request)
         );
-        return orderDetails.map(this::toOrderHistory);
+        return orderDetails.map(objectMapperUtil::mapOrderHistory);
     }
 
     @Override
@@ -200,7 +192,11 @@ public class OrderServiceImplement implements OrderService {
         if (feedback.isPresent()) {
             if (!feedback.get().getOrderDetail().getOrder().getUser().getEmail().equals(email))
                 throw new AppException(ErrorCode.NO_PERMISSION);
-            return setFeedbackResponse(setFeedback(request, feedback.get()));
+            return objectMapperUtil.mapFeedbackResponse(
+                    feedbackRepository.save(
+                            objectMapperUtil.mapFeedback(request, feedback.get())
+                    )
+            );
         } else {
             OrderDetail orderDetail = orderDetailRepository.findById(orderDetailId)
                     .orElseThrow(() -> new AppException(ErrorCode.ORDER_DETAIL_NOT_FOUND));
@@ -208,47 +204,20 @@ public class OrderServiceImplement implements OrderService {
                 throw new AppException(ErrorCode.NO_PERMISSION);
             Feedback newFeedback = new Feedback();
             newFeedback.setOrderDetail(orderDetail);
-            return setFeedbackResponse(setFeedback(request, newFeedback));
+            return objectMapperUtil.mapFeedbackResponse(
+                    feedbackRepository.save(
+                            objectMapperUtil.mapFeedback(request, newFeedback)
+                    )
+            );
         }
     }
 
     @Override
     public FeedbackResponse getFeedback(UUID orderDetailId) {
-        Feedback feedback = feedbackRepository.findByOrderDetail_Id(orderDetailId)
-                .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND));
-        return setFeedbackResponse(feedback);
-    }
-
-    private Feedback setFeedback(FeedbackRequest request, Feedback feedback) {
-        feedback.setRating(request.rating());
-        feedback.setContent(request.content());
-        return feedbackRepository.save(feedback);
-    }
-
-    private FeedbackResponse setFeedbackResponse(Feedback feedback) {
-        return new FeedbackResponse(
-                feedback.getId(),
-                feedback.getOrderDetail().getProductQuantity().getProduct().getName(),
-                imagesUtil.convertStringToImages(feedback.getOrderDetail()
-                        .getProductQuantity().getProduct().getPictures()).get(0),
-                feedback.getContent(),
-                feedback.getRating(),
-                feedback.getOrderDetail().getOrder().getUser().getName(),
-                feedback.getCreatedDate()
+        return objectMapperUtil.mapFeedbackResponse(
+                feedbackRepository.findByOrderDetail_Id(orderDetailId)
+                        .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND))
         );
     }
 
-    private OrderHistory toOrderHistory(OrderDetail od) {
-        return new OrderHistory(
-                od.getOrder().getId(),
-                od.getId(),
-                imagesUtil.convertStringToImages(od
-                        .getProductQuantity().getProduct().getPictures()).get(0),
-                od.getProductQuantity().getProduct().getName(),
-                od.getOrder().getPaymentMethod(),
-                od.getProductQuantity().getProductSize().getName(),
-                od.getQuantity(),
-                od.getProductQuantity().getProduct().getUnitPrice()
-        );
-    }
 }
