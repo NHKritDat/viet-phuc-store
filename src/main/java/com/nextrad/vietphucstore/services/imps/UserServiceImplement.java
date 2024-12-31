@@ -17,6 +17,7 @@ import com.nextrad.vietphucstore.repositories.user.TokenRepository;
 import com.nextrad.vietphucstore.repositories.user.UserRepository;
 import com.nextrad.vietphucstore.services.UserService;
 import com.nextrad.vietphucstore.utils.EmailUtil;
+import com.nextrad.vietphucstore.utils.ObjectMapperUtil;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import com.nextrad.vietphucstore.utils.TokenUtil;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class UserServiceImplement implements UserService {
     private final TokenUtil tokenUtil;
     private final EmailUtil emailUtil;
     private final PasswordEncoder passwordEncoder;
+    private final ObjectMapperUtil objectMapperUtil;
 
     @Override
     public boolean existsByIdAndStatus(UUID id, boolean status) {
@@ -52,7 +54,7 @@ public class UserServiceImplement implements UserService {
             throw new AppException(ErrorCode.WRONG_PASSWORD);
         String refreshToken = tokenUtil.genRefreshToken(user);
         tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
-        return new TokenResponse(tokenUtil.genAccessToken(user), refreshToken);
+        return objectMapperUtil.mapTokenResponse(tokenUtil.genAccessToken(user), refreshToken);
     }
 
     @Override
@@ -61,7 +63,7 @@ public class UserServiceImplement implements UserService {
         if (user.isPresent()) {
             String refreshToken = tokenUtil.genRefreshToken(user.get());
             tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
-            return new TokenResponse(tokenUtil.genAccessToken(user.get()), refreshToken);
+            return objectMapperUtil.mapTokenResponse(tokenUtil.genAccessToken(user.get()), refreshToken);
         } else {
             User newUser = new User();
             newUser.setEmail(request.email());
@@ -74,7 +76,7 @@ public class UserServiceImplement implements UserService {
 
             String refreshToken = tokenUtil.genRefreshToken(newUser);
             tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
-            return new TokenResponse(tokenUtil.genAccessToken(newUser), refreshToken);
+            return objectMapperUtil.mapTokenResponse(tokenUtil.genAccessToken(newUser), refreshToken);
         }
     }
 
@@ -194,26 +196,26 @@ public class UserServiceImplement implements UserService {
     @Override
     public Page<SearchUser> getUsers(String search, PageableRequest request) {
         return userRepository
-                .findByRoleNotLikeAndNameContainsIgnoreCase(UserRole.STAFF,
-                        search, pageableUtil.getPageable(User.class, request))
-                .map(user ->
-                        new SearchUser(user.getId(), user.getName(), user.getEmail(),
-                                user.getAvatar(), user.getStatus())
-                );
+                .findByRoleNotLikeAndNameContainsIgnoreCase(
+                        UserRole.STAFF, search, pageableUtil.getPageable(User.class, request)
+                )
+                .map(objectMapperUtil::mapSearchUser);
     }
 
     @Override
     public UserDetail getUser(UUID id) {
-        User user = userRepository.findByIdAndRoleNotLike(id, UserRole.STAFF)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return convertToUserDetail(user);
+        return objectMapperUtil.mapUserDetail(
+                userRepository.findByIdAndRoleNotLike(id, UserRole.STAFF)
+                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND))
+        );
     }
 
     @Override
     public UserDetail getCurrentUser() {
-        User user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return convertToUserDetail(user);
+        return objectMapperUtil.mapUserDetail(
+                userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND))
+        );
     }
 
     @Override
@@ -244,24 +246,19 @@ public class UserServiceImplement implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if (!request.name().isBlank())
             user.setName(request.name());
-
         if (request.dob() != null)
             user.setDob(request.dob());
         if (request.gender() != null)
             user.setGender(request.gender());
-
         if (!request.province().isBlank())
             user.setProvince(request.province());
-
         if (!request.district().isBlank())
             user.setDistrict(request.district());
-
         if (!request.address().isBlank())
             user.setAddress(request.address());
         if (!request.phone().isBlank())
             user.setPhone(request.phone());
-        userRepository.save(user);
-        return convertToUserDetail(user);
+        return objectMapperUtil.mapUserDetail(userRepository.save(user));
     }
 
     @Override
@@ -269,8 +266,7 @@ public class UserServiceImplement implements UserService {
         User user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setAvatar(request.avatar());
-        userRepository.save(user);
-        return convertToUserDetail(user);
+        return objectMapperUtil.mapUserDetail(userRepository.save(user));
     }
 
     private UserDetail getUserResponse(UserModifyRequest request, User user) {
@@ -286,14 +282,7 @@ public class UserServiceImplement implements UserService {
         user.setAvatar(request.avatar());
         user.setRole(request.role());
         user.setStatus(request.status());
-        userRepository.save(user);
-        return convertToUserDetail(user);
+        return objectMapperUtil.mapUserDetail(userRepository.save(user));
     }
 
-    private UserDetail convertToUserDetail(User user) {
-        return new UserDetail(user.getId(), user.getName(), user.getDob(), user.getGender(), user.getEmail(),
-                user.getProvince(), user.getDistrict(), user.getAddress(), user.getPhone(),
-                user.getAvatar(), user.getRole(), user.getStatus(),
-                user.getCreatedBy(), user.getCreatedDate(), user.getUpdatedBy(), user.getUpdatedDate());
-    }
 }

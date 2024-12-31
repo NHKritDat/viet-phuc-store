@@ -11,7 +11,6 @@ import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
-import com.nextrad.vietphucstore.entities.product.ProductCollection;
 import com.nextrad.vietphucstore.entities.product.ProductSize;
 import com.nextrad.vietphucstore.entities.product.ProductType;
 import com.nextrad.vietphucstore.services.ProductService;

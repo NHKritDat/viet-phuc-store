@@ -9,7 +9,6 @@ import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
-import com.nextrad.vietphucstore.dtos.responses.product.SizeQuantityResponse;
 import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.product.*;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
@@ -18,7 +17,7 @@ import com.nextrad.vietphucstore.exceptions.AppException;
 import com.nextrad.vietphucstore.repositories.order.FeedbackRepository;
 import com.nextrad.vietphucstore.repositories.product.*;
 import com.nextrad.vietphucstore.services.ProductService;
-import com.nextrad.vietphucstore.utils.ImagesUtil;
+import com.nextrad.vietphucstore.utils.ObjectMapperUtil;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +36,7 @@ public class ProductServiceImplement implements ProductService {
     private final ProductQuantityRepository productQuantityRepository;
     private final FeedbackRepository feedbackRepository;
     private final PageableUtil pageableUtil;
-    private final ImagesUtil imagesUtil;
+    private final ObjectMapperUtil objectMapperUtil;
 
     @Override
     public Page<SearchProduct> getProducts(String search, String[] sizes, String[] types, String[] collections,
@@ -114,7 +112,11 @@ public class ProductServiceImplement implements ProductService {
                     );
 
         }
-        return products.map(this::convertProductToSearchProduct);
+        return products.map(p -> objectMapperUtil.mapSearchProduct(
+                p, feedbackRepository
+                        .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(p.getId(), false)
+                        .stream().mapToDouble(Feedback::getRating).average().orElse(0)
+        ));
     }
 
     @Override
@@ -182,20 +184,35 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         }
-        return products.map(this::convertProductToSearchProduct);
+        return products.map(p -> objectMapperUtil.mapSearchProduct(
+                p, feedbackRepository
+                        .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(p.getId(), false)
+                        .stream().mapToDouble(Feedback::getRating).average().orElse(0)
+        ));
     }
 
     @Override
     public ProductDetail getProduct(UUID id) {
-        Product product = productRepository.findByIdAndStatusNot(id, ProductStatus.DELETED)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        return convertProductToProductDetail(product);
+        return objectMapperUtil.mapProductDetail(
+                productRepository.findByIdAndStatusNot(id, ProductStatus.DELETED)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
+        );
     }
 
     @Override
     public ProductDetail createProduct(ModifyProductRequest request) {
-        Product product = setProduct(request, new Product());
-        productRepository.save(product);
+        Product product = productRepository.save(
+                objectMapperUtil.mapProduct(
+                        request, new Product(), productTypeRepository
+                                .findByIdAndDeleted(request.typeId(), false)
+                                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND)),
+                        request.collectionId() != null ? productCollectionRepository
+                                .findByIdAndDeleted(request.collectionId(), false)
+                                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
+                                : null
+                )
+        );
+
         request.sizeQuantities().forEach((sizeId, quantity) -> {
             ProductQuantity productQuantity = new ProductQuantity();
             productQuantity.setProduct(product);
@@ -204,24 +221,37 @@ public class ProductServiceImplement implements ProductService {
             productQuantity.setQuantity(quantity);
             productQuantityRepository.save(productQuantity);
         });
-        return convertProductToProductDetail(productRepository.findById(product.getId())
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)));
+
+        return objectMapperUtil.mapProductDetail(
+                productRepository.findById(product.getId())
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
+        );
     }
 
     @Override
     public ProductDetail updateProduct(UUID id, ModifyProductRequest request) {
-        Product product = setProduct(request, productRepository.findByIdAndStatusNot(id, ProductStatus.DELETED)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)));
+        Product product = objectMapperUtil.mapProduct(
+                request, productRepository
+                        .findByIdAndStatusNot(id, ProductStatus.DELETED)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)),
+                productTypeRepository
+                        .findByIdAndDeleted(request.typeId(), false)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND)),
+                request.collectionId() != null ? productCollectionRepository
+                        .findByIdAndDeleted(request.collectionId(), false)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
+                        : null
+        );
+
         product.getProductQuantities().forEach(pq -> {
-            if (!request.sizeQuantities().containsKey(pq.getProductSize().getId())) {
+            if (!request.sizeQuantities().containsKey(pq.getProductSize().getId()))
                 productQuantityRepository.delete(pq);
-            }
         });
+
         request.sizeQuantities().forEach((sizeId, quantity) -> {
             ProductQuantity productQuantity = product.getProductQuantities().stream()
                     .filter(pq -> pq.getProductSize().getId().equals(sizeId))
-                    .findFirst()
-                    .orElseGet(() -> {
+                    .findFirst().orElseGet(() -> {
                         ProductQuantity pq = new ProductQuantity();
                         pq.setProduct(product);
                         pq.setProductSize(productSizeRepository.findByIdAndDeleted(sizeId, false)
@@ -231,8 +261,8 @@ public class ProductServiceImplement implements ProductService {
             productQuantity.setQuantity(quantity);
             productQuantityRepository.save(productQuantity);
         });
-        productRepository.save(product);
-        return convertProductToProductDetail(product);
+
+        return objectMapperUtil.mapProductDetail(productRepository.save(product));
     }
 
     @Override
@@ -328,34 +358,47 @@ public class ProductServiceImplement implements ProductService {
 
     @Override
     public Page<ProductCollectionResponse> getProductCollections(PageableRequest request) {
-        return productCollectionRepository.findByDeleted(false,
-                        pageableUtil.getPageable(ProductCollection.class, request))
-                .map(this::setProductCollectionResponse);
+        return productCollectionRepository
+                .findByDeleted(false, pageableUtil.getPageable(ProductCollection.class, request))
+                .map(objectMapperUtil::mapProductCollectionResponse);
     }
 
     @Override
     public Page<ProductCollectionResponse> getProductCollectionsForStaff(PageableRequest request) {
-        return productCollectionRepository.findAll(pageableUtil.getPageable(ProductCollection.class, request))
-                .map(this::setProductCollectionResponse);
+        return productCollectionRepository
+                .findAll(pageableUtil.getPageable(ProductCollection.class, request))
+                .map(objectMapperUtil::mapProductCollectionResponse);
     }
 
     @Override
     public ProductCollectionResponse getProductCollection(UUID id) {
-        return setProductCollectionResponse(productCollectionRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)));
+        return objectMapperUtil.mapProductCollectionResponse(
+                productCollectionRepository.findById(id)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
+        );
     }
 
     @Override
     public ProductCollectionResponse createProductCollection(ModifyCollectionRequest request) {
-        ProductCollection collection = setCollection(request, new ProductCollection());
-        return setProductCollectionResponse(productCollectionRepository.save(collection));
+        return objectMapperUtil.mapProductCollectionResponse(
+                productCollectionRepository.save(
+                        objectMapperUtil.mapProductCollection(request, new ProductCollection())
+                )
+        );
     }
 
     @Override
     public ProductCollectionResponse updateProductCollection(UUID id, ModifyCollectionRequest request) {
-        ProductCollection collection = setCollection(request, productCollectionRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)));
-        return setProductCollectionResponse(productCollectionRepository.save(collection));
+        return objectMapperUtil.mapProductCollectionResponse(
+                productCollectionRepository.save(
+                        objectMapperUtil.mapProductCollection(
+                                request,
+                                productCollectionRepository.findById(id)
+                                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)
+                                        )
+                        )
+                )
+        );
     }
 
     @Override
@@ -369,96 +412,18 @@ public class ProductServiceImplement implements ProductService {
 
     @Override
     public Page<FeedbackResponse> getFeedbacks(UUID productId, PageableRequest request) {
-        Page<Feedback> feedbacks = feedbackRepository
+        return feedbackRepository
                 .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
-                        productId,
-                        false,
-                        pageableUtil.getPageable(Feedback.class, request)
-                );
-        return feedbacks.map(this::setFeedbackResponse);
+                        productId, false, pageableUtil.getPageable(Feedback.class, request)
+                ).map(objectMapperUtil::mapFeedbackResponse);
     }
 
     @Override
     public Page<FeedbackResponse> getFeedbacksForStaff(UUID productId, PageableRequest request) {
-        Page<Feedback> feedbacks = feedbackRepository
+        return feedbackRepository
                 .findByOrderDetail_ProductQuantity_Product_Id(
-                        productId,
-                        pageableUtil.getPageable(Feedback.class, request)
-                );
-        return feedbacks.map(this::setFeedbackResponse);
-    }
-
-    private ProductCollectionResponse setProductCollectionResponse(ProductCollection collection) {
-        return new ProductCollectionResponse(
-                collection.getId(),
-                collection.getName(),
-                collection.getDescription(),
-                imagesUtil.convertStringToImages(collection.getImages()),
-                collection.isDeleted()
-        );
-    }
-
-    private FeedbackResponse setFeedbackResponse(Feedback feedback) {
-        return new FeedbackResponse(
-                feedback.getId(),
-                feedback.getOrderDetail().getProductQuantity().getProduct().getName(),
-                imagesUtil.convertStringToImages(
-                        feedback.getOrderDetail().getProductQuantity().getProduct().getPictures()
-                ).get(0),
-                feedback.getContent(),
-                feedback.getRating(),
-                feedback.getOrderDetail().getOrder().getUser().getName(),
-                feedback.getCreatedDate()
-        );
-    }
-
-    private ProductDetail convertProductToProductDetail(Product product) {
-        return new ProductDetail(
-                product.getId(), product.getName(), product.getDescription(), product.getUnitPrice(),
-                imagesUtil.convertStringToImages(product.getPictures()),
-                product.getWeight(), product.getStatus(),
-                product.getProductCollection() != null ? product.getProductCollection().getName() : null,
-                product.getProductType().getName(),
-                product.getProductQuantities().stream().collect(Collectors.toMap(
-                        pq -> pq.getProductSize().getId(),
-                        productQuantity -> new SizeQuantityResponse(
-                                productQuantity.getProductSize().getName(),
-                                productQuantity.getQuantity()
-                        )
-                ))
-        );
-    }
-
-    private SearchProduct convertProductToSearchProduct(Product product) {
-        return new SearchProduct(product.getId(), product.getName(), product.getUnitPrice(),
-                imagesUtil.convertStringToImages(product.getPictures()).get(0),
-                feedbackRepository.findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
-                        product.getId(),
-                        false
-                ).stream().mapToDouble(Feedback::getRating).average().orElse(0)
-        );
-    }
-
-    private Product setProduct(ModifyProductRequest request, Product product) {
-        product.setName(request.name());
-        product.setDescription(request.description());
-        product.setUnitPrice(request.unitPrice());
-        product.setPictures(request.pictures().toString());
-        product.setWeight(request.weight());
-        product.setStatus(request.status());
-        product.setProductType(productTypeRepository.findByIdAndDeleted(request.typeId(), false)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND)));
-        if (request.collectionId() != null)
-            product.setProductCollection(productCollectionRepository.findByIdAndDeleted(request.collectionId(), false)
-                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)));
-        return product;
-    }
-
-    private ProductCollection setCollection(ModifyCollectionRequest request, ProductCollection collection) {
-        collection.setName(request.name());
-        collection.setDescription(request.description());
-        collection.setImages(request.images().toString());
-        return collection;
+                        productId, pageableUtil.getPageable(Feedback.class, request)
+                ).map(objectMapperUtil::mapFeedbackResponse);
     }
 
 }

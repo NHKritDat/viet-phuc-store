@@ -9,7 +9,6 @@ import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
-import com.nextrad.vietphucstore.entities.product.ProductCollection;
 import com.nextrad.vietphucstore.entities.product.ProductSize;
 import com.nextrad.vietphucstore.entities.product.ProductType;
 import org.springframework.data.domain.Page;
