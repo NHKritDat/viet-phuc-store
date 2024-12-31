@@ -14,12 +14,9 @@ FROM sapmachine:17-jre-headless-ubuntu
 
 WORKDIR /app
 
-COPY --from=build /build/target/viet-phuc-store-*.jar .
+COPY --from=build /build/target/viet-phuc-store-*.jar /app/app.jar
 
 EXPOSE 8082
 
-ARG APP_VERSION=0.0.1-SNAPSHOT
-ENV JAR_VERSION=${APP_VERSION}
-
 #Run the application
-ENTRYPOINT ["sh", "-c", "java -jar /app/viet-phuc-store-${JAR_VERSION}.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

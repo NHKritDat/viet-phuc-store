@@ -36,7 +36,7 @@ env:
 
 jobs:
   compile:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Compile Project
     steps:
       - name: Checkout code
@@ -56,7 +56,7 @@ jobs:
           ./mvnw clean compile
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Run Unit Tests
     steps:
       - name: Checkout code
@@ -79,7 +79,7 @@ jobs:
     needs:
       - compile
       - test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Package Project
     steps:
       - name: Checkout code
@@ -101,7 +101,7 @@ jobs:
   build-image:
     needs:
       - package
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Build Docker and Push Image
     steps:
       - name: Checkout code
@@ -137,13 +137,11 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }}
             ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:latest
-          build-args: |
-            APP_VERSION=${{ steps.extract_version.outputs.VERSION }}
 
   deploy:
     needs:
       - build-image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Deploy to AWS
     steps:
       - name: Checkout code
