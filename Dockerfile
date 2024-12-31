@@ -22,4 +22,4 @@ ARG APP_VERSION=0.0.1-SNAPSHOT
 ENV JAR_VERSION=${APP_VERSION}
 
 #Run the application
-ENTRYPOINT ["java", "-jar", "/app/viet-phuc-store-${JAR_VERSION}.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar /app/viet-phuc-store-${JAR_VERSION}.jar"]
