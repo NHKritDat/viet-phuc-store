@@ -134,7 +134,7 @@ jobs:
           file: ./Dockerfile
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }},${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }}
 
   deploy:
     needs:
@@ -146,6 +146,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Extract version
+        id: extract_version
+        run: |
+          chmod +x mvnw
+          echo "VERSION=$(./mvnw -q help:evaluate -Dexpression='project.version' -DforceStdout)" >> $GITHUB_OUTPUT
 
       - name: Create environment file
         run: |
@@ -192,5 +198,5 @@ jobs:
         run: |
           ssh -i "aws-server.pem" -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} <<EOF
           cd dap-viet-be-ci-cd
-          sudo docker run --env-file .env ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:latest
+          sudo docker run --env-file .env ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }}
           EOF
