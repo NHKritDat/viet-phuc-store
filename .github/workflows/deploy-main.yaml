@@ -29,6 +29,10 @@ env:
   VIETTEL_PRICING_SENDER_DISTRICT: ${{ vars.VIETTEL_PRICING_SENDER_DISTRICT }}
   VIETTEL_PRICING_PRODUCT_TYPE: ${{ vars.VIETTEL_PRICING_PRODUCT_TYPE }}
   VIETTEL_PRICING_NATIONAL_TYPE: ${{ vars.VIETTEL_PRICING_NATIONAL_TYPE }}
+  ALLOWED_CREDENTIALS: ${{ vars.ALLOWED_CREDENTIALS }}
+  ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
+  ALLOWED_METHODS: ${{ vars.ALLOWED_METHODS }}
+  ALLOWED_HEADERS: ${{ vars.ALLOWED_HEADERS }}
 
 jobs:
   compile:
@@ -46,11 +50,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set executable permission for mvnw
-        run: chmod +x mvnw
-
       - name: Compile project
-        run: ./mvnw clean compile
+        run: |
+          chmod +x mvnw
+          ./mvnw clean compile
 
   test:
     runs-on: ubuntu-latest
@@ -67,11 +70,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set executable permission for mvnw
-        run: chmod +x mvnw
-
       - name: Run unit tests
-        run: ./mvnw clean test
+        run: |
+          chmod +x mvnw
+          ./mvnw clean test
 
   package:
     needs:
@@ -91,11 +93,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set executable permission for mvnw
-        run: chmod +x mvnw
-
       - name: Package project
-        run: ./mvnw clean package -DskipTests
+        run: |
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
 
   build-image:
     needs:
@@ -114,12 +115,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set executable permission for mvnw
-        run: chmod +x mvnw
-
       - name: Extract version
         id: extract_version
-        run: echo "VERSION=$(./mvnw -q help:evaluate -Dexpression='project.version' -DforceStdout)" >> $GITHUB_OUTPUT
+        run: |
+          chmod +x mvnw
+          echo "VERSION=$(./mvnw -q help:evaluate -Dexpression='project.version' -DforceStdout)" >> $GITHUB_OUTPUT
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -139,3 +139,62 @@ jobs:
             ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:latest
           build-args: |
             APP_VERSION=${{ steps.extract_version.outputs.VERSION }}
+
+  deploy:
+    needs:
+      - build-image
+    runs-on: ubuntu-latest
+    name: Deploy to AWS
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create environment file
+        run: |
+          echo "ACCESS_TOKEN_EXP=${ACCESS_TOKEN_EXP}" >> .env
+          echo "REFRESH_TOKEN_EXP=${REFRESH_TOKEN_EXP}" >> .env
+          echo "JWT_SECRET_KEY=${JWT_SECRET_KEY}" >> .env
+          echo "DB_URL=${DB_URL}" >> .env
+          echo "DB_USERNAME=${DB_USERNAME}" >> .env
+          echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
+          echo "MAIL_USERNAME=${MAIL_USERNAME}" >> .env
+          echo "MAIL_PASSWORD=${MAIL_PASSWORD}" >> .env
+          echo "ISSUER=${ISSUER}" >> .env
+          echo "AUDIENCE=${AUDIENCE}" >> .env
+          echo "RESET_PASSWORD_URL=${RESET_PASSWORD_URL}" >> .env
+          echo "VERIFY_EMAIL_URL=${VERIFY_EMAIL_URL}" >> .env
+          echo "VIETTEL_API_GET_LIST_PROVINCES=${VIETTEL_API_GET_LIST_PROVINCES}" >> .env
+          echo "VIETTEL_API_GET_LIST_DISTRICTS=${VIETTEL_API_GET_LIST_DISTRICTS}" >> .env
+          echo "VIETTEL_API_SIGN_PARTNER=${VIETTEL_API_SIGN_PARTNER}" >> .env
+          echo "VIETTEL_PARTNER_USERNAME=${VIETTEL_PARTNER_USERNAME}" >> .env
+          echo "VIETTEL_PARTNER_PASSWORD=${VIETTEL_PARTNER_PASSWORD}" >> .env
+          echo "VIETTEL_API_GET_PRICING=${VIETTEL_API_GET_PRICING}" >> .env
+          echo "VIETTEL_PRICING_ORDER_SERVICE=${VIETTEL_PRICING_ORDER_SERVICE}" >> .env
+          echo "VIETTEL_PRICING_SENDER_PROVINCE=${VIETTEL_PRICING_SENDER_PROVINCE}" >> .env
+          echo "VIETTEL_PRICING_SENDER_DISTRICT=${VIETTEL_PRICING_SENDER_DISTRICT}" >> .env
+          echo "VIETTEL_PRICING_PRODUCT_TYPE=${VIETTEL_PRICING_PRODUCT_TYPE}" >> .env
+          echo "VIETTEL_PRICING_NATIONAL_TYPE=${VIETTEL_PRICING_NATIONAL_TYPE}" >> .env
+          echo "ALLOWED_CREDENTIALS=${ALLOWED_CREDENTIALS}" >> .env
+          echo "ALLOWED_ORIGINS=${ALLOWED_ORIGINS}" >> .env
+          echo "ALLOWED_METHODS=${ALLOWED_METHODS}" >> .env
+          echo "ALLOWED_HEADERS=${ALLOWED_HEADERS}" >> .env
+
+      - name: Store SSH key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > aws-server.pem
+          chmod 400 "aws-server.pem"
+
+      - name: Create deployment folder
+        run: ssh -i "aws-server.pem" -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} "mkdir -p dap-viet-be-ci-cd"
+
+      - name: Copy environment file to server
+        run: scp -i "aws-server.pem" -o StrictHostKeyChecking=no .env ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}:dap-viet-be-ci-cd/.env
+
+      - name: Deploy
+        run: |
+          ssh -i "aws-server.pem" -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} <<EOF
+          cd dap-viet-be-ci-cd
+          sudo docker run --env-file .env ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:latest
+          EOF
