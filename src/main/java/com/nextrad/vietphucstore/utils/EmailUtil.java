@@ -23,6 +23,7 @@ public class EmailUtil {
     @Value("${VERIFY_EMAIL_URL}")
     private String verifyEmailUrl;
 
+    @Async
     public void orderDetail(Order order) {
         String subject = "Order detail";
         String content =
