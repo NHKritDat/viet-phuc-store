@@ -8,6 +8,7 @@ class VietPhucStoreApplicationTests {
 
     @Test
     void contextLoads() {
+        //Check if the application context loads successfully
     }
 
 }

@@ -93,27 +93,6 @@ public class OrderController {
         ));
     }
 
-//    @GetMapping("/staff")
-//    @PreAuthorize("hasRole('STAFF')")
-//    public ResponseEntity<ApiListItemResponse<OrderHistory>> getOrdersForStaff(
-//            @RequestParam(defaultValue = "1", required = false) int page,
-//            @RequestParam(defaultValue = "10", required = false) int size,
-//            @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
-//            @RequestParam(defaultValue = "id", required = false) String... properties
-//    ) {
-//        Page<OrderHistory> response = orderService.getOrdersForStaff(
-//                new PageableRequest(page - 1, size, direction, properties)
-//        );
-//        return ResponseEntity.ok(new ApiListItemResponse<>(
-//                response.getContent(),
-//                response.getSize(),
-//                response.getNumber() + 1,
-//                response.getTotalElements(),
-//                response.getTotalPages(),
-//                null
-//        ));
-//    }
-
     @PostMapping("/order-details/{id}/feedbacks")
     public ResponseEntity<ApiItemResponse<FeedbackResponse>> doFeedback(
             @PathVariable UUID id,
