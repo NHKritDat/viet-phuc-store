@@ -22,6 +22,7 @@ import com.nextrad.vietphucstore.repositories.order.OrderRepository;
 import com.nextrad.vietphucstore.repositories.product.ProductQuantityRepository;
 import com.nextrad.vietphucstore.repositories.user.UserRepository;
 import com.nextrad.vietphucstore.services.OrderService;
+import com.nextrad.vietphucstore.utils.EmailUtil;
 import com.nextrad.vietphucstore.utils.IdUtil;
 import com.nextrad.vietphucstore.utils.ObjectMapperUtil;
 import com.nextrad.vietphucstore.utils.PageableUtil;
@@ -42,11 +43,12 @@ public class OrderServiceImplement implements OrderService {
     private final OrderDetailRepository orderDetailRepository;
     private final CartRepository cartRepository;
     private final FeedbackRepository feedbackRepository;
-    private final PageableUtil pageableUtil;
     private final UserRepository userRepository;
     private final ProductQuantityRepository productQuantityRepository;
+    private final PageableUtil pageableUtil;
     private final IdUtil idUtil;
     private final ObjectMapperUtil objectMapperUtil;
+    private final EmailUtil emailUtil;
 
     @Override
     public String addToCart(ModifyCartRequest request) {
@@ -123,13 +125,20 @@ public class OrderServiceImplement implements OrderService {
         orderRepository.save(order);
 
         carts.forEach(cart -> {
+            ProductQuantity productQuantity = cart.getProductQuantity();
+            productQuantity.setQuantity(productQuantity.getQuantity() - cart.getQuantity());
+            productQuantityRepository.save(productQuantity);
+
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrder(order);
-            orderDetail.setProductQuantity(cart.getProductQuantity());
+            orderDetail.setProductQuantity(productQuantity);
             orderDetail.setQuantity(cart.getQuantity());
             orderDetailRepository.save(orderDetail);
             cartRepository.delete(cart);
         });
+
+        emailUtil.orderDetail(orderRepository.findById(order.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND)));
 
         return "Order successfully";
     }
