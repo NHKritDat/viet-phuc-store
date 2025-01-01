@@ -13,6 +13,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -77,4 +79,8 @@ public class Order {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
     private Date updatedDate;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "order", orphanRemoval = true)
+    private Set<OrderDetail> orderDetails = new LinkedHashSet<>();
+
 }
