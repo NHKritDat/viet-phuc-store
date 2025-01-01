@@ -18,6 +18,7 @@ import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.order.OrderDetail;
 import com.nextrad.vietphucstore.entities.product.Product;
 import com.nextrad.vietphucstore.entities.product.ProductCollection;
+import com.nextrad.vietphucstore.entities.product.ProductQuantity;
 import com.nextrad.vietphucstore.entities.product.ProductType;
 import com.nextrad.vietphucstore.entities.user.User;
 import lombok.RequiredArgsConstructor;
@@ -123,7 +124,7 @@ public class ObjectMapperUtil {
                 product.getProductCollection() != null ? product.getProductCollection().getName() : null,
                 product.getProductType().getName(),
                 product.getProductQuantities().stream().collect(Collectors.toMap(
-                        pq -> pq.getProductSize().getId(),
+                        ProductQuantity::getId,
                         productQuantity -> new SizeQuantityResponse(
                                 productQuantity.getProductSize().getName(),
                                 productQuantity.getQuantity()
