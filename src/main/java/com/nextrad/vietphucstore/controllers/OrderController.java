@@ -4,9 +4,7 @@ import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
 import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.responses.order.CartInfo;
-import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
-import com.nextrad.vietphucstore.dtos.responses.order.OrderHistory;
+import com.nextrad.vietphucstore.dtos.responses.order.*;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
 import com.nextrad.vietphucstore.services.OrderService;
@@ -109,6 +107,38 @@ public class OrderController {
         return ResponseEntity.ok(new ApiItemResponse<>(
                 orderService.getFeedback(id),
                 "Đây là đánh giá của bạn dành cho sản phẩm"
+        ));
+    }
+
+    @GetMapping("/staff")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiListItemResponse<SearchOrder>> getOrdersForStaff(
+            @RequestParam(defaultValue = "", required = false) String search,
+            @RequestParam(defaultValue = "1", required = false) int page,
+            @RequestParam(defaultValue = "10", required = false) int size,
+            @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
+            @RequestParam(defaultValue = "id", required = false) String... properties
+    ) {
+        Page<SearchOrder> response = orderService.getOrders(
+                search,
+                new PageableRequest(page - 1, size, direction, properties)
+        );
+        return ResponseEntity.ok(new ApiListItemResponse<>(
+                response.getContent(),
+                response.getSize(),
+                response.getNumber() + 1,
+                response.getTotalElements(),
+                response.getTotalPages(),
+                "Đây là tất cả danh sách đơn hàng"
+        ));
+    }
+
+    @GetMapping("/{id}/staff")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<OrderResponse>> getOrderDetailForStaff(@PathVariable String id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                orderService.getOrderDetailForStaff(id),
+                "Đây là chi tiết đơn hàng"
         ));
     }
 }

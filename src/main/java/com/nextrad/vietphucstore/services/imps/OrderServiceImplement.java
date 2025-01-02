@@ -4,9 +4,7 @@ import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
 import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.responses.order.CartInfo;
-import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
-import com.nextrad.vietphucstore.dtos.responses.order.OrderHistory;
+import com.nextrad.vietphucstore.dtos.responses.order.*;
 import com.nextrad.vietphucstore.entities.order.Cart;
 import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.order.Order;
@@ -187,14 +185,6 @@ public class OrderServiceImplement implements OrderService {
     }
 
     @Override
-    public Page<OrderHistory> getOrdersForStaff(PageableRequest request) {
-        Page<OrderDetail> orderDetails = orderDetailRepository.findAll(
-                pageableUtil.getPageable(OrderDetail.class, request)
-        );
-        return orderDetails.map(objectMapperUtil::mapOrderHistory);
-    }
-
-    @Override
     public FeedbackResponse doFeedback(UUID orderDetailId, FeedbackRequest request) {
         Optional<Feedback> feedback = feedbackRepository.findByOrderDetail_Id(orderDetailId);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -227,6 +217,21 @@ public class OrderServiceImplement implements OrderService {
                 feedbackRepository.findByOrderDetail_Id(orderDetailId)
                         .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND))
         );
+    }
+
+    @Override
+    public Page<SearchOrder> getOrders(String search, PageableRequest request) {
+        return orderRepository.findByEmailContainingIgnoreCase(
+                search,
+                pageableUtil.getPageable(Order.class, request)
+        ).map(objectMapperUtil::mapSearchOrder);
+    }
+
+    @Override
+    public OrderResponse getOrderDetailForStaff(String id) {
+        return orderRepository.findById(id)
+                .map(objectMapperUtil::mapOrderResponse)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
     }
 
 }
