@@ -85,6 +85,14 @@ public class ProductController {
         ));
     }
 
+    @GetMapping("/{id}/staff")
+    public ResponseEntity<ApiItemResponse<ProductDetail>> getProductForStaff(@PathVariable UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.getProductForStaff(id),
+                "Đây là thông tin chi tiết của sản phẩm"
+        ));
+    }
+
     @PostMapping("/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductDetail>> createProduct(@RequestBody ModifyProductRequest request) {
@@ -306,11 +314,19 @@ public class ProductController {
         ));
     }
 
-    @GetMapping("/collections/{id}/staff")
-    @PreAuthorize("hasRole('STAFF')")
+    @GetMapping("/collections/{id}")
     public ResponseEntity<ApiItemResponse<ProductCollectionResponse>> getCollection(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(
                 productService.getProductCollection(id),
+                "Đây là thông tin chi tiết của bộ sưu tập sản phẩm"
+        ));
+    }
+
+    @GetMapping("/collections/{id}/staff")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<ProductCollectionResponse>> getCollectionForStaff(@PathVariable UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.getProductCollectionForStaff(id),
                 "Đây là thông tin chi tiết của bộ sưu tập sản phẩm"
         ));
     }

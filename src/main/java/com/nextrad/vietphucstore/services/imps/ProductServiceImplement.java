@@ -200,6 +200,14 @@ public class ProductServiceImplement implements ProductService {
     }
 
     @Override
+    public ProductDetail getProductForStaff(UUID id) {
+        return objectMapperUtil.mapProductDetail(
+                productRepository.findById(id)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
+        );
+    }
+
+    @Override
     public ProductDetail createProduct(ModifyProductRequest request) {
         Product product = productRepository.save(
                 objectMapperUtil.mapProduct(
@@ -372,6 +380,14 @@ public class ProductServiceImplement implements ProductService {
 
     @Override
     public ProductCollectionResponse getProductCollection(UUID id) {
+        return objectMapperUtil.mapProductCollectionResponse(
+                productCollectionRepository.findByIdAndDeleted(id, false)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
+        );
+    }
+
+    @Override
+    public ProductCollectionResponse getProductCollectionForStaff(UUID id) {
         return objectMapperUtil.mapProductCollectionResponse(
                 productCollectionRepository.findById(id)
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
