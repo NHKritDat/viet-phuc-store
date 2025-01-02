@@ -34,6 +34,7 @@ public class SecurityConfig {
             "/products/sizes",
             "/products/types",
             "/products/collections",
+            "/products/collections/{id}",
     };
     private static final String[] PUBLIC_PUT_ENDPOINTS = {
             "/users/auth/password/forgot",

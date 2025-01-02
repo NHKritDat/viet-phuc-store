@@ -49,7 +49,7 @@ public class ProductController {
                 response.getNumber() + 1,
                 response.getTotalElements(),
                 response.getTotalPages(),
-                null
+                "Đây là danh sách các sản phẩm hiện có"
         ));
     }
 
@@ -73,19 +73,33 @@ public class ProductController {
                 response.getNumber() + 1,
                 response.getTotalElements(),
                 response.getTotalPages(),
-                null
+                "Đây là danh sách tất cả các sản phẩm"
         ));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiItemResponse<ProductDetail>> getProduct(@PathVariable UUID id) {
-        return ResponseEntity.ok(new ApiItemResponse<>(productService.getProduct(id), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.getProduct(id),
+                "Đây là thông tin chi tiết của sản phẩm"
+        ));
+    }
+
+    @GetMapping("/{id}/staff")
+    public ResponseEntity<ApiItemResponse<ProductDetail>> getProductForStaff(@PathVariable UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.getProductForStaff(id),
+                "Đây là thông tin chi tiết của sản phẩm"
+        ));
     }
 
     @PostMapping("/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductDetail>> createProduct(@RequestBody ModifyProductRequest request) {
-        return ResponseEntity.ok(new ApiItemResponse<>(productService.createProduct(request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.createProduct(request),
+                "Sản phẩm đã được tạo thành công"
+        ));
     }
 
     @PutMapping("/{id}/staff")
@@ -93,7 +107,10 @@ public class ProductController {
     public ResponseEntity<ApiItemResponse<ProductDetail>> updateProduct(
             @PathVariable UUID id,
             @RequestBody ModifyProductRequest request) {
-        return ResponseEntity.ok(new ApiItemResponse<>(productService.updateProduct(id, request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.updateProduct(id, request),
+                "Sản phẩm đã được cập nhật thành công"
+        ));
     }
 
     @DeleteMapping("/{id}/staff")
@@ -118,7 +135,7 @@ public class ProductController {
                 response.getNumber() + 1,
                 response.getTotalElements(),
                 response.getTotalPages(),
-                null
+                "Đây là danh sách các kích cỡ sản phẩm hiện có"
         ));
     }
 
@@ -139,20 +156,26 @@ public class ProductController {
                 response.getNumber() + 1,
                 response.getTotalElements(),
                 response.getTotalPages(),
-                null
+                "Đây là danh sách tất cả các kích cỡ sản phẩm"
         ));
     }
 
     @GetMapping("/sizes/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductSize>> getProductSize(@PathVariable UUID id) {
-        return ResponseEntity.ok(new ApiItemResponse<>(productService.getSize(id), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.getSize(id),
+                "Đây là thông tin chi tiết của kích cỡ sản phẩm"
+        ));
     }
 
     @PostMapping("/sizes/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductSize>> createProductSize(@RequestBody ModifySizeRequest request) {
-        return ResponseEntity.ok(new ApiItemResponse<>(productService.createProductSize(request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.createProductSize(request),
+                "Kích cỡ sản phẩm đã được tạo thành công"
+        ));
     }
 
     @PutMapping("/sizes/{id}/staff")
@@ -161,7 +184,10 @@ public class ProductController {
             @PathVariable UUID id,
             @RequestBody ModifySizeRequest request
     ) {
-        return ResponseEntity.ok(new ApiItemResponse<>(productService.updateProductSize(id, request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.updateProductSize(id, request),
+                "Kích cỡ sản phẩm đã được cập nhật thành công"
+        ));
     }
 
     @DeleteMapping("/sizes/{id}/staff")
@@ -186,7 +212,7 @@ public class ProductController {
                 response.getNumber() + 1,
                 response.getTotalElements(),
                 response.getTotalPages(),
-                null
+                "Đây là danh sách các loại sản phẩm hiện có"
         ));
     }
 
@@ -207,20 +233,26 @@ public class ProductController {
                 response.getNumber() + 1,
                 response.getTotalElements(),
                 response.getTotalPages(),
-                null
+                "Đây là danh sách tất cả các loại sản phẩm"
         ));
     }
 
     @GetMapping("/types/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductType>> getProductType(@PathVariable UUID id) {
-        return ResponseEntity.ok(new ApiItemResponse<>(productService.getProductType(id), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.getProductType(id),
+                "Đây là thông tin chi tiết của loại sản phẩm"
+        ));
     }
 
     @PostMapping("/types/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductType>> createProductType(@RequestBody ModifyTypeRequest request) {
-        return ResponseEntity.ok(new ApiItemResponse<>(productService.createProductType(request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.createProductType(request),
+                "Loại sản phẩm đã được tạo thành công"
+        ));
     }
 
     @PutMapping("/types/{id}/staff")
@@ -229,7 +261,10 @@ public class ProductController {
             @PathVariable UUID id,
             @RequestBody ModifyTypeRequest request
     ) {
-        return ResponseEntity.ok(new ApiItemResponse<>(productService.updateProductType(id, request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.updateProductType(id, request),
+                "Loại sản phẩm đã được cập nhật thành công"
+        ));
     }
 
     @DeleteMapping("/types/{id}/staff")
@@ -254,7 +289,7 @@ public class ProductController {
                 response.getNumber() + 1,
                 response.getTotalElements(),
                 response.getTotalPages(),
-                null
+                "Đây là danh sách các bộ sưu tập sản phẩm hiện có"
         ));
     }
 
@@ -275,20 +310,34 @@ public class ProductController {
                 response.getNumber() + 1,
                 response.getTotalElements(),
                 response.getTotalPages(),
-                null
+                "Đây là danh sách tất cả các bộ sưu tập sản phẩm"
+        ));
+    }
+
+    @GetMapping("/collections/{id}")
+    public ResponseEntity<ApiItemResponse<ProductCollectionResponse>> getCollection(@PathVariable UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.getProductCollection(id),
+                "Đây là thông tin chi tiết của bộ sưu tập sản phẩm"
         ));
     }
 
     @GetMapping("/collections/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiItemResponse<ProductCollectionResponse>> getCollection(@PathVariable UUID id) {
-        return ResponseEntity.ok(new ApiItemResponse<>(productService.getProductCollection(id), null));
+    public ResponseEntity<ApiItemResponse<ProductCollectionResponse>> getCollectionForStaff(@PathVariable UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.getProductCollectionForStaff(id),
+                "Đây là thông tin chi tiết của bộ sưu tập sản phẩm"
+        ));
     }
 
     @PostMapping("/collections/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductCollectionResponse>> createCollection(@RequestBody ModifyCollectionRequest request) {
-        return ResponseEntity.ok(new ApiItemResponse<>(productService.createProductCollection(request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.createProductCollection(request),
+                "Bộ sưu tập sản phẩm đã được tạo thành công"
+        ));
     }
 
     @PutMapping("/collections/{id}/staff")
@@ -297,7 +346,10 @@ public class ProductController {
             @PathVariable UUID id,
             @RequestBody ModifyCollectionRequest request
     ) {
-        return ResponseEntity.ok(new ApiItemResponse<>(productService.updateProductCollection(id, request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.updateProductCollection(id, request),
+                "Bộ sưu tập sản phẩm đã được cập nhật thành công"
+        ));
     }
 
     @DeleteMapping("/collections/{id}/staff")
@@ -322,7 +374,7 @@ public class ProductController {
                 response.getNumber() + 1,
                 response.getTotalElements(),
                 response.getTotalPages(),
-                null
+                "Đây là danh sách các đánh giá của sản phẩm"
         ));
     }
 
@@ -343,7 +395,7 @@ public class ProductController {
                 response.getNumber() + 1,
                 response.getTotalElements(),
                 response.getTotalPages(),
-                null
+                "Đây là danh sách tất cả các đánh giá của sản phẩm"
         ));
     }
 }

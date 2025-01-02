@@ -24,6 +24,8 @@ public interface ProductService {
 
     ProductDetail getProduct(UUID id);
 
+    ProductDetail getProductForStaff(UUID id);
+
     ProductDetail createProduct(ModifyProductRequest request);
 
     ProductDetail updateProduct(UUID id, ModifyProductRequest request);
@@ -59,6 +61,8 @@ public interface ProductService {
     Page<ProductCollectionResponse> getProductCollectionsForStaff(PageableRequest request);
 
     ProductCollectionResponse getProductCollection(UUID id);
+
+    ProductCollectionResponse getProductCollectionForStaff(UUID id);
 
     ProductCollectionResponse createProductCollection(ModifyCollectionRequest request);
 

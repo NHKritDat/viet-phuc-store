@@ -199,5 +199,6 @@ jobs:
           ssh -i "aws-server.pem" -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} <<EOF
           cd dap-viet-be-ci-cd
           sudo docker stop dap-viet-be
+          sudo docker image prune -a -f
           sudo docker run -d --rm --name dap-viet-be -p 80:8082 --env-file .env ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }}
           EOF

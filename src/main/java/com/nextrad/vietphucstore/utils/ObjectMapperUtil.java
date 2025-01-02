@@ -3,9 +3,7 @@ package com.nextrad.vietphucstore.utils;
 import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyCollectionRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
-import com.nextrad.vietphucstore.dtos.responses.order.CartInfo;
-import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
-import com.nextrad.vietphucstore.dtos.responses.order.OrderHistory;
+import com.nextrad.vietphucstore.dtos.responses.order.*;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
@@ -15,6 +13,7 @@ import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
 import com.nextrad.vietphucstore.entities.order.Cart;
 import com.nextrad.vietphucstore.entities.order.Feedback;
+import com.nextrad.vietphucstore.entities.order.Order;
 import com.nextrad.vietphucstore.entities.order.OrderDetail;
 import com.nextrad.vietphucstore.entities.product.Product;
 import com.nextrad.vietphucstore.entities.product.ProductCollection;
@@ -140,4 +139,29 @@ public class ObjectMapperUtil {
         );
     }
 
+    public SearchOrder mapSearchOrder(Order order) {
+        return new SearchOrder(
+                order.getId(), order.getUser().getEmail(), order.getProductTotal(),
+                order.getShippingFee(), order.getPaymentMethod(), order.getStatus()
+        );
+    }
+
+    public OrderResponse mapOrderResponse(Order order) {
+        return new OrderResponse(
+                order.getId(), order.getEmail(), order.getName(),
+                order.getAddress() + ", " + order.getDistrict() + ", " + order.getProvince(),
+                order.getPhone(), order.getProductTotal(), order.getShippingFee(),
+                order.getPaymentMethod(), order.getStatus(),
+                order.getOrderDetails().stream().collect(Collectors.toMap(
+                        OrderDetail::getId,
+                        od -> new OrderDetailResponse(
+                                od.getProductQuantity().getProduct().getName(),
+                                imagesUtil.convertStringToImages(od.getProductQuantity().getProduct().getPictures()),
+                                od.getProductQuantity().getProductSize().getName(),
+                                od.getQuantity(),
+                                od.getProductQuantity().getProduct().getUnitPrice()
+                        )
+                ))
+        );
+    }
 }

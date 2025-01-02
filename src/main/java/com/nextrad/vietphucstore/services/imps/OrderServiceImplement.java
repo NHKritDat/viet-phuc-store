@@ -4,9 +4,7 @@ import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
 import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.responses.order.CartInfo;
-import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
-import com.nextrad.vietphucstore.dtos.responses.order.OrderHistory;
+import com.nextrad.vietphucstore.dtos.responses.order.*;
 import com.nextrad.vietphucstore.entities.order.Cart;
 import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.order.Order;
@@ -70,7 +68,7 @@ public class OrderServiceImplement implements OrderService {
             newCart.setQuantity(Math.min(request.quantity(), productQuantity.getQuantity()));
             cartRepository.save(newCart);
         }
-        return "Add to cart successfully";
+        return "Bạn đã thêm vào giỏ hàng thành công";
     }
 
     @Override
@@ -87,7 +85,7 @@ public class OrderServiceImplement implements OrderService {
             else
                 cartRepository.save(cart.get());
         }
-        return "Remove from cart successfully";
+        return "Bạn đã bớt khỏi giỏ hàng thành công";
     }
 
     @Override
@@ -140,7 +138,7 @@ public class OrderServiceImplement implements OrderService {
         emailUtil.orderDetail(orderRepository.findById(order.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND)));
 
-        return "Order successfully";
+        return "Bạn đã thực hiện đơn hàng thanh công. Vui lòng kiểm tra email để xem chi tiết đơn hàng";
     }
 
     @Override
@@ -156,7 +154,7 @@ public class OrderServiceImplement implements OrderService {
         else if (order.getStatus() == OrderStatus.IN_TRANSIT)
             order.setStatus(OrderStatus.DELIVERED);
         orderRepository.save(order);
-        return "Update order status successfully";
+        return "Trạng thái của đơn hàng đã được cập nhật";
     }
 
     @Override
@@ -172,7 +170,7 @@ public class OrderServiceImplement implements OrderService {
         else if (order.getStatus() == OrderStatus.AWAITING_PICKUP)
             order.setStatus(OrderStatus.PENDING);
         orderRepository.save(order);
-        return "Reverse order status successfully";
+        return "Trạng thái của đơn hàng đã được đảo ngược";
     }
 
     @Override
@@ -183,14 +181,6 @@ public class OrderServiceImplement implements OrderService {
                         OrderStatus.DELIVERED,
                         pageableUtil.getPageable(OrderDetail.class, request)
                 );
-        return orderDetails.map(objectMapperUtil::mapOrderHistory);
-    }
-
-    @Override
-    public Page<OrderHistory> getOrdersForStaff(PageableRequest request) {
-        Page<OrderDetail> orderDetails = orderDetailRepository.findAll(
-                pageableUtil.getPageable(OrderDetail.class, request)
-        );
         return orderDetails.map(objectMapperUtil::mapOrderHistory);
     }
 
@@ -227,6 +217,21 @@ public class OrderServiceImplement implements OrderService {
                 feedbackRepository.findByOrderDetail_Id(orderDetailId)
                         .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND))
         );
+    }
+
+    @Override
+    public Page<SearchOrder> getOrders(String search, PageableRequest request) {
+        return orderRepository.findByEmailContainingIgnoreCase(
+                search,
+                pageableUtil.getPageable(Order.class, request)
+        ).map(objectMapperUtil::mapSearchOrder);
+    }
+
+    @Override
+    public OrderResponse getOrderDetailForStaff(String id) {
+        return orderRepository.findById(id)
+                .map(objectMapperUtil::mapOrderResponse)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
     }
 
 }
