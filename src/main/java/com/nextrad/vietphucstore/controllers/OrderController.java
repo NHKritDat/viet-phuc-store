@@ -42,7 +42,7 @@ public class OrderController {
                 response.getNumber() + 1,
                 response.getTotalElements(),
                 response.getTotalPages(),
-                null
+                "Đây là giỏ hàng của bạn"
         ));
     }
 
@@ -89,7 +89,7 @@ public class OrderController {
                 response.getNumber() + 1,
                 response.getTotalElements(),
                 response.getTotalPages(),
-                null
+                "Đây là lịch sử mua hàng thành công của bạn"
         ));
     }
 
@@ -98,12 +98,18 @@ public class OrderController {
             @PathVariable UUID id,
             @RequestBody FeedbackRequest request
     ) {
-        return ResponseEntity.ok(new ApiItemResponse<>(orderService.doFeedback(id, request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                orderService.doFeedback(id, request),
+                "Cảm ơn bạn đã đánh giá sản phẩm"
+        ));
     }
 
     @GetMapping("/order-details/{id}/feedbacks")
     public ResponseEntity<ApiItemResponse<FeedbackResponse>> getFeedback(@PathVariable UUID id) {
-        return ResponseEntity.ok(new ApiItemResponse<>(orderService.getFeedback(id), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                orderService.getFeedback(id),
+                "Đây là đánh giá của bạn dành cho sản phẩm"
+        ));
     }
 }
 

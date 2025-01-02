@@ -70,7 +70,7 @@ public class OrderServiceImplement implements OrderService {
             newCart.setQuantity(Math.min(request.quantity(), productQuantity.getQuantity()));
             cartRepository.save(newCart);
         }
-        return "Add to cart successfully";
+        return "Bạn đã thêm vào giỏ hàng thành công";
     }
 
     @Override
@@ -87,7 +87,7 @@ public class OrderServiceImplement implements OrderService {
             else
                 cartRepository.save(cart.get());
         }
-        return "Remove from cart successfully";
+        return "Bạn đã bớt khỏi giỏ hàng thành công";
     }
 
     @Override
@@ -140,7 +140,7 @@ public class OrderServiceImplement implements OrderService {
         emailUtil.orderDetail(orderRepository.findById(order.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND)));
 
-        return "Order successfully";
+        return "Bạn đã thực hiện đơn hàng thanh công. Vui lòng kiểm tra email để xem chi tiết đơn hàng";
     }
 
     @Override
@@ -156,7 +156,7 @@ public class OrderServiceImplement implements OrderService {
         else if (order.getStatus() == OrderStatus.IN_TRANSIT)
             order.setStatus(OrderStatus.DELIVERED);
         orderRepository.save(order);
-        return "Update order status successfully";
+        return "Trạng thái của đơn hàng đã được cập nhật";
     }
 
     @Override
@@ -172,7 +172,7 @@ public class OrderServiceImplement implements OrderService {
         else if (order.getStatus() == OrderStatus.AWAITING_PICKUP)
             order.setStatus(OrderStatus.PENDING);
         orderRepository.save(order);
-        return "Reverse order status successfully";
+        return "Trạng thái của đơn hàng đã được đảo ngược";
     }
 
     @Override

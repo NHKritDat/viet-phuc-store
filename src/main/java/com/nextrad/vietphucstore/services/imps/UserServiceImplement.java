@@ -122,7 +122,7 @@ public class UserServiceImplement implements UserService {
         CheckTokenResult result = tokenUtil.checkToken(request.accessToken(), false);
         if (result.valid())
             tokenRepository.save(result.token());
-        return "Logout success.";
+        return "Đăng xuất thành công!";
     }
 
     @Override
@@ -141,7 +141,7 @@ public class UserServiceImplement implements UserService {
         userRepository.save(user);
 
         emailUtil.verifyEmail(request.email(), request.name(), tokenUtil.genAccessToken(user));
-        return "Please check your email to verify your account.";
+        return "Vui lòng kiểm tra email để xác thực tài khoản.";
     }
 
     @Override
@@ -154,7 +154,7 @@ public class UserServiceImplement implements UserService {
         CheckTokenResult result = tokenUtil.checkToken(token, false);
         if (result.valid())
             tokenRepository.save(result.token());
-        return "Your email has been verified! Please login to continue.";
+        return "Email của bạn đã được xác thực thành công! Vui lòng đăng nhập lại để tiếp tục.";
     }
 
     @Override
@@ -162,7 +162,7 @@ public class UserServiceImplement implements UserService {
         User user = userRepository.findByEmailAndStatus(request.auth(), UserStatus.VERIFIED)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         emailUtil.resetPassword(user.getEmail(), user.getName(), tokenUtil.genAccessToken(user));
-        return "Please check your email to reset your password.";
+        return "Vui lòng kiểm tra email để đặt lại mật khẩu.";
     }
 
     @Override
@@ -177,7 +177,7 @@ public class UserServiceImplement implements UserService {
         CheckTokenResult result = tokenUtil.checkToken(request.auth(), false);
         if (result.valid())
             tokenRepository.save(result.token());
-        return "Your password has been reset successfully! Please login to continue.";
+        return "Mật khẩu của bạn đã được đặt lại thành công! Vui lòng đăng nhập lại để tiếp tục.";
     }
 
     @Override
@@ -190,7 +190,7 @@ public class UserServiceImplement implements UserService {
             throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
-        return "Your password has been changed successfully!";
+        return "Mật khẩu của bạn đã được thay đổi thành công!";
     }
 
     @Override
@@ -237,7 +237,7 @@ public class UserServiceImplement implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setStatus(UserStatus.DELETED);
         userRepository.save(user);
-        return "Delete user successfully.";
+        return "Người dùng này đã bị xóa!";
     }
 
     @Override

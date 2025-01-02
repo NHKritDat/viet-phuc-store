@@ -271,7 +271,7 @@ public class ProductServiceImplement implements ProductService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         product.setStatus(ProductStatus.DELETED);
         productRepository.save(product);
-        return "Delete product successfully.";
+        return "Sản phẩm đã được xóa.";
     }
 
     @Override
@@ -312,7 +312,7 @@ public class ProductServiceImplement implements ProductService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND));
         size.setDeleted(true);
         productSizeRepository.save(size);
-        return "Delete size successfully.";
+        return "Kích thước đã được xóa.";
     }
 
     @Override
@@ -353,7 +353,7 @@ public class ProductServiceImplement implements ProductService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND));
         type.setDeleted(true);
         productTypeRepository.save(type);
-        return "Delete type successfully.";
+        return "Loại sản phẩm đã được xóa.";
     }
 
     @Override
@@ -407,7 +407,7 @@ public class ProductServiceImplement implements ProductService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND));
         collection.setDeleted(true);
         productCollectionRepository.save(collection);
-        return "Delete collection successfully.";
+        return "Bộ sưu tập đã được xóa.";
     }
 
     @Override

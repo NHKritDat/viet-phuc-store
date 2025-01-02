@@ -23,18 +23,27 @@ public class ViettelController {
     public ResponseEntity<ApiItemResponse<List<ProvinceResponse>>> getProvinces(
             @RequestParam(defaultValue = "-1") int id
     ) {
-        return ResponseEntity.ok(new ApiItemResponse<>(viettelService.getProvinces(id), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                viettelService.getProvinces(id),
+                "Đây là danh sách các tỉnh/thành phố"
+        ));
     }
 
     @GetMapping("/districts")
     public ResponseEntity<ApiItemResponse<List<DistrictResponse>>> getDistricts(
             @RequestParam(defaultValue = "-1") int id
     ) {
-        return ResponseEntity.ok(new ApiItemResponse<>(viettelService.getDistricts(id), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                viettelService.getDistricts(id),
+                "Đây là danh sách các quận/huyện"
+        ));
     }
 
     @PostMapping("/pricing")
     public ResponseEntity<ApiItemResponse<PricingResponse>> getShippingFee(@RequestBody ShippingFee request) {
-        return ResponseEntity.ok(new ApiItemResponse<>(viettelService.getShippingFee(request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                viettelService.getShippingFee(request),
+                "Đây là thông tin phí vận chuyển"
+        ));
     }
 }
