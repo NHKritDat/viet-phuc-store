@@ -57,7 +57,7 @@ public class EmailUtil {
                     .append(imagesUtil.convertStringToImages(od.getProductQuantity().getProduct().getPictures()).get(0))
                     .append("\" style=\"width:50px; height:auto;\"></td>")
                     .append("<td style=\"border: 1px solid #eaeaea; padding: 8px;\">")
-                    .append(od.getProductQuantity().getProductSize())
+                    .append(od.getProductQuantity().getProductSize().getName())
                     .append("</td><td style=\"border: 1px solid #eaeaea; padding: 8px;\">")
                     .append(od.getQuantity())
                     .append("</td><td style=\"border: 1px solid #eaeaea; padding: 8px;\">")

@@ -86,6 +86,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}/staff")
+    @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<ProductDetail>> getProductForStaff(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(
                 productService.getProductForStaff(id),
