@@ -9,6 +9,7 @@ public record CartInfo(
         double unitPrice,
         int weight,
         String size,
-        int quantity
+        int quantity,
+        int maxQuantity
 ) {
 }
