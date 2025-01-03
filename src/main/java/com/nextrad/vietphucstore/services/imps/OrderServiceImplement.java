@@ -53,7 +53,8 @@ public class OrderServiceImplement implements OrderService {
         Optional<Cart> cart = cartRepository.findByProductQuantity_Id(request.productQuantityId());
         if (cart.isPresent()) {
             cart.get().setQuantity(
-                    Math.min(cart.get().getQuantity() + request.quantity(), cart.get().getQuantity())
+                    Math.min(cart.get().getQuantity() + request.quantity(),
+                            cart.get().getProductQuantity().getQuantity())
             );
             cartRepository.save(cart.get());
         } else {
