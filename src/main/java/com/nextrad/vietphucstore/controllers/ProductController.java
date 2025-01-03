@@ -33,6 +33,8 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<ApiListItemResponse<SearchProduct>> getProducts(
             @RequestParam(defaultValue = "", required = false) String search,
+            @RequestParam(defaultValue = "0", required = false) double minPrice,
+            @RequestParam(defaultValue = "10000000", required = false) double maxPrice,
             @RequestParam(defaultValue = "", required = false) String[] sizes,
             @RequestParam(defaultValue = "", required = false) String[] types,
             @RequestParam(defaultValue = "", required = false) String[] collections,
@@ -41,8 +43,11 @@ public class ProductController {
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
             @RequestParam(defaultValue = "id", required = false) String... properties
     ) {
-        Page<SearchProduct> response = productService.getProducts(search, sizes, types, collections,
-                new PageableRequest(page - 1, size, direction, properties));
+        Page<SearchProduct> response = productService.getProducts(
+                search, minPrice, maxPrice,
+                sizes, types, collections,
+                new PageableRequest(page - 1, size, direction, properties)
+        );
         return ResponseEntity.ok(new ApiListItemResponse<>(
                 response.getContent(),
                 response.getSize(),
@@ -57,6 +62,8 @@ public class ProductController {
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiListItemResponse<SearchProduct>> getProductsForStaff(
             @RequestParam(defaultValue = "", required = false) String search,
+            @RequestParam(defaultValue = "0", required = false) double minPrice,
+            @RequestParam(defaultValue = "10000000", required = false) double maxPrice,
             @RequestParam(defaultValue = "", required = false) String[] sizes,
             @RequestParam(defaultValue = "", required = false) String[] types,
             @RequestParam(defaultValue = "", required = false) String[] collections,
@@ -65,8 +72,11 @@ public class ProductController {
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
             @RequestParam(defaultValue = "id", required = false) String... properties
     ) {
-        Page<SearchProduct> response = productService.getProductsForStaff(search, sizes, types, collections,
-                new PageableRequest(page - 1, size, direction, properties));
+        Page<SearchProduct> response = productService.getProductsForStaff(
+                search, minPrice, maxPrice,
+                sizes, types, collections,
+                new PageableRequest(page - 1, size, direction, properties)
+        );
         return ResponseEntity.ok(new ApiListItemResponse<>(
                 response.getContent(),
                 response.getSize(),
