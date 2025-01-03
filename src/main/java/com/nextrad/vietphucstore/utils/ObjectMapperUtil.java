@@ -68,7 +68,8 @@ public class ObjectMapperUtil {
                 cart.getProductQuantity().getProduct().getUnitPrice(),
                 cart.getProductQuantity().getProduct().getWeight(),
                 cart.getProductQuantity().getProductSize().getName(),
-                cart.getQuantity()
+                cart.getQuantity(),
+                cart.getProductQuantity().getQuantity()
         );
     }
 

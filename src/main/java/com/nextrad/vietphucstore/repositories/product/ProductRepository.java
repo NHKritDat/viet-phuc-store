@@ -13,16 +13,20 @@ import java.util.UUID;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID> {
-    Page<Product> findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
             String name,
+            double minPrice,
+            double maxPrice,
             ProductStatus status,
             Collection<String> productTypeNames,
             Collection<String> productCollectionNames,
             Collection<String> productQuantitiesProductSizeNames,
             Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCaseAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
             String name,
+            double minPrice,
+            double maxPrice,
             Collection<String> productTypeNames,
             Collection<String> productCollectionNames,
             Collection<String> productQuantitiesProductSizeNames,
@@ -30,31 +34,112 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     Optional<Product> findByIdAndStatusNot(UUID id, ProductStatus status);
 
-    Page<Product> findByNameContainsIgnoreCaseAndProductType_NameInAndProductQuantities_ProductSize_NameIn(String name, Collection<String> productTypeNames, Collection<String> productQuantitiesProductSizeNames, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
+            String name,
+            double minPrice,
+            double maxPrice,
+            Collection<String> productTypeNames,
+            Collection<String> productQuantitiesProductSizeNames,
+            Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCase(String name, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetween(
+            String name,
+            double minPrice,
+            double maxPrice,
+            Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCaseAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(String name, Collection<String> productCollectionNames, Collection<String> productQuantitiesProductSizeNames, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+            String name,
+            double minPrice,
+            double maxPrice,
+            Collection<String> productCollectionNames,
+            Collection<String> productQuantitiesProductSizeNames,
+            Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCaseAndProductType_NameInAndProductCollection_NameIn(String name, Collection<String> productTypeNames, Collection<String> productCollectionNames, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductCollection_NameIn(
+            String name,
+            double minPrice,
+            double maxPrice,
+            Collection<String> productTypeNames,
+            Collection<String> productCollectionNames,
+            Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCaseAndProductQuantities_ProductSize_NameIn(String name, Collection<String> productQuantitiesProductSizeNames, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductQuantities_ProductSize_NameIn(
+            String name,
+            double minPrice,
+            double maxPrice,
+            Collection<String> productQuantitiesProductSizeNames,
+            Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCaseAndProductType_NameIn(String name, Collection<String> productTypeNames, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameIn(
+            String name,
+            double minPrice,
+            double maxPrice,
+            Collection<String> productTypeNames,
+            Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCaseAndProductCollection_NameIn(String name, Collection<String> productCollectionNames, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductCollection_NameIn(
+            String name,
+            double minPrice,
+            double maxPrice,
+            Collection<String> productCollectionNames,
+            Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductQuantities_ProductSize_NameIn(String name, ProductStatus status, Collection<String> productTypeNames, Collection<String> productQuantitiesProductSizeNames, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
+            String name,
+            double minPrice,
+            double maxPrice,
+            ProductStatus status,
+            Collection<String> productTypeNames,
+            Collection<String> productQuantitiesProductSizeNames,
+            Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCaseAndStatusNotAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(String name, ProductStatus status, Collection<String> productCollectionNames, Collection<String> productQuantitiesProductSizeNames, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+            String name,
+            double minPrice,
+            double maxPrice,
+            ProductStatus status,
+            Collection<String> productCollectionNames,
+            Collection<String> productQuantitiesProductSizeNames,
+            Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductCollection_NameIn(String name, ProductStatus status, Collection<String> productTypeNames, Collection<String> productCollectionNames, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductCollection_NameIn(
+            String name,
+            double minPrice,
+            double maxPrice,
+            ProductStatus status,
+            Collection<String> productTypeNames,
+            Collection<String> productCollectionNames,
+            Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCaseAndStatusNotAndProductQuantities_ProductSize_NameIn(String name, ProductStatus status, Collection<String> productQuantitiesProductSizeNames, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductQuantities_ProductSize_NameIn(
+            String name,
+            double minPrice,
+            double maxPrice,
+            ProductStatus status,
+            Collection<String> productQuantitiesProductSizeNames,
+            Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameIn(String name, ProductStatus status, Collection<String> productTypeNames, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameIn(
+            String name,
+            double minPrice,
+            double maxPrice,
+            ProductStatus status,
+            Collection<String> productTypeNames,
+            Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCaseAndStatusNotAndProductCollection_NameIn(String name, ProductStatus status, Collection<String> productCollectionNames, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductCollection_NameIn(
+            String name,
+            double minPrice,
+            double maxPrice,
+            ProductStatus status,
+            Collection<String> productCollectionNames,
+            Pageable pageable);
 
-    Page<Product> findByNameContainsIgnoreCaseAndStatusNot(String name, ProductStatus status, Pageable pageable);
+    Page<Product> findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNot(
+            String name,
+            double minPrice,
+            double maxPrice,
+            ProductStatus status,
+            Pageable pageable);
 }

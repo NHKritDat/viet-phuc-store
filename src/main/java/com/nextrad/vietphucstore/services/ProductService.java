@@ -16,10 +16,12 @@ import org.springframework.data.domain.Page;
 import java.util.UUID;
 
 public interface ProductService {
-    Page<SearchProduct> getProducts(String search, String[] sizes, String[] types, String[] collections,
+    Page<SearchProduct> getProducts(String search, double minPrice, double maxPrice,
+                                    String[] sizes, String[] types, String[] collections,
                                     PageableRequest request);
 
-    Page<SearchProduct> getProductsForStaff(String search, String[] sizes, String[] types, String[] collections,
+    Page<SearchProduct> getProductsForStaff(String search, double minPrice, double maxPrice,
+                                            String[] sizes, String[] types, String[] collections,
                                             PageableRequest request);
 
     ProductDetail getProduct(UUID id);

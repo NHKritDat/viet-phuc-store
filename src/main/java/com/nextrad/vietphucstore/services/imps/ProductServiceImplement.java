@@ -39,13 +39,16 @@ public class ProductServiceImplement implements ProductService {
     private final ObjectMapperUtil objectMapperUtil;
 
     @Override
-    public Page<SearchProduct> getProducts(String search, String[] sizes, String[] types, String[] collections,
+    public Page<SearchProduct> getProducts(String search, double minPrice, double maxPrice,
+                                           String[] sizes, String[] types, String[] collections,
                                            PageableRequest request) {
         Page<Product> products;
         if (sizes.length != 0 && types.length != 0 && collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(types),
                             Arrays.asList(collections),
@@ -54,8 +57,10 @@ public class ProductServiceImplement implements ProductService {
                     );
         } else if (sizes.length != 0 && types.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(types),
                             Arrays.asList(sizes),
@@ -63,8 +68,10 @@ public class ProductServiceImplement implements ProductService {
                     );
         } else if (sizes.length != 0 && collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(collections),
                             Arrays.asList(sizes),
@@ -72,8 +79,10 @@ public class ProductServiceImplement implements ProductService {
                     );
         } else if (types.length != 0 && collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductCollection_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductCollection_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(types),
                             Arrays.asList(collections),
@@ -81,32 +90,40 @@ public class ProductServiceImplement implements ProductService {
                     );
         } else if (sizes.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (types.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(types),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductCollection_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductCollection_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(collections),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNot(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNot(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             pageableUtil.getPageable(Product.class, request)
                     );
@@ -120,13 +137,16 @@ public class ProductServiceImplement implements ProductService {
     }
 
     @Override
-    public Page<SearchProduct> getProductsForStaff(String search, String[] sizes, String[] types, String[] collections,
+    public Page<SearchProduct> getProductsForStaff(String search, double minPrice, double maxPrice,
+                                                   String[] sizes, String[] types, String[] collections,
                                                    PageableRequest request) {
         Page<Product> products;
         if (sizes.length != 0 && types.length != 0 && collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(types),
                             Arrays.asList(collections),
                             Arrays.asList(sizes),
@@ -134,53 +154,67 @@ public class ProductServiceImplement implements ProductService {
                     );
         } else if (sizes.length != 0 && types.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(types),
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (sizes.length != 0 && collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(collections),
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (types.length != 0 && collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductType_NameInAndProductCollection_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductCollection_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(types),
                             Arrays.asList(collections),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (sizes.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (types.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductType_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(types),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductCollection_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductCollection_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(collections),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else {
             products = productRepository
-                    .findByNameContainsIgnoreCase(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetween(
                             search,
+                            minPrice,
+                            maxPrice,
                             pageableUtil.getPageable(Product.class, request)
                     );
         }
