@@ -236,4 +236,9 @@ public class OrderServiceImplement implements OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
     }
 
+    @Override
+    public String getCheckId() {
+        return idUtil.genCheckId();
+    }
+
 }
