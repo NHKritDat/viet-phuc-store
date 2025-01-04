@@ -1,6 +1,6 @@
 package com.nextrad.vietphucstore.dtos.responses.viettel;
 
-public record PricingResponse(
+public record ViettelPricingResponse(
         int MONEY_TOTAL_OLD,
         int MONEY_TOTAL,
         int MONEY_TOTAL_FEE,

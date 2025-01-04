@@ -1,9 +1,9 @@
 package com.nextrad.vietphucstore.dtos.requests.viettel;
 
-public record ShippingFeeRequest(
-        int PRODUCT_WEIGHT,
-        int PRODUCT_PRICE,
-        int MONEY_COLLECTION,
+public record ViettelPricingRequest(
+        double PRODUCT_WEIGHT,
+        double PRODUCT_PRICE,
+        double MONEY_COLLECTION,
         String ORDER_SERVICE_ADD,
         String ORDER_SERVICE,
         int SENDER_PROVINCE,

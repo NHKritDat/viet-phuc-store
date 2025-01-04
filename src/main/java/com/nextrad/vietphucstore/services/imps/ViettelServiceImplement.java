@@ -1,8 +1,6 @@
 package com.nextrad.vietphucstore.services.imps;
 
-import com.nextrad.vietphucstore.dtos.requests.viettel.ShippingFee;
-import com.nextrad.vietphucstore.dtos.requests.viettel.ShippingFeeRequest;
-import com.nextrad.vietphucstore.dtos.requests.viettel.ViettelLoginRequest;
+import com.nextrad.vietphucstore.dtos.requests.viettel.*;
 import com.nextrad.vietphucstore.dtos.responses.viettel.*;
 import com.nextrad.vietphucstore.services.ViettelService;
 import lombok.Getter;
@@ -39,8 +37,6 @@ public class ViettelServiceImplement implements ViettelService {
     private String viettelPartnerPassword;
     @Value("${VIETTEL_API_GET_PRICING}")
     private String viettelApiGetPricing;
-    @Value("${VIETTEL_PRICING_ORDER_SERVICE}")
-    private String viettelPricingOrderService;
     @Value("${VIETTEL_PRICING_SENDER_PROVINCE}")
     private int viettelPricingSenderProvince;
     @Value("${VIETTEL_PRICING_SENDER_DISTRICT}")
@@ -49,10 +45,14 @@ public class ViettelServiceImplement implements ViettelService {
     private String viettelPricingProductType;
     @Value("${VIETTEL_PRICING_NATIONAL_TYPE}")
     private int viettelPricingNationalType;
+    @Value("${VIETTEL_API_GET_ALL_SERVICES}")
+    private String viettelApiGetAllServices;
+    @Value("${VIETTEL_PRICING_ORDER_SERVICE_ADD}")
+    private String viettelPricingOrderServiceAdd;
 
     @Override
     public List<ProvinceResponse> getProvinces(int id) {
-        ResponseEntity<DataResponse<List<ProvinceResponse>>> response = restTemplate.exchange(
+        ResponseEntity<ViettelDataResponse<List<ProvinceResponse>>> response = restTemplate.exchange(
                 viettelApiGetListProvinces + id,
                 HttpMethod.GET,
                 null,
@@ -64,7 +64,7 @@ public class ViettelServiceImplement implements ViettelService {
 
     @Override
     public List<DistrictResponse> getDistricts(int id) {
-        ResponseEntity<DataResponse<List<DistrictResponse>>> response = restTemplate.exchange(
+        ResponseEntity<ViettelDataResponse<List<DistrictResponse>>> response = restTemplate.exchange(
                 viettelApiGetListDistricts + id,
                 HttpMethod.GET,
                 null,
@@ -76,7 +76,7 @@ public class ViettelServiceImplement implements ViettelService {
 
     @Override
     public String getAccessToken() {
-        ResponseEntity<DataResponse<ViettelLoginResponse>> response = restTemplate.exchange(
+        ResponseEntity<ViettelDataResponse<ViettelLoginResponse>> response = restTemplate.exchange(
                 viettelApiSignPartner,
                 HttpMethod.POST,
                 new HttpEntity<>(new ViettelLoginRequest(viettelPartnerUsername, viettelPartnerPassword)),
@@ -87,23 +87,23 @@ public class ViettelServiceImplement implements ViettelService {
     }
 
     @Override
-    public PricingResponse getShippingFee(ShippingFee shippingFee) {
+    public ViettelPricingResponse getPricing(PricingRequest request) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + getToken());
 
-        ResponseEntity<DataResponse<PricingResponse>> response = restTemplate.exchange(
+        ResponseEntity<ViettelDataResponse<ViettelPricingResponse>> response = restTemplate.exchange(
                 viettelApiGetPricing,
                 HttpMethod.POST,
-                new HttpEntity<>(new ShippingFeeRequest(
-                        shippingFee.weight(),
-                        shippingFee.price(),
-                        shippingFee.moneyCollection(),
-                        shippingFee.serviceAdd(),
-                        viettelPricingOrderService,
+                new HttpEntity<>(new ViettelPricingRequest(
+                        request.weight(),
+                        request.price(),
+                        request.moneyCollection(),
+                        request.price() >= 3000000 ? viettelPricingOrderServiceAdd : "",
+                        request.orderService(),
                         viettelPricingSenderProvince,
                         viettelPricingSenderDistrict,
-                        shippingFee.receiverProvince(),
-                        shippingFee.receiverDistrict(),
+                        request.receiverProvince(),
+                        request.receiverDistrict(),
                         viettelPricingProductType,
                         viettelPricingNationalType
                 ), headers),
@@ -111,6 +111,35 @@ public class ViettelServiceImplement implements ViettelService {
                 }
         );
         return Objects.requireNonNull(response.getBody()).data();
+    }
+
+    @Override
+    public List<ViettelServicesResponse> getOrderServices(GetServicesRequest request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + getToken());
+
+        ResponseEntity<List<ViettelServicesResponse>> response =
+                restTemplate.exchange(
+                        viettelApiGetAllServices,
+                        HttpMethod.POST,
+                        new HttpEntity<>(
+                                new ViettelGetServicesRequest(
+                                        viettelPricingSenderProvince,
+                                        viettelPricingSenderDistrict,
+                                        request.provinceId(),
+                                        request.districtId(),
+                                        viettelPricingProductType,
+                                        request.weight(),
+                                        request.price(),
+                                        request.moneyCollection(),
+                                        viettelPricingNationalType
+                                ),
+                                headers
+                        ),
+                        new ParameterizedTypeReference<>() {
+                        }
+                );
+        return Objects.requireNonNull(response.getBody());
     }
 
 }

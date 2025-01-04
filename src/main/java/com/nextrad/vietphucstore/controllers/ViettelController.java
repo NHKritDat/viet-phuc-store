@@ -1,10 +1,12 @@
 package com.nextrad.vietphucstore.controllers;
 
-import com.nextrad.vietphucstore.dtos.requests.viettel.ShippingFee;
+import com.nextrad.vietphucstore.dtos.requests.viettel.GetServicesRequest;
+import com.nextrad.vietphucstore.dtos.requests.viettel.PricingRequest;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.viettel.DistrictResponse;
-import com.nextrad.vietphucstore.dtos.responses.viettel.PricingResponse;
+import com.nextrad.vietphucstore.dtos.responses.viettel.ViettelPricingResponse;
 import com.nextrad.vietphucstore.dtos.responses.viettel.ProvinceResponse;
+import com.nextrad.vietphucstore.dtos.responses.viettel.ViettelServicesResponse;
 import com.nextrad.vietphucstore.services.ViettelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -40,10 +42,20 @@ public class ViettelController {
     }
 
     @PostMapping("/pricing")
-    public ResponseEntity<ApiItemResponse<PricingResponse>> getShippingFee(@RequestBody ShippingFee request) {
+    public ResponseEntity<ApiItemResponse<ViettelPricingResponse>> getPricing(@RequestBody PricingRequest request) {
         return ResponseEntity.ok(new ApiItemResponse<>(
-                viettelService.getShippingFee(request),
+                viettelService.getPricing(request),
                 "Đây là thông tin phí vận chuyển"
+        ));
+    }
+
+    @PostMapping("/services")
+    public ResponseEntity<ApiItemResponse<List<ViettelServicesResponse>>> getOrderServices(
+            @RequestBody GetServicesRequest request
+    ) {
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                viettelService.getOrderServices(request),
+                "Đây là các dịch vụ giao hàng hiện hỗ trợ"
         ));
     }
 }
