@@ -14,6 +14,7 @@ public record OrderResponse(
         String phone,
         double productTotal,
         double shippingFee,
+        String shippingMethod,
         PaymentMethod paymentMethod,
         OrderStatus status,
         Map<UUID, OrderDetailResponse> details

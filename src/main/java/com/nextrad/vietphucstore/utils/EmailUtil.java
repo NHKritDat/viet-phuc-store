@@ -39,6 +39,7 @@ public class EmailUtil {
                 "</li><li><strong>Người đặt:</strong> " + order.getName() +
                 "</li><li><strong>Số điện thoại:</strong> " + order.getPhone() +
                 "</li><li><strong>Tổng giá sản phẩm:</strong> " + order.getProductTotal() +
+                "</li><li><strong>Phương thức vận chuyển:</strong> " + order.getShippingMethod() +
                 "</li><li><strong>Phí vận chuyển:</strong> " + order.getShippingFee() +
                 "</li><li><strong>Phương thức thanh toán:</strong> " + order.getPaymentMethod() +
                 "</li><li><strong>Tổng giá:</strong> " + (order.getProductTotal() + order.getShippingFee()) +

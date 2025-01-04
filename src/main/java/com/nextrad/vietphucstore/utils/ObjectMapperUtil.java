@@ -143,7 +143,7 @@ public class ObjectMapperUtil {
     public SearchOrder mapSearchOrder(Order order) {
         return new SearchOrder(
                 order.getId(), order.getUser().getEmail(), order.getProductTotal(),
-                order.getShippingFee(), order.getPaymentMethod(), order.getStatus()
+                order.getShippingFee(), order.getShippingMethod(), order.getPaymentMethod(), order.getStatus()
         );
     }
 
@@ -151,7 +151,7 @@ public class ObjectMapperUtil {
         return new OrderResponse(
                 order.getId(), order.getEmail(), order.getName(),
                 order.getAddress() + ", " + order.getDistrict() + ", " + order.getProvince(),
-                order.getPhone(), order.getProductTotal(), order.getShippingFee(),
+                order.getPhone(), order.getProductTotal(), order.getShippingFee(), order.getShippingMethod(),
                 order.getPaymentMethod(), order.getStatus(),
                 order.getOrderDetails().stream().collect(Collectors.toMap(
                         OrderDetail::getId,

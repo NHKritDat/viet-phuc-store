@@ -119,6 +119,7 @@ public class OrderServiceImplement implements OrderService {
         ).sum();
         order.setProductTotal(productTotal);
         order.setShippingFee(request.shippingFee());
+        order.setShippingMethod(request.shippingMethod());
         order.setPaymentMethod(request.paymentMethod());
         order.setId(idUtil.genId(productTotal + request.shippingFee(), new Date()));
         orderRepository.save(order);
