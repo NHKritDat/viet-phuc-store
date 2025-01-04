@@ -8,6 +8,7 @@ public record SearchOrder(
         String email,
         double productTotal,
         double shippingFee,
+        String shippingMethod,
         PaymentMethod paymentMethod,
         OrderStatus status
 ) {

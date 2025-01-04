@@ -54,6 +54,8 @@ public class Order {
     @Column(nullable = false)
     private double shippingFee;
 
+    private String shippingMethod;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentMethod paymentMethod;

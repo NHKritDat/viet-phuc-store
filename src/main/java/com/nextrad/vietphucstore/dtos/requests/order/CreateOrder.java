@@ -10,6 +10,7 @@ public record CreateOrder(
         String address,
         String phone,
         double shippingFee,
+        String shippingMethod,
         PaymentMethod paymentMethod
 ) {
 }
