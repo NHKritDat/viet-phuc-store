@@ -21,4 +21,17 @@ public class IdUtil {
 
         return "DV" + price.substring(0, price.length() - 3) + dateStr + timeStr;
     }
+
+    public String genCheckId() {
+        return "CH" + genDateTimeId();
+    }
+
+    private String genDateTimeId() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS");
+        String[] dateTime = sdf.format(new Date()).split(" ");
+        String[] date = dateTime[0].split("-");
+        String[] time = dateTime[1].split(":");
+        String[] millisecond = time[2].split("\\.");
+        return date[0] + date[1] + date[2] + time[0] + time[1] + millisecond[0] + millisecond[1];
+    }
 }

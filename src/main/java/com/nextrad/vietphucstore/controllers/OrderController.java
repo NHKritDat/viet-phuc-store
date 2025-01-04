@@ -141,5 +141,10 @@ public class OrderController {
                 "Đây là chi tiết đơn hàng"
         ));
     }
+
+    @GetMapping("/check-id")
+    public ResponseEntity<ApiItemResponse<String>> getCheckId() {
+        return ResponseEntity.ok(new ApiItemResponse<>(orderService.getCheckId(), "Đây là mã kiểm tra"));
+    }
 }
 

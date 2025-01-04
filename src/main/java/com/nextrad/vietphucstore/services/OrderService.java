@@ -31,4 +31,6 @@ public interface OrderService {
     Page<SearchOrder> getOrders(String search, PageableRequest request);
 
     OrderResponse getOrderDetailForStaff(String id);
+
+    String getCheckId();
 }
