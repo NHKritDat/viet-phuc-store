@@ -33,4 +33,10 @@ public interface OrderService {
     OrderResponse getOrderDetailForStaff(String id);
 
     String getCheckId();
+
+    Page<CurrentOrderHistory> getCurrentOrderHistory(PageableRequest pageableRequest);
+
+    OrderResponse getCurrentOrderDetailHistory(String id);
+
+    Page<TransactionsResponse> getOrderTransactionsHistory(PageableRequest pageableRequest);
 }
