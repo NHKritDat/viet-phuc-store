@@ -20,9 +20,12 @@ import com.nextrad.vietphucstore.entities.product.ProductCollection;
 import com.nextrad.vietphucstore.entities.product.ProductQuantity;
 import com.nextrad.vietphucstore.entities.product.ProductType;
 import com.nextrad.vietphucstore.entities.user.User;
+import com.nextrad.vietphucstore.enums.order.OrderStatus;
+import com.nextrad.vietphucstore.enums.order.PaymentMethod;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.stream.Collectors;
 
 @Component
@@ -163,6 +166,34 @@ public class ObjectMapperUtil {
                                 od.getProductQuantity().getProduct().getUnitPrice()
                         )
                 ))
+        );
+    }
+
+    public CurrentOrderHistory mapCurrentOrderHistory(Order order) {
+        return new CurrentOrderHistory(
+                order.getId(), order.getName(),
+                order.getAddress() + ", " + order.getDistrict() + ", " + order.getProvince(),
+                order.getPaymentMethod(), order.getStatus(), order.getProductTotal() + order.getShippingFee()
+        );
+    }
+
+    public TransactionsResponse mapTransactionsResponse(Order order) {
+        boolean paymentStatus;
+        Date paymentDate;
+        if (order.getPaymentMethod().equals(PaymentMethod.QR)) {
+            paymentStatus = true;
+            paymentDate = order.getCreatedDate();
+        } else if (order.getPaymentMethod().equals(PaymentMethod.COD) && order.getStatus().equals(OrderStatus.DELIVERED)) {
+            paymentStatus = true;
+            paymentDate = order.getUpdatedDate();
+        } else {
+            paymentStatus = false;
+            paymentDate = null;
+        }
+        return new TransactionsResponse(
+                order.getPaymentMethod(), paymentStatus, paymentDate,
+                order.getId(), order.getCreatedDate(), order.getShippingFee(),
+                order.getProductTotal() + order.getShippingFee()
         );
     }
 }

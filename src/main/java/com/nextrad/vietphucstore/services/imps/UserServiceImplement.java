@@ -16,10 +16,7 @@ import com.nextrad.vietphucstore.exceptions.AppException;
 import com.nextrad.vietphucstore.repositories.user.TokenRepository;
 import com.nextrad.vietphucstore.repositories.user.UserRepository;
 import com.nextrad.vietphucstore.services.UserService;
-import com.nextrad.vietphucstore.utils.EmailUtil;
-import com.nextrad.vietphucstore.utils.ObjectMapperUtil;
-import com.nextrad.vietphucstore.utils.PageableUtil;
-import com.nextrad.vietphucstore.utils.TokenUtil;
+import com.nextrad.vietphucstore.utils.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,6 +37,7 @@ public class UserServiceImplement implements UserService {
     private final EmailUtil emailUtil;
     private final PasswordEncoder passwordEncoder;
     private final ObjectMapperUtil objectMapperUtil;
+    private final RegexUtil regexUtil;
 
     @Override
     public boolean existsByIdAndStatus(UUID id, boolean status) {
@@ -131,6 +129,8 @@ public class UserServiceImplement implements UserService {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         if (!request.password().equals(request.confirmPassword()))
             throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+        if (regexUtil.invalidPassword(request.password()))
+            throw new AppException(ErrorCode.PASSWORD_NOT_STRONG);
 
         User user = new User();
         user.setName(request.name());
@@ -172,6 +172,8 @@ public class UserServiceImplement implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if (!request.newPassword().equals(request.confirmPassword()))
             throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+        if (regexUtil.invalidPassword(request.newPassword()))
+            throw new AppException(ErrorCode.PASSWORD_NOT_STRONG);
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
         CheckTokenResult result = tokenUtil.checkToken(request.auth(), false);
@@ -188,6 +190,8 @@ public class UserServiceImplement implements UserService {
             throw new AppException(ErrorCode.WRONG_PASSWORD);
         if (!request.newPassword().equals(request.confirmPassword()))
             throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+        if (regexUtil.invalidPassword(request.newPassword()))
+            throw new AppException(ErrorCode.PASSWORD_NOT_STRONG);
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
         return "Mật khẩu của bạn đã được thay đổi thành công!";

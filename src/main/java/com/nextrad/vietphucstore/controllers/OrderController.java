@@ -146,5 +146,53 @@ public class OrderController {
     public ResponseEntity<ApiItemResponse<String>> getCheckId() {
         return ResponseEntity.ok(new ApiItemResponse<>(orderService.getCheckId(), "Đây là mã kiểm tra"));
     }
+
+    @GetMapping("/current")
+    public ResponseEntity<ApiListItemResponse<CurrentOrderHistory>> getCurrentOrderHistory(
+            @RequestParam(defaultValue = "1", required = false) int page,
+            @RequestParam(defaultValue = "10", required = false) int size,
+            @RequestParam(defaultValue = "DESC", required = false) Sort.Direction direction,
+            @RequestParam(defaultValue = "createdDate", required = false) String... properties
+    ) {
+        Page<CurrentOrderHistory> response = orderService.getCurrentOrderHistory(
+                new PageableRequest(page - 1, size, direction, properties)
+        );
+        return ResponseEntity.ok(new ApiListItemResponse<>(
+                response.getContent(),
+                response.getSize(),
+                response.getNumber() + 1,
+                response.getTotalElements(),
+                response.getTotalPages(),
+                "Đây là lịch sử mua hàng hiện tại của bạn"
+        ));
+    }
+
+    @GetMapping("/{id}/order-details/current")
+    public ResponseEntity<ApiItemResponse<OrderResponse>> getCurrentOrderDetailHistory(@PathVariable String id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                orderService.getCurrentOrderDetailHistory(id),
+                "Đây là chi tiết đơn hàng hiện tại"
+        ));
+    }
+
+    @GetMapping("/transactions/current")
+    public ResponseEntity<ApiListItemResponse<TransactionsResponse>> getOrderTransactionsHistory(
+            @RequestParam(defaultValue = "1", required = false) int page,
+            @RequestParam(defaultValue = "10", required = false) int size,
+            @RequestParam(defaultValue = "DESC", required = false) Sort.Direction direction,
+            @RequestParam(defaultValue = "createdDate", required = false) String... properties
+    ) {
+        Page<TransactionsResponse> response = orderService.getOrderTransactionsHistory(
+                new PageableRequest(page - 1, size, direction, properties)
+        );
+        return ResponseEntity.ok(new ApiListItemResponse<>(
+                response.getContent(),
+                response.getSize(),
+                response.getNumber() + 1,
+                response.getTotalElements(),
+                response.getTotalPages(),
+                "Đây là lịch sử giao dịch của bạn"
+        ));
+    }
 }
 

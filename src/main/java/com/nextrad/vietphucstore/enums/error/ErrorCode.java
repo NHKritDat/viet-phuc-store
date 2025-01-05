@@ -20,7 +20,8 @@ public enum ErrorCode {
     //User error
     USER_NOT_FOUND("Người dùng không tìm thấy", HttpStatus.NOT_FOUND),
     WRONG_PASSWORD("Sai mật khẩu", HttpStatus.FORBIDDEN),
-    PASSWORD_NOT_MATCH("Mật khẩu không giống", HttpStatus.BAD_REQUEST),
+    PASSWORD_NOT_MATCH("Mật khẩu không giống", HttpStatus.FORBIDDEN),
+    PASSWORD_NOT_STRONG("Mật khẩu phải có in hoa có kí tự và số", HttpStatus.FORBIDDEN),
     EMAIL_EXISTED("Email đã tồn tại", HttpStatus.BAD_REQUEST),
     //Product error
     PRODUCT_NOT_FOUND("Sản phẩm không được tìm thấy", HttpStatus.NOT_FOUND),

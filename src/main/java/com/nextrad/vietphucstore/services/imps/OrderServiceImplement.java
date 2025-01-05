@@ -163,9 +163,7 @@ public class OrderServiceImplement implements OrderService {
     public String previousStatus(String orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
-        if (order.getStatus() == OrderStatus.DELIVERED)
-            order.setStatus(OrderStatus.IN_TRANSIT);
-        else if (order.getStatus() == OrderStatus.IN_TRANSIT)
+        if (order.getStatus() == OrderStatus.IN_TRANSIT)
             order.setStatus(OrderStatus.AWAITING_DELIVERY);
         else if (order.getStatus() == OrderStatus.AWAITING_DELIVERY)
             order.setStatus(OrderStatus.AWAITING_PICKUP);
@@ -239,6 +237,32 @@ public class OrderServiceImplement implements OrderService {
     @Override
     public String getCheckId() {
         return idUtil.genCheckId();
+    }
+
+    @Override
+    public Page<CurrentOrderHistory> getCurrentOrderHistory(PageableRequest pageableRequest) {
+        Page<Order> orders = orderRepository.findByUser_Email(
+                SecurityContextHolder.getContext().getAuthentication().getName(),
+                pageableUtil.getPageable(Order.class, pageableRequest)
+        );
+        return orders.map(objectMapperUtil::mapCurrentOrderHistory);
+    }
+
+    @Override
+    public OrderResponse getCurrentOrderDetailHistory(String id) {
+        return orderRepository.findByIdAndUser_Email(
+                        id,
+                        SecurityContextHolder.getContext().getAuthentication().getName()
+                ).map(objectMapperUtil::mapOrderResponse)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+    }
+
+    @Override
+    public Page<TransactionsResponse> getOrderTransactionsHistory(PageableRequest pageableRequest) {
+        return orderRepository.findByUser_Email(
+                SecurityContextHolder.getContext().getAuthentication().getName(),
+                pageableUtil.getPageable(Order.class, pageableRequest)
+        ).map(objectMapperUtil::mapTransactionsResponse);
     }
 
 }
