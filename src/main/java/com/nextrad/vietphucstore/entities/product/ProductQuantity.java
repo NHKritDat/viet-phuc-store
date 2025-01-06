@@ -27,4 +27,6 @@ public class ProductQuantity {
     @Column(nullable = false)
     private int quantity;
 
+    private boolean deleted;
+
 }
