@@ -75,4 +75,10 @@ public interface ProductService {
     Page<FeedbackResponse> getFeedbacks(UUID productId, PageableRequest request);
 
     Page<FeedbackResponse> getFeedbacksForStaff(UUID productId, PageableRequest request);
+
+    String reactiveProduct(UUID id);
+
+    String reactiveProductType(UUID id);
+
+    String reactiveProductCollection(UUID id);
 }
