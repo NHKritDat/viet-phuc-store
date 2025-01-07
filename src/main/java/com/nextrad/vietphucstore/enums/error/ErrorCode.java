@@ -28,7 +28,7 @@ public enum ErrorCode {
     PRODUCT_TYPE_NOT_FOUND("Loại sản phẩm không tìm thấy", HttpStatus.NOT_FOUND),
     PRODUCT_COLLECTION_NOT_FOUND("Bộ sưu tập không được tìm thấy", HttpStatus.NOT_FOUND),
     PRODUCT_SIZE_NOT_FOUND("Kích cỡ sản phẩm không được tìm thấy", HttpStatus.NOT_FOUND),
-    PRODUCT_QUANTITY_NOT_FOUND("Số lượng sản phẩm không được tìm thấy", HttpStatus.NOT_FOUND),
+    PRODUCT_QUANTITY_NOT_FOUND("Sản phẩm không thể tìm thấy số lượng", HttpStatus.NOT_FOUND),
     //Order error
     CART_NOT_FOUND("Giỏ hàng không được tìm thấy", HttpStatus.NOT_FOUND),
     CART_EMPTY("Giả hàng rỗng", HttpStatus.BAD_REQUEST),
@@ -37,7 +37,7 @@ public enum ErrorCode {
     FEEDBACK_NOT_FOUND("Đánh giá không được tìm thấy", HttpStatus.NOT_FOUND),
     //Permission error
     NO_PERMISSION("Bạn không có quyền thực hiện yêu cầu này", HttpStatus.FORBIDDEN),
-    ;
+    PRODUCT_QUANTITY_NOT_ENOUGH("Số lượng sản phẩm bạn đặt hiện không đủ", HttpStatus.BAD_REQUEST);
     String message;
     HttpStatus status;
 }
