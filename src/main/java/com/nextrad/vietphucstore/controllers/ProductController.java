@@ -409,4 +409,22 @@ public class ProductController {
                 "Đây là danh sách tất cả các đánh giá của sản phẩm"
         ));
     }
+
+    @PutMapping("/{id}/reactive/staff")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<String>> reactiveProduct(@PathVariable UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(null, productService.reactiveProduct(id)));
+    }
+
+    @PutMapping("/types/{id}/reactive/staff")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<String>> reactiveProductType(@PathVariable UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(null, productService.reactiveProductType(id)));
+    }
+
+    @PutMapping("/collections/{id}/reactive/staff")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<String>> reactiveProductCollection(@PathVariable UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(null, productService.reactiveProductCollection(id)));
+    }
 }

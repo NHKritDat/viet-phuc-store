@@ -142,4 +142,10 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
             double maxPrice,
             ProductStatus status,
             Pageable pageable);
+
+    Optional<Product> findByIdAndStatusNotAndProductQuantities_Deleted(UUID id, ProductStatus status, boolean productQuantitiesDeleted);
+
+    Optional<Product> findByIdAndProductQuantities_Deleted(UUID id, boolean productQuantitiesDeleted);
+
+    Optional<Product> findByIdAndStatus(UUID id, ProductStatus status);
 }

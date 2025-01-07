@@ -62,8 +62,9 @@ public class OrderServiceImplement implements OrderService {
             newCart.setUser(userRepository.findByEmail(
                     SecurityContextHolder.getContext().getAuthentication().getName()
             ).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
-            ProductQuantity productQuantity = productQuantityRepository.findById(
-                    request.productQuantityId()
+            ProductQuantity productQuantity = productQuantityRepository.findByIdAndDeleted(
+                    request.productQuantityId(),
+                    false
             ).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_QUANTITY_NOT_FOUND));
             newCart.setProductQuantity(productQuantity);
             newCart.setQuantity(Math.min(request.quantity(), productQuantity.getQuantity()));
@@ -115,7 +116,11 @@ public class OrderServiceImplement implements OrderService {
         if (carts.isEmpty())
             throw new AppException(ErrorCode.CART_EMPTY);
         double productTotal = carts.stream().mapToDouble(
-                cart -> cart.getProductQuantity().getProduct().getUnitPrice() * cart.getQuantity()
+                cart -> {
+                    if (cart.getProductQuantity().getQuantity() < cart.getQuantity())
+                        throw new AppException(ErrorCode.PRODUCT_QUANTITY_NOT_ENOUGH);
+                    return cart.getProductQuantity().getProduct().getUnitPrice() * cart.getQuantity();
+                }
         ).sum();
         order.setProductTotal(productTotal);
         order.setShippingFee(request.shippingFee());

@@ -33,6 +33,7 @@ public class Product {
     @Column(nullable = false)
     private double unitPrice;
 
+    @Lob
     private String pictures;
 
     private int weight;

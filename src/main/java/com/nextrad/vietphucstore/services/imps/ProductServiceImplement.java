@@ -228,15 +228,18 @@ public class ProductServiceImplement implements ProductService {
     @Override
     public ProductDetail getProduct(UUID id) {
         return objectMapperUtil.mapProductDetail(
-                productRepository.findByIdAndStatusNot(id, ProductStatus.DELETED)
-                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
+                productRepository.findByIdAndStatusNotAndProductQuantities_Deleted(
+                        id,
+                        ProductStatus.DELETED,
+                        false
+                ).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
         );
     }
 
     @Override
     public ProductDetail getProductForStaff(UUID id) {
         return objectMapperUtil.mapProductDetail(
-                productRepository.findById(id)
+                productRepository.findByIdAndProductQuantities_Deleted(id, false)
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
         );
     }
@@ -274,7 +277,7 @@ public class ProductServiceImplement implements ProductService {
     public ProductDetail updateProduct(UUID id, ModifyProductRequest request) {
         Product product = objectMapperUtil.mapProduct(
                 request, productRepository
-                        .findByIdAndStatusNot(id, ProductStatus.DELETED)
+                        .findById(id)
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)),
                 productTypeRepository
                         .findByIdAndDeleted(request.typeId(), false)
@@ -286,8 +289,10 @@ public class ProductServiceImplement implements ProductService {
         );
 
         product.getProductQuantities().forEach(pq -> {
-            if (!request.sizeQuantities().containsKey(pq.getProductSize().getId()))
-                productQuantityRepository.delete(pq);
+            if (!request.sizeQuantities().containsKey(pq.getProductSize().getId())) {
+                pq.setDeleted(true);
+                productQuantityRepository.save(pq);
+            }
         });
 
         request.sizeQuantities().forEach((sizeId, quantity) -> {
@@ -301,6 +306,7 @@ public class ProductServiceImplement implements ProductService {
                         return pq;
                     });
             productQuantity.setQuantity(quantity);
+            productQuantity.setDeleted(false);
             productQuantityRepository.save(productQuantity);
         });
 
@@ -474,6 +480,33 @@ public class ProductServiceImplement implements ProductService {
                 .findByOrderDetail_ProductQuantity_Product_Id(
                         productId, pageableUtil.getPageable(Feedback.class, request)
                 ).map(objectMapperUtil::mapFeedbackResponse);
+    }
+
+    @Override
+    public String reactiveProduct(UUID id) {
+        Product product = productRepository.findByIdAndStatus(id, ProductStatus.DELETED)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        product.setStatus(ProductStatus.IN_STOCK);
+        productRepository.save(product);
+        return "Bạn đã kích hoạt lại sản phẩm.";
+    }
+
+    @Override
+    public String reactiveProductType(UUID id) {
+        ProductType type = productTypeRepository.findByIdAndDeleted(id, true)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND));
+        type.setDeleted(false);
+        productTypeRepository.save(type);
+        return "Bạn đã kích hoạt lại số đo sản phẩm.";
+    }
+
+    @Override
+    public String reactiveProductCollection(UUID id) {
+        ProductCollection collection = productCollectionRepository.findByIdAndDeleted(id, true)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND));
+        collection.setDeleted(false);
+        productCollectionRepository.save(collection);
+        return "Bạn đã kích hoạt lại bộ sưu tập sản phẩm.";
     }
 
 }
