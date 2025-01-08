@@ -427,4 +427,10 @@ public class ProductController {
     public ResponseEntity<ApiItemResponse<String>> reactiveProductCollection(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(null, productService.reactiveProductCollection(id)));
     }
+
+    @PutMapping("/sizes/{id}/reactive/staff")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<String>> reactiveProductSize(@PathVariable UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(null, productService.reactiveProductSize(id)));
+    }
 }

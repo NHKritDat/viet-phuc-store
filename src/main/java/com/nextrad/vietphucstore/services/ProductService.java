@@ -81,4 +81,6 @@ public interface ProductService {
     String reactiveProductType(UUID id);
 
     String reactiveProductCollection(UUID id);
+
+    String reactiveProductSize(UUID id);
 }

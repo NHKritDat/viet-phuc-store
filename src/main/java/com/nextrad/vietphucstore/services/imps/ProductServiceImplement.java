@@ -497,7 +497,7 @@ public class ProductServiceImplement implements ProductService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND));
         type.setDeleted(false);
         productTypeRepository.save(type);
-        return "Bạn đã kích hoạt lại số đo sản phẩm.";
+        return "Bạn đã kích hoạt lại loại sản phẩm.";
     }
 
     @Override
@@ -507,6 +507,15 @@ public class ProductServiceImplement implements ProductService {
         collection.setDeleted(false);
         productCollectionRepository.save(collection);
         return "Bạn đã kích hoạt lại bộ sưu tập sản phẩm.";
+    }
+
+    @Override
+    public String reactiveProductSize(UUID id) {
+        ProductSize size = productSizeRepository.findByIdAndDeleted(id, true)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND));
+        size.setDeleted(false);
+        productSizeRepository.save(size);
+        return "Bạn đã kích hoạt lại số đo sản phẩm.";
     }
 
 }
