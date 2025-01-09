@@ -186,7 +186,9 @@ public class OrderServiceImplement implements OrderService {
                         OrderStatus.DELIVERED,
                         pageableUtil.getPageable(OrderDetail.class, request)
                 );
-        return orderDetails.map(objectMapperUtil::mapOrderHistory);
+        return orderDetails.map(od ->
+                objectMapperUtil.mapOrderHistory(od, feedbackRepository.existsByOrderDetail_Id(od.getId()))
+        );
     }
 
     @Override

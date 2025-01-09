@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class ObjectMapperUtil {
     private final ImagesUtil imagesUtil;
 
-    public OrderHistory mapOrderHistory(OrderDetail od) {
+    public OrderHistory mapOrderHistory(OrderDetail od, boolean feedback) {
         return new OrderHistory(
                 od.getOrder().getId(),
                 od.getId(),
@@ -43,7 +43,9 @@ public class ObjectMapperUtil {
                 od.getOrder().getPaymentMethod(),
                 od.getProductQuantity().getProductSize().getName(),
                 od.getQuantity(),
-                od.getProductQuantity().getProduct().getUnitPrice()
+                od.getProductQuantity().getProduct().getUnitPrice(),
+                od.getOrder().getShippingFee(),
+                feedback
         );
     }
 
