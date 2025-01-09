@@ -19,4 +19,6 @@ public interface FeedbackRepository extends JpaRepository<Feedback, UUID> {
     Page<Feedback> findByOrderDetail_ProductQuantity_Product_Id(UUID orderDetailProductQuantityProductId, Pageable pageable);
 
     List<Feedback> findByOrderDetail_ProductQuantity_Product_IdAndDeleted(UUID orderDetailProductQuantityProductId, boolean deleted);
+
+    boolean existsByOrderDetail_Id(UUID orderDetailId);
 }

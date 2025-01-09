@@ -12,6 +12,8 @@ public record OrderHistory(
         PaymentMethod paymentMethod,
         String size,
         int quantity,
-        double unitPrice
+        double unitPrice,
+        double shippingFee,
+        boolean feedback
 ) {
 }

@@ -4,10 +4,7 @@ import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyCollectionRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.*;
-import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
-import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
-import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
-import com.nextrad.vietphucstore.dtos.responses.product.SizeQuantityResponse;
+import com.nextrad.vietphucstore.dtos.responses.product.*;
 import com.nextrad.vietphucstore.dtos.responses.user.SearchUser;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
@@ -33,7 +30,7 @@ import java.util.stream.Collectors;
 public class ObjectMapperUtil {
     private final ImagesUtil imagesUtil;
 
-    public OrderHistory mapOrderHistory(OrderDetail od) {
+    public OrderHistory mapOrderHistory(OrderDetail od, boolean feedback) {
         return new OrderHistory(
                 od.getOrder().getId(),
                 od.getId(),
@@ -43,7 +40,9 @@ public class ObjectMapperUtil {
                 od.getOrder().getPaymentMethod(),
                 od.getProductQuantity().getProductSize().getName(),
                 od.getQuantity(),
-                od.getProductQuantity().getProduct().getUnitPrice()
+                od.getProductQuantity().getProduct().getUnitPrice(),
+                od.getOrder().getShippingFee(),
+                feedback
         );
     }
 
@@ -53,7 +52,8 @@ public class ObjectMapperUtil {
                 imagesUtil.convertStringToImages(feedback.getOrderDetail()
                         .getProductQuantity().getProduct().getPictures()).get(0),
                 feedback.getContent(), feedback.getRating(),
-                feedback.getOrderDetail().getOrder().getUser().getName(), feedback.getCreatedDate()
+                feedback.getOrderDetail().getOrder().getUser().getName(), feedback.getCreatedDate(),
+                feedback.getOrderDetail().getProductQuantity().getProduct().getId()
         );
     }
 
@@ -105,6 +105,14 @@ public class ObjectMapperUtil {
                 product.getId(), product.getName(), product.getUnitPrice(),
                 imagesUtil.convertStringToImages(product.getPictures()).get(0),
                 rating
+        );
+    }
+
+    public SearchProductForStaff mapSearchProductForStaff(Product product, double rating) {
+        return new SearchProductForStaff(
+                product.getId(), product.getName(), product.getUnitPrice(),
+                imagesUtil.convertStringToImages(product.getPictures()).get(0),
+                rating, product.getStatus()
         );
     }
 
