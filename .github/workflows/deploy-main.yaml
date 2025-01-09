@@ -202,6 +202,9 @@ jobs:
       - name: Copy environment file to server
         run: scp -i "aws-server.pem" -o StrictHostKeyChecking=no .env ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}:dap-viet-be-ci-cd/.env
 
+      - name: Copy private key file to server
+        run: scp -i "aws-server.pem" -o StrictHostKeyChecking=no private.env-dev ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}:dap-viet-be-ci-cd/private.env-dev
+
       - name: Deploy
         run: |
           ssh -i "aws-server.pem" -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} <<EOF
