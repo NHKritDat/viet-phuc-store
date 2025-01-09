@@ -53,7 +53,8 @@ public class ObjectMapperUtil {
                 imagesUtil.convertStringToImages(feedback.getOrderDetail()
                         .getProductQuantity().getProduct().getPictures()).get(0),
                 feedback.getContent(), feedback.getRating(),
-                feedback.getOrderDetail().getOrder().getUser().getName(), feedback.getCreatedDate()
+                feedback.getOrderDetail().getOrder().getUser().getName(), feedback.getCreatedDate(),
+                feedback.getOrderDetail().getProductQuantity().getProduct().getId()
         );
     }
 

@@ -10,6 +10,7 @@ public record FeedbackResponse(
         String content,
         int rating,
         String username,
-        Date createdAt
+        Date createdAt,
+        UUID productId
 ) {
 }
