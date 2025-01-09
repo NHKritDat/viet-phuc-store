@@ -190,6 +190,12 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > aws-server.pem
           chmod 400 "aws-server.pem"
 
+      - name: Get private key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private.env-dev
+          echo "${{ secrets.DOCKER_HUB_TOKEN }}" > private.env-dev
+          echo "${{ secrets.VPS_USER }}" > private.env-dev
+
       - name: Create deployment folder
         run: ssh -i "aws-server.pem" -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} "mkdir -p dap-viet-be-ci-cd"
 
