@@ -190,20 +190,11 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > aws-server.pem
           chmod 400 "aws-server.pem"
 
-      - name: Get private key
-        run: |
-          echo "SSH_PRIVATE_KEY=${{ secrets.SSH_PRIVATE_KEY }}" >> private.env-dev
-          echo "DOCKER_HUB_TOKEN=${{ secrets.DOCKER_HUB_TOKEN }}" >> private.env-dev
-          echo "VPS_USER=${{ secrets.VPS_USER }}" >> private.env-dev
-
       - name: Create deployment folder
         run: ssh -i "aws-server.pem" -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} "mkdir -p dap-viet-be-ci-cd"
 
       - name: Copy environment file to server
         run: scp -i "aws-server.pem" -o StrictHostKeyChecking=no .env ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}:dap-viet-be-ci-cd/.env
-
-      - name: Copy private key file to server
-        run: scp -i "aws-server.pem" -o StrictHostKeyChecking=no private.env-dev ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}:dap-viet-be-ci-cd/private.env-dev
 
       - name: Deploy
         run: |
