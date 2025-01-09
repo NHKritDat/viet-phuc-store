@@ -4,10 +4,7 @@ import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyCollectionRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.*;
-import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
-import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
-import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
-import com.nextrad.vietphucstore.dtos.responses.product.SizeQuantityResponse;
+import com.nextrad.vietphucstore.dtos.responses.product.*;
 import com.nextrad.vietphucstore.dtos.responses.user.SearchUser;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
@@ -108,6 +105,14 @@ public class ObjectMapperUtil {
                 product.getId(), product.getName(), product.getUnitPrice(),
                 imagesUtil.convertStringToImages(product.getPictures()).get(0),
                 rating
+        );
+    }
+
+    public SearchProductForStaff mapSearchProductForStaff(Product product, double rating) {
+        return new SearchProductForStaff(
+                product.getId(), product.getName(), product.getUnitPrice(),
+                imagesUtil.convertStringToImages(product.getPictures()).get(0),
+                rating, product.getStatus()
         );
     }
 

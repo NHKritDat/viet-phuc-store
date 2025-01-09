@@ -9,6 +9,7 @@ import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
+import com.nextrad.vietphucstore.dtos.responses.product.SearchProductForStaff;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
 import com.nextrad.vietphucstore.entities.product.ProductSize;
@@ -60,7 +61,7 @@ public class ProductController {
 
     @GetMapping("/staff")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiListItemResponse<SearchProduct>> getProductsForStaff(
+    public ResponseEntity<ApiListItemResponse<SearchProductForStaff>> getProductsForStaff(
             @RequestParam(defaultValue = "", required = false) String search,
             @RequestParam(defaultValue = "0", required = false) double minPrice,
             @RequestParam(defaultValue = "10000000", required = false) double maxPrice,
@@ -72,7 +73,7 @@ public class ProductController {
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
             @RequestParam(defaultValue = "id", required = false) String... properties
     ) {
-        Page<SearchProduct> response = productService.getProductsForStaff(
+        Page<SearchProductForStaff> response = productService.getProductsForStaff(
                 search, minPrice, maxPrice,
                 sizes, types, collections,
                 new PageableRequest(page - 1, size, direction, properties)

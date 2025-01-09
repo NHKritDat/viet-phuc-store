@@ -9,6 +9,7 @@ import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
+import com.nextrad.vietphucstore.dtos.responses.product.SearchProductForStaff;
 import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.product.*;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
@@ -137,9 +138,9 @@ public class ProductServiceImplement implements ProductService {
     }
 
     @Override
-    public Page<SearchProduct> getProductsForStaff(String search, double minPrice, double maxPrice,
-                                                   String[] sizes, String[] types, String[] collections,
-                                                   PageableRequest request) {
+    public Page<SearchProductForStaff> getProductsForStaff(String search, double minPrice, double maxPrice,
+                                                           String[] sizes, String[] types, String[] collections,
+                                                           PageableRequest request) {
         Page<Product> products;
         if (sizes.length != 0 && types.length != 0 && collections.length != 0) {
             products = productRepository
@@ -218,7 +219,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         }
-        return products.map(p -> objectMapperUtil.mapSearchProduct(
+        return products.map(p -> objectMapperUtil.mapSearchProductForStaff(
                 p, feedbackRepository
                         .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(p.getId(), false)
                         .stream().mapToDouble(Feedback::getRating).average().orElse(0)
