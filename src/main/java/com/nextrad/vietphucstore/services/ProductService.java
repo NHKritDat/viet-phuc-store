@@ -9,6 +9,7 @@ import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
+import com.nextrad.vietphucstore.dtos.responses.product.SearchProductForStaff;
 import com.nextrad.vietphucstore.entities.product.ProductSize;
 import com.nextrad.vietphucstore.entities.product.ProductType;
 import org.springframework.data.domain.Page;
@@ -20,9 +21,9 @@ public interface ProductService {
                                     String[] sizes, String[] types, String[] collections,
                                     PageableRequest request);
 
-    Page<SearchProduct> getProductsForStaff(String search, double minPrice, double maxPrice,
-                                            String[] sizes, String[] types, String[] collections,
-                                            PageableRequest request);
+    Page<SearchProductForStaff> getProductsForStaff(String search, double minPrice, double maxPrice,
+                                                    String[] sizes, String[] types, String[] collections,
+                                                    PageableRequest request);
 
     ProductDetail getProduct(UUID id);
 

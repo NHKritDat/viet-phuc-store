@@ -21,6 +21,7 @@ public class ProductCollection {
 
     private String description;
 
+    @Lob
     private String images;
 
     @Column(nullable = false)
