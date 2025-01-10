@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.sql.SQLException;
-import java.util.Arrays;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -28,7 +27,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ApiItemResponse<String>> handleNullPointerException(NullPointerException e) {
         return ResponseEntity.status(500)
-                .body(new ApiItemResponse<>(Arrays.toString(e.getStackTrace()), e.getMessage()));
+                .body(new ApiItemResponse<>(e.getClass().getName(), e.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -38,20 +37,20 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiItemResponse<StackTraceElement[]>> handleIllegalArgumentException(IllegalArgumentException e) {
+    public ResponseEntity<ApiItemResponse<String>> handleIllegalArgumentException(IllegalArgumentException e) {
         return ResponseEntity.status(500)
-                .body(new ApiItemResponse<>(e.getStackTrace(), e.getMessage()));
+                .body(new ApiItemResponse<>(e.getClass().getName(), e.getMessage()));
     }
 
     @ExceptionHandler(LazyInitializationException.class)
-    public ResponseEntity<ApiItemResponse<StackTraceElement[]>> handleLazyInitializationException(LazyInitializationException e) {
+    public ResponseEntity<ApiItemResponse<String>> handleLazyInitializationException(LazyInitializationException e) {
         return ResponseEntity.status(500)
-                .body(new ApiItemResponse<>(e.getStackTrace(), e.getMessage()));
+                .body(new ApiItemResponse<>(e.getClass().getName(), e.getMessage()));
     }
 
     @ExceptionHandler(SQLException.class)
-    public ResponseEntity<ApiItemResponse<StackTraceElement[]>> handleSQLException(SQLException e) {
+    public ResponseEntity<ApiItemResponse<String>> handleSQLException(SQLException e) {
         return ResponseEntity.status(500)
-                .body(new ApiItemResponse<>(e.getStackTrace(), e.getMessage()));
+                .body(new ApiItemResponse<>(e.getClass().getName(), e.getMessage()));
     }
 }
