@@ -19,6 +19,7 @@ public class ProductCollection {
     @Column(nullable = false)
     private String name;
 
+    @Column(length = 500, nullable = false)
     private String description;
 
     @Lob

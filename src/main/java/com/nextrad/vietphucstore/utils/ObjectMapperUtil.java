@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -153,7 +154,7 @@ public class ObjectMapperUtil {
 
     public SearchOrder mapSearchOrder(Order order) {
         return new SearchOrder(
-                order.getId(), order.getUser().getEmail(), order.getProductTotal(),
+                order.getId(), order.getEmail(), order.getProductTotal(),
                 order.getShippingFee(), order.getShippingMethod(), order.getPaymentMethod(), order.getStatus()
         );
     }
@@ -202,6 +203,28 @@ public class ObjectMapperUtil {
                 order.getPaymentMethod(), paymentStatus, paymentDate,
                 order.getId(), order.getCreatedDate(), order.getShippingFee(),
                 order.getProductTotal() + order.getShippingFee()
+        );
+    }
+
+    public TopProduct mapTopProductResponse(Object[] request, double rating) {
+        return new TopProduct(
+                UUID.nameUUIDFromBytes(request[0].toString().getBytes()),
+                request[1].toString(),
+                Double.parseDouble(request[2].toString()),
+                imagesUtil.convertStringToImages(request[3].toString()).get(0),
+                rating,
+                Integer.parseInt(request[4].toString())
+        );
+    }
+
+    public TopProduct mapTopProductResponse(Product request, double rating) {
+        return new TopProduct(
+                request.getId(),
+                request.getName(),
+                request.getUnitPrice(),
+                imagesUtil.convertStringToImages(request.getPictures()).get(0),
+                rating,
+                0
         );
     }
 }
