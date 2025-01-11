@@ -3,7 +3,9 @@ package com.nextrad.vietphucstore.services.imps;
 import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
 import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
+import com.nextrad.vietphucstore.dtos.requests.order.PreparedOrder;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
+import com.nextrad.vietphucstore.dtos.requests.product.SelectedProductRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.*;
 import com.nextrad.vietphucstore.entities.order.Cart;
 import com.nextrad.vietphucstore.entities.order.Feedback;
@@ -18,6 +20,7 @@ import com.nextrad.vietphucstore.repositories.order.FeedbackRepository;
 import com.nextrad.vietphucstore.repositories.order.OrderDetailRepository;
 import com.nextrad.vietphucstore.repositories.order.OrderRepository;
 import com.nextrad.vietphucstore.repositories.product.ProductQuantityRepository;
+import com.nextrad.vietphucstore.repositories.product.ProductRepository;
 import com.nextrad.vietphucstore.repositories.user.UserRepository;
 import com.nextrad.vietphucstore.services.OrderService;
 import com.nextrad.vietphucstore.utils.EmailUtil;
@@ -101,10 +104,8 @@ public class OrderServiceImplement implements OrderService {
 
     @Override
     public String checkout(CreateOrder request) {
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-
         Order order = new Order();
-        order.setUser(userRepository.findByEmail(currentUserEmail)
+        order.setUser(userRepository.findByEmail(getCurrentUserEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
         order.setEmail(request.email());
         order.setName(request.name());
@@ -112,7 +113,7 @@ public class OrderServiceImplement implements OrderService {
         order.setDistrict(request.district());
         order.setAddress(request.address());
         order.setPhone(request.phone());
-        List<Cart> carts = cartRepository.findByUser_Email(currentUserEmail);
+        List<Cart> carts = cartRepository.findByUser_Email(getCurrentUserEmail());
         if (carts.isEmpty())
             throw new AppException(ErrorCode.CART_EMPTY);
         double productTotal = carts.stream().mapToDouble(
@@ -145,7 +146,7 @@ public class OrderServiceImplement implements OrderService {
         emailUtil.orderDetail(orderRepository.findById(order.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND)));
 
-        return "Bạn đã thực hiện đơn hàng thanh công. Vui lòng kiểm tra email để xem chi tiết đơn hàng";
+        return "Bạn đã thực hiện đơn hàng thành công. Vui lòng kiểm tra email để xem chi tiết đơn hàng";
     }
 
     @Override
@@ -272,4 +273,64 @@ public class OrderServiceImplement implements OrderService {
         ).map(objectMapperUtil::mapTransactionsResponse);
     }
 
+    @Override
+    public String createOrderForStaff(PreparedOrder request) {
+        //tạo order
+        Order order = new Order();
+
+        order.setUser(userRepository.findByEmail(getCurrentUserEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
+        order.setEmail(request.email());
+        order.setName(request.name());
+        order.setProvince(request.province());
+        order.setDistrict(request.district());
+        order.setAddress(request.address());
+        order.setPhone(request.phone());
+
+        List<SelectedProductRequest> products = request.details();
+        if(products.isEmpty())
+            throw new AppException(ErrorCode.MISSING_SELECT_PRODUCT);
+
+        double productTotal = products.stream().mapToDouble(
+                product -> {
+                    if (findProductQuantity(product.productQuantityId()).getQuantity() < product.quantity())
+                        throw new AppException(ErrorCode.PRODUCT_QUANTITY_NOT_ENOUGH);
+                    return findProductQuantity(product.productQuantityId()).getProduct().getUnitPrice() * product.quantity();
+                }
+        ).sum();
+
+        order.setProductTotal(productTotal);
+        order.setShippingFee(request.shippingFee());
+        order.setShippingMethod(request.shippingMethod());
+        order.setPaymentMethod(request.paymentMethod());
+        order.setId(idUtil.genId(productTotal + request.shippingFee(), new Date()));
+        orderRepository.save(order);
+
+        products.forEach(product -> {
+            ProductQuantity productQuantity = findProductQuantity(product.productQuantityId());
+            productQuantity.setQuantity(productQuantity.getQuantity() - product.quantity());
+            productQuantityRepository.save(productQuantity);
+
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrder(order);
+            orderDetail.setProductQuantity(productQuantity);
+            orderDetail.setQuantity(product.quantity());
+            orderDetailRepository.save(orderDetail);
+        });
+
+        emailUtil.orderDetail(orderRepository.findById(order.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND)));
+
+        return "Bạn đã thực hiện thành công đơn hàng";
+    }
+
+    private String getCurrentUserEmail() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    private ProductQuantity findProductQuantity(UUID productQuantityId) {
+        return productQuantityRepository.findByIdAndDeleted(productQuantityId, false)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_QUANTITY_NOT_FOUND));
+    }
 }
+

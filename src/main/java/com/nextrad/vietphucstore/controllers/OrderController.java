@@ -3,6 +3,7 @@ package com.nextrad.vietphucstore.controllers;
 import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
 import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
+import com.nextrad.vietphucstore.dtos.requests.order.PreparedOrder;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.*;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
@@ -193,6 +194,12 @@ public class OrderController {
                 response.getTotalPages(),
                 "Đây là lịch sử giao dịch của bạn"
         ));
+    }
+
+    @PostMapping("/staff")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<OrderResponse>> createOrderForStaff(@RequestBody PreparedOrder request) {
+        return ResponseEntity.ok(new ApiItemResponse<>(null, orderService.createOrderForStaff(request)));
     }
 }
 

@@ -3,6 +3,7 @@ package com.nextrad.vietphucstore.services;
 import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
 import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
+import com.nextrad.vietphucstore.dtos.requests.order.PreparedOrder;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.*;
 import org.springframework.data.domain.Page;
@@ -39,4 +40,6 @@ public interface OrderService {
     OrderResponse getCurrentOrderDetailHistory(String id);
 
     Page<TransactionsResponse> getOrderTransactionsHistory(PageableRequest pageableRequest);
+
+    String createOrderForStaff(PreparedOrder request);
 }
