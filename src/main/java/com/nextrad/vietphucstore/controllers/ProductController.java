@@ -6,10 +6,7 @@ import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
-import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
-import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
-import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
-import com.nextrad.vietphucstore.dtos.responses.product.SearchProductForStaff;
+import com.nextrad.vietphucstore.dtos.responses.product.*;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
 import com.nextrad.vietphucstore.entities.product.ProductSize;
@@ -23,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -30,6 +28,26 @@ import java.util.UUID;
 @RequestMapping("/products")
 public class ProductController {
     private final ProductService productService;
+
+    @GetMapping("/top")
+    public ResponseEntity<ApiListItemResponse<TopProduct>> getTopProducts(
+            @RequestParam(defaultValue = "1", required = false) int page,
+            @RequestParam(defaultValue = "10", required = false) int size,
+            @RequestParam(defaultValue = "DESC", required = false) Sort.Direction direction,
+            @RequestParam(defaultValue = "createdDate", required = false) String... properties
+    ) {
+        List<TopProduct> response = productService.getTopProduct(
+                new PageableRequest(page - 1, size, direction, properties)
+        );
+        return ResponseEntity.ok(new ApiListItemResponse<>(
+                response,
+                size,
+                page,
+                size,
+                page,
+                "Đây là danh sách các sản phẩm bán chạy"
+        ));
+    }
 
     @GetMapping
     public ResponseEntity<ApiListItemResponse<SearchProduct>> getProducts(

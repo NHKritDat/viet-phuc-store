@@ -6,16 +6,14 @@ import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
-import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
-import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
-import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
-import com.nextrad.vietphucstore.dtos.responses.product.SearchProductForStaff;
+import com.nextrad.vietphucstore.dtos.responses.product.*;
 import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.product.*;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
 import com.nextrad.vietphucstore.enums.product.ProductStatus;
 import com.nextrad.vietphucstore.exceptions.AppException;
 import com.nextrad.vietphucstore.repositories.order.FeedbackRepository;
+import com.nextrad.vietphucstore.repositories.order.OrderDetailRepository;
 import com.nextrad.vietphucstore.repositories.product.*;
 import com.nextrad.vietphucstore.services.ProductService;
 import com.nextrad.vietphucstore.utils.ObjectMapperUtil;
@@ -25,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -36,6 +35,7 @@ public class ProductServiceImplement implements ProductService {
     private final ProductSizeRepository productSizeRepository;
     private final ProductQuantityRepository productQuantityRepository;
     private final FeedbackRepository feedbackRepository;
+    private final OrderDetailRepository orderDetailRepository;
     private final PageableUtil pageableUtil;
     private final ObjectMapperUtil objectMapperUtil;
 
@@ -517,6 +517,27 @@ public class ProductServiceImplement implements ProductService {
         size.setDeleted(false);
         productSizeRepository.save(size);
         return "Bạn đã kích hoạt lại số đo sản phẩm.";
+    }
+
+    @Override
+    public List<TopProduct> getTopProduct(PageableRequest pageableRequest) {
+        List<Object[]> result = orderDetailRepository.findTopProduct(pageableRequest.size());
+        return result.isEmpty() ?
+                productRepository.findAll(pageableUtil.getPageable(Product.class, pageableRequest))
+                        .map(p -> objectMapperUtil.mapTopProductResponse(
+                                p, feedbackRepository
+                                        .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
+                                                p.getId(),
+                                                false
+                                        ).stream().mapToDouble(Feedback::getRating).average().orElse(0)
+                        )).stream().toList() :
+                result.stream().map(p -> objectMapperUtil.mapTopProductResponse(
+                        p, feedbackRepository
+                                .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
+                                        UUID.nameUUIDFromBytes(p[0].toString().getBytes()),
+                                        false)
+                                .stream().mapToDouble(Feedback::getRating).average().orElse(0)
+                )).toList();
     }
 
 }

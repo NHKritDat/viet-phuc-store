@@ -6,14 +6,12 @@ import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
-import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
-import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
-import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
-import com.nextrad.vietphucstore.dtos.responses.product.SearchProductForStaff;
+import com.nextrad.vietphucstore.dtos.responses.product.*;
 import com.nextrad.vietphucstore.entities.product.ProductSize;
 import com.nextrad.vietphucstore.entities.product.ProductType;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ProductService {
@@ -84,4 +82,6 @@ public interface ProductService {
     String reactiveProductCollection(UUID id);
 
     String reactiveProductSize(UUID id);
+
+    List<TopProduct> getTopProduct(PageableRequest pageableRequest);
 }
