@@ -39,7 +39,13 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private String password = "$2a$12$OqwaI0/yLjyf/kkLLd3veelcs7M2ememzdyZiO1jgJPRlIz1mQYpy";
+    private String password = "$2a$12$F.wcKgqkvFX/fP1vN.ljCe8asId9mIZgP0D/HiXlYQwxaFqW7uhAq";
+
+    @Column(nullable = false)
+    private String province = "";
+
+    @Column(nullable = false)
+    private String district = "";
 
     @Column(nullable = false)
     private String address = "";

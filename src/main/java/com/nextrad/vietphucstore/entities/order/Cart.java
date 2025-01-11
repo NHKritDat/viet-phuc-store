@@ -1,5 +1,6 @@
 package com.nextrad.vietphucstore.entities.order;
 
+import com.nextrad.vietphucstore.entities.product.ProductQuantity;
 import com.nextrad.vietphucstore.entities.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -17,11 +18,14 @@ public class Cart {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @OneToOne(optional = false, orphanRemoval = true)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private String products;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "product_quantity_id", nullable = false)
+    private ProductQuantity productQuantity;
+
+    private int quantity;
 
 }

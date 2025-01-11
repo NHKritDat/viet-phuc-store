@@ -1,0 +1,206 @@
+name: Deploy backend
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  ACCESS_TOKEN_EXP: ${{ vars.ACCESS_TOKEN_EXP }}
+  REFRESH_TOKEN_EXP: ${{ vars.REFRESH_TOKEN_EXP }}
+  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+  DB_URL: ${{ secrets.DB_URL }}
+  DB_USERNAME: ${{ secrets.DB_USERNAME }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+  MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+  ISSUER: ${{ secrets.ISSUER }}
+  AUDIENCE: ${{ secrets.AUDIENCE }}
+  RESET_PASSWORD_URL: ${{ vars.RESET_PASSWORD_URL }}
+  VERIFY_EMAIL_URL: ${{ vars.VERIFY_EMAIL_URL }}
+  VIETTEL_API_GET_LIST_PROVINCES: ${{ vars.VIETTEL_API_GET_LIST_PROVINCES }}
+  VIETTEL_API_GET_LIST_DISTRICTS: ${{ vars.VIETTEL_API_GET_LIST_DISTRICTS }}
+  VIETTEL_API_SIGN_PARTNER: ${{ vars.VIETTEL_API_SIGN_PARTNER }}
+  VIETTEL_PARTNER_USERNAME: ${{ secrets.VIETTEL_PARTNER_USERNAME }}
+  VIETTEL_PARTNER_PASSWORD: ${{ secrets.VIETTEL_PARTNER_PASSWORD }}
+  VIETTEL_API_GET_PRICING: ${{ vars.VIETTEL_API_GET_PRICING }}
+  VIETTEL_PRICING_SENDER_PROVINCE: ${{ vars.VIETTEL_PRICING_SENDER_PROVINCE }}
+  VIETTEL_PRICING_SENDER_DISTRICT: ${{ vars.VIETTEL_PRICING_SENDER_DISTRICT }}
+  VIETTEL_PRICING_PRODUCT_TYPE: ${{ vars.VIETTEL_PRICING_PRODUCT_TYPE }}
+  VIETTEL_PRICING_NATIONAL_TYPE: ${{ vars.VIETTEL_PRICING_NATIONAL_TYPE }}
+  VIETTEL_PRICING_ORDER_SERVICE_ADD: ${{ vars.VIETTEL_PRICING_ORDER_SERVICE_ADD }}
+  VIETTEL_API_GET_ALL_SERVICES: ${{ vars.VIETTEL_API_GET_ALL_SERVICES }}
+  ALLOWED_CREDENTIALS: ${{ vars.ALLOWED_CREDENTIALS }}
+  ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
+  ALLOWED_METHODS: ${{ vars.ALLOWED_METHODS }}
+  ALLOWED_HEADERS: ${{ vars.ALLOWED_HEADERS }}
+
+jobs:
+  compile:
+    runs-on: ubuntu-24.04
+    name: Compile Project
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Compile project
+        run: |
+          chmod +x mvnw
+          ./mvnw clean compile
+
+  test:
+    runs-on: ubuntu-24.04
+    name: Run Unit Tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Run unit tests
+        run: |
+          chmod +x mvnw
+          ./mvnw clean test
+
+  package:
+    needs:
+      - compile
+      - test
+    runs-on: ubuntu-24.04
+    name: Package Project
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Package project
+        run: |
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
+
+  build-image:
+    needs:
+      - package
+    runs-on: ubuntu-24.04
+    name: Build Docker and Push Image
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Extract version
+        id: extract_version
+        run: |
+          chmod +x mvnw
+          echo "VERSION=$(./mvnw -q help:evaluate -Dexpression='project.version' -DforceStdout)" >> $GITHUB_OUTPUT
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }}
+
+  deploy:
+    needs:
+      - build-image
+    runs-on: ubuntu-24.04
+    name: Deploy to AWS
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version
+        id: extract_version
+        run: |
+          chmod +x mvnw
+          echo "VERSION=$(./mvnw -q help:evaluate -Dexpression='project.version' -DforceStdout)" >> $GITHUB_OUTPUT
+
+      - name: Create environment file
+        run: |
+          echo "ACCESS_TOKEN_EXP=${ACCESS_TOKEN_EXP}" >> .env
+          echo "REFRESH_TOKEN_EXP=${REFRESH_TOKEN_EXP}" >> .env
+          echo "JWT_SECRET_KEY=${JWT_SECRET_KEY}" >> .env
+          echo "DB_URL=${DB_URL}" >> .env
+          echo "DB_USERNAME=${DB_USERNAME}" >> .env
+          echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
+          echo "MAIL_USERNAME=${MAIL_USERNAME}" >> .env
+          echo "MAIL_PASSWORD=${MAIL_PASSWORD}" >> .env
+          echo "ISSUER=${ISSUER}" >> .env
+          echo "AUDIENCE=${AUDIENCE}" >> .env
+          echo "RESET_PASSWORD_URL=${RESET_PASSWORD_URL}" >> .env
+          echo "VERIFY_EMAIL_URL=${VERIFY_EMAIL_URL}" >> .env
+          echo "VIETTEL_API_GET_LIST_PROVINCES=${VIETTEL_API_GET_LIST_PROVINCES}" >> .env
+          echo "VIETTEL_API_GET_LIST_DISTRICTS=${VIETTEL_API_GET_LIST_DISTRICTS}" >> .env
+          echo "VIETTEL_API_SIGN_PARTNER=${VIETTEL_API_SIGN_PARTNER}" >> .env
+          echo "VIETTEL_PARTNER_USERNAME=${VIETTEL_PARTNER_USERNAME}" >> .env
+          echo "VIETTEL_PARTNER_PASSWORD=${VIETTEL_PARTNER_PASSWORD}" >> .env
+          echo "VIETTEL_API_GET_PRICING=${VIETTEL_API_GET_PRICING}" >> .env
+          echo "VIETTEL_PRICING_SENDER_PROVINCE=${VIETTEL_PRICING_SENDER_PROVINCE}" >> .env
+          echo "VIETTEL_PRICING_SENDER_DISTRICT=${VIETTEL_PRICING_SENDER_DISTRICT}" >> .env
+          echo "VIETTEL_PRICING_PRODUCT_TYPE=${VIETTEL_PRICING_PRODUCT_TYPE}" >> .env
+          echo "VIETTEL_PRICING_NATIONAL_TYPE=${VIETTEL_PRICING_NATIONAL_TYPE}" >> .env
+          echo "VIETTEL_PRICING_ORDER_SERVICE_ADD=${VIETTEL_PRICING_ORDER_SERVICE_ADD}" >> .env
+          echo "VIETTEL_API_GET_ALL_SERVICES=${VIETTEL_API_GET_ALL_SERVICES}" >> .env
+          echo "ALLOWED_CREDENTIALS=${ALLOWED_CREDENTIALS}" >> .env
+          echo "ALLOWED_ORIGINS=${ALLOWED_ORIGINS}" >> .env
+          echo "ALLOWED_METHODS=${ALLOWED_METHODS}" >> .env
+          echo "ALLOWED_HEADERS=${ALLOWED_HEADERS}" >> .env
+
+      - name: Store SSH key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > aws-server.pem
+          chmod 400 "aws-server.pem"
+
+      - name: Create deployment folder
+        run: ssh -i "aws-server.pem" -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} "mkdir -p dap-viet-be-ci-cd"
+
+      - name: Copy environment file to server
+        run: scp -i "aws-server.pem" -o StrictHostKeyChecking=no .env ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}:dap-viet-be-ci-cd/.env
+
+      - name: Deploy
+        run: |
+          ssh -i "aws-server.pem" -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} <<EOF
+          cd dap-viet-be-ci-cd
+          sudo docker stop dap-viet-be
+          sudo docker image prune -a -f
+          sudo docker run -d --rm --name dap-viet-be -p 80:8082 --env-file .env ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }}
+          EOF

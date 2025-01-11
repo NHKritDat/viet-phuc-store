@@ -1,11 +1,14 @@
 package com.nextrad.vietphucstore.exceptions;
 
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
+import org.hibernate.LazyInitializationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 
 @ControllerAdvice
@@ -26,5 +29,29 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiItemResponse<String>> handleNullPointerException(NullPointerException e) {
         return ResponseEntity.status(500)
                 .body(new ApiItemResponse<>(Arrays.toString(e.getStackTrace()), e.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiItemResponse<String>> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        return ResponseEntity.status(400)
+                .body(new ApiItemResponse<>(e.getName(), e.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiItemResponse<StackTraceElement[]>> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.status(500)
+                .body(new ApiItemResponse<>(e.getStackTrace(), e.getMessage()));
+    }
+
+    @ExceptionHandler(LazyInitializationException.class)
+    public ResponseEntity<ApiItemResponse<StackTraceElement[]>> handleLazyInitializationException(LazyInitializationException e) {
+        return ResponseEntity.status(500)
+                .body(new ApiItemResponse<>(e.getStackTrace(), e.getMessage()));
+    }
+
+    @ExceptionHandler(SQLException.class)
+    public ResponseEntity<ApiItemResponse<StackTraceElement[]>> handleSQLException(SQLException e) {
+        return ResponseEntity.status(500)
+                .body(new ApiItemResponse<>(e.getStackTrace(), e.getMessage()));
     }
 }

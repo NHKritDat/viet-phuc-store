@@ -14,7 +14,7 @@ public interface UserService {
 
     TokenResponse login(LoginPassword request);
 
-    TokenResponse login(AuthRequest request);
+    TokenResponse login(LoginGoogle request);
 
     TokenResponse getAccessToken(AuthRequest request);
 

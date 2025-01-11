@@ -12,9 +12,10 @@ public record ProductDetail(
         String description,
         double unitPrice,
         List<String> pictures,
+        int weight,
         ProductStatus status,
         String collectionName,
         String typeName,
-        Map<String, Integer> sizeQuantities
+        Map<UUID, SizeQuantityResponse> sizeQuantities
 ) {
 }

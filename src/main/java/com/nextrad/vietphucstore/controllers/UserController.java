@@ -26,17 +26,26 @@ public class UserController {
 
     @PostMapping("/auth/login")
     public ResponseEntity<ApiItemResponse<TokenResponse>> login(@RequestBody LoginPassword request) {
-        return ResponseEntity.ok(new ApiItemResponse<>(userService.login(request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                userService.login(request),
+                "Bạn đã đăng nhập thành công"
+        ));
     }
 
     @PostMapping("/auth/login/google")
-    public ResponseEntity<ApiItemResponse<TokenResponse>> loginGoogle(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(new ApiItemResponse<>(userService.login(request), null));
+    public ResponseEntity<ApiItemResponse<TokenResponse>> loginGoogle(@RequestBody LoginGoogle request) {
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                userService.login(request),
+                "Bạn đã đăng nhập thành công"
+        ));
     }
 
     @PostMapping("/auth/access-token")
     public ResponseEntity<ApiItemResponse<TokenResponse>> getAccessToken(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(new ApiItemResponse<>(userService.getAccessToken(request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                userService.getAccessToken(request),
+                "Token đã được làm mới"
+        ));
     }
 
     @PostMapping("/auth/logout")
@@ -85,24 +94,34 @@ public class UserController {
                 users.getNumber() + 1,
                 users.getTotalElements(),
                 users.getTotalPages(),
-                null));
+                "Đây là danh sách tất cả các người dùng"
+        ));
     }
 
     @GetMapping("/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<UserDetail>> getUser(@PathVariable UUID id) {
-        return ResponseEntity.ok(new ApiItemResponse<>(userService.getUser(id), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                userService.getUser(id),
+                "Đây là thông tin chi tiết của người dùng"
+        ));
     }
 
     @GetMapping("/current")
     public ResponseEntity<ApiItemResponse<UserDetail>> getCurrentUser() {
-        return ResponseEntity.ok(new ApiItemResponse<>(userService.getCurrentUser(), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                userService.getCurrentUser(),
+                "Đây là thông tin hồ sơ của bạn"
+        ));
     }
 
     @PostMapping("/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<UserDetail>> createUser(@RequestBody UserModifyRequest request) {
-        return ResponseEntity.ok(new ApiItemResponse<>(userService.createUser(request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                userService.createUser(request),
+                "Người dùng đã được tạo thành công"
+        ));
     }
 
     @PutMapping("/{id}/staff")
@@ -110,7 +129,10 @@ public class UserController {
     public ResponseEntity<ApiItemResponse<UserDetail>> updateUser(
             @PathVariable UUID id,
             @RequestBody UserModifyRequest request) {
-        return ResponseEntity.ok(new ApiItemResponse<>(userService.updateUser(id, request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                userService.updateUser(id, request),
+                "Thông tin người dùng đã được cập nhật"
+        ));
     }
 
     @DeleteMapping("/{id}/staff")
@@ -121,11 +143,17 @@ public class UserController {
 
     @PutMapping("/current")
     public ResponseEntity<ApiItemResponse<UserDetail>> updateProfile(@RequestBody UpdateProfileRequest request) {
-        return ResponseEntity.ok(new ApiItemResponse<>(userService.updateProfile(request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                userService.updateProfile(request),
+                "Thông tin hồ sơ của bạn đã được cập nhật"
+        ));
     }
 
     @PutMapping("/current/avatar")
     public ResponseEntity<ApiItemResponse<UserDetail>> updateAvatar(@RequestBody UpdateAvatarRequest request) {
-        return ResponseEntity.ok(new ApiItemResponse<>(userService.updateAvatar(request), null));
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                userService.updateAvatar(request),
+                "Ảnh đại diện của bạn đã được cập nhật"
+        ));
     }
 }

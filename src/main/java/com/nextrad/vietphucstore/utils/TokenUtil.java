@@ -24,6 +24,8 @@ public class TokenUtil {
     private static final String NAME_FIELD = "name";
     private static final String DOB_FIELD = "dob";
     private static final String GENDER_FIELD = "gender";
+    private static final String PROVINCE_FIELD = "province";
+    private static final String DISTRICT_FIELD = "district";
     private static final String ADDRESS_FIELD = "address";
     private static final String PHONE_FIELD = "phone";
     private static final String AVATAR_FIELD = "avatar";
@@ -55,7 +57,11 @@ public class TokenUtil {
     }
 
     public String getEmailFromJwt(String token) {
-        return getPayload(token).getSubject();
+        try {
+            return SignedJWT.parse(token).getJWTClaimsSet().getSubject();
+        } catch (ParseException e) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
     }
 
     public String[] getJwtInfo(String token) {
@@ -77,7 +83,9 @@ public class TokenUtil {
                     claimsSet.getStringClaim(UPDATED_BY_FIELD),
                     claimsSet.getClaim(UPDATED_DATE_FIELD).toString(),
                     claimsSet.getClaim(DOB_FIELD).toString(),
-                    claimsSet.getStringClaim(GENDER_FIELD)
+                    claimsSet.getStringClaim(GENDER_FIELD),
+                    claimsSet.getStringClaim(PROVINCE_FIELD),
+                    claimsSet.getStringClaim(DISTRICT_FIELD)
             };
         } catch (ParseException e) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
@@ -150,6 +158,8 @@ public class TokenUtil {
                 .claim(NAME_FIELD, user.getName())
                 .claim(DOB_FIELD, user.getDob())
                 .claim(GENDER_FIELD, user.getGender().name())
+                .claim(PROVINCE_FIELD, user.getProvince())
+                .claim(DISTRICT_FIELD, user.getDistrict())
                 .claim(ADDRESS_FIELD, user.getAddress())
                 .claim(PHONE_FIELD, user.getPhone())
                 .claim(AVATAR_FIELD, user.getAvatar() != null ? user.getAvatar() : "")

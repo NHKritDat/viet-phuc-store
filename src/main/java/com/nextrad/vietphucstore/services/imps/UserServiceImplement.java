@@ -16,9 +16,7 @@ import com.nextrad.vietphucstore.exceptions.AppException;
 import com.nextrad.vietphucstore.repositories.user.TokenRepository;
 import com.nextrad.vietphucstore.repositories.user.UserRepository;
 import com.nextrad.vietphucstore.services.UserService;
-import com.nextrad.vietphucstore.utils.EmailUtil;
-import com.nextrad.vietphucstore.utils.PageableUtil;
-import com.nextrad.vietphucstore.utils.TokenUtil;
+import com.nextrad.vietphucstore.utils.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,6 +36,8 @@ public class UserServiceImplement implements UserService {
     private final TokenUtil tokenUtil;
     private final EmailUtil emailUtil;
     private final PasswordEncoder passwordEncoder;
+    private final ObjectMapperUtil objectMapperUtil;
+    private final RegexUtil regexUtil;
 
     @Override
     public boolean existsByIdAndStatus(UUID id, boolean status) {
@@ -52,30 +52,29 @@ public class UserServiceImplement implements UserService {
             throw new AppException(ErrorCode.WRONG_PASSWORD);
         String refreshToken = tokenUtil.genRefreshToken(user);
         tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
-        return new TokenResponse(tokenUtil.genAccessToken(user), refreshToken);
+        return objectMapperUtil.mapTokenResponse(tokenUtil.genAccessToken(user), refreshToken);
     }
 
     @Override
-    public TokenResponse login(AuthRequest request) {
-        String[] info = tokenUtil.getInfo(request.auth());
-        Optional<User> user = userRepository.findByEmailAndStatus(info[0], UserStatus.VERIFIED);
+    public TokenResponse login(LoginGoogle request) {
+        Optional<User> user = userRepository.findByEmailAndStatus(request.email(), UserStatus.VERIFIED);
         if (user.isPresent()) {
             String refreshToken = tokenUtil.genRefreshToken(user.get());
             tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
-            return new TokenResponse(tokenUtil.genAccessToken(user.get()), refreshToken);
+            return objectMapperUtil.mapTokenResponse(tokenUtil.genAccessToken(user.get()), refreshToken);
         } else {
             User newUser = new User();
-            newUser.setEmail(info[0]);
-            newUser.setName(info[1]);
-            newUser.setAvatar(info[2]);
+            newUser.setEmail(request.email());
+            newUser.setName(request.name());
+            newUser.setAvatar(request.avatar());
             newUser.setStatus(UserStatus.VERIFIED);
-            newUser.setCreatedBy(info[0]);
-            newUser.setUpdatedBy(info[0]);
+            newUser.setCreatedBy(request.email());
+            newUser.setUpdatedBy(request.email());
             newUser = userRepository.save(newUser);
 
             String refreshToken = tokenUtil.genRefreshToken(newUser);
             tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
-            return new TokenResponse(tokenUtil.genAccessToken(newUser), refreshToken);
+            return objectMapperUtil.mapTokenResponse(tokenUtil.genAccessToken(newUser), refreshToken);
         }
     }
 
@@ -104,6 +103,8 @@ public class UserServiceImplement implements UserService {
         user.setUpdatedDate(new Date(Long.parseLong(tokenId[12])));
         user.setDob(new Date(Long.parseLong(tokenId[13])));
         user.setGender(UserGender.valueOf(tokenId[14]));
+        user.setProvince(tokenId[15]);
+        user.setDistrict(tokenId[16]);
 
         String refreshToken = tokenUtil.genRefreshToken(user);
         tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
@@ -119,7 +120,7 @@ public class UserServiceImplement implements UserService {
         CheckTokenResult result = tokenUtil.checkToken(request.accessToken(), false);
         if (result.valid())
             tokenRepository.save(result.token());
-        return "Logout success.";
+        return "Đăng xuất thành công!";
     }
 
     @Override
@@ -128,6 +129,8 @@ public class UserServiceImplement implements UserService {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         if (!request.password().equals(request.confirmPassword()))
             throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+        if (regexUtil.invalidPassword(request.password()))
+            throw new AppException(ErrorCode.PASSWORD_NOT_STRONG);
 
         User user = new User();
         user.setName(request.name());
@@ -138,7 +141,7 @@ public class UserServiceImplement implements UserService {
         userRepository.save(user);
 
         emailUtil.verifyEmail(request.email(), request.name(), tokenUtil.genAccessToken(user));
-        return "Please check your email to verify your account.";
+        return "Vui lòng kiểm tra email để xác thực tài khoản.";
     }
 
     @Override
@@ -151,7 +154,7 @@ public class UserServiceImplement implements UserService {
         CheckTokenResult result = tokenUtil.checkToken(token, false);
         if (result.valid())
             tokenRepository.save(result.token());
-        return "Your email has been verified! Please login to continue.";
+        return "Email của bạn đã được xác thực thành công! Vui lòng đăng nhập lại để tiếp tục.";
     }
 
     @Override
@@ -159,7 +162,7 @@ public class UserServiceImplement implements UserService {
         User user = userRepository.findByEmailAndStatus(request.auth(), UserStatus.VERIFIED)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         emailUtil.resetPassword(user.getEmail(), user.getName(), tokenUtil.genAccessToken(user));
-        return "Please check your email to reset your password.";
+        return "Vui lòng kiểm tra email để đặt lại mật khẩu.";
     }
 
     @Override
@@ -169,12 +172,14 @@ public class UserServiceImplement implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if (!request.newPassword().equals(request.confirmPassword()))
             throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+        if (regexUtil.invalidPassword(request.newPassword()))
+            throw new AppException(ErrorCode.PASSWORD_NOT_STRONG);
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
         CheckTokenResult result = tokenUtil.checkToken(request.auth(), false);
         if (result.valid())
             tokenRepository.save(result.token());
-        return "Your password has been reset successfully! Please login to continue.";
+        return "Mật khẩu của bạn đã được đặt lại thành công! Vui lòng đăng nhập lại để tiếp tục.";
     }
 
     @Override
@@ -185,30 +190,36 @@ public class UserServiceImplement implements UserService {
             throw new AppException(ErrorCode.WRONG_PASSWORD);
         if (!request.newPassword().equals(request.confirmPassword()))
             throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+        if (regexUtil.invalidPassword(request.newPassword()))
+            throw new AppException(ErrorCode.PASSWORD_NOT_STRONG);
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
-        return "Your password has been changed successfully!";
+        return "Mật khẩu của bạn đã được thay đổi thành công!";
     }
 
     @Override
     public Page<SearchUser> getUsers(String search, PageableRequest request) {
         return userRepository
-                .findByRoleNotLikeAndNameContainsIgnoreCase(UserRole.STAFF, search, pageableUtil.getPageable(User.class, request))
-                .map(user -> new SearchUser(user.id(), user.name(), user.email(), user.avatar(), user.status()));
+                .findByRoleNotLikeAndNameContainsIgnoreCase(
+                        UserRole.STAFF, search, pageableUtil.getPageable(User.class, request)
+                )
+                .map(objectMapperUtil::mapSearchUser);
     }
 
     @Override
     public UserDetail getUser(UUID id) {
-        User user = userRepository.findByIdAndRoleNotLike(id, UserRole.STAFF)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return convertToUserDetail(user);
+        return objectMapperUtil.mapUserDetail(
+                userRepository.findByIdAndRoleNotLike(id, UserRole.STAFF)
+                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND))
+        );
     }
 
     @Override
     public UserDetail getCurrentUser() {
-        User user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return convertToUserDetail(user);
+        return objectMapperUtil.mapUserDetail(
+                userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND))
+        );
     }
 
     @Override
@@ -230,7 +241,7 @@ public class UserServiceImplement implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setStatus(UserStatus.DELETED);
         userRepository.save(user);
-        return "Delete user successfully.";
+        return "Người dùng này đã bị xóa!";
     }
 
     @Override
@@ -243,12 +254,15 @@ public class UserServiceImplement implements UserService {
             user.setDob(request.dob());
         if (request.gender() != null)
             user.setGender(request.gender());
+        if (!request.province().isBlank())
+            user.setProvince(request.province());
+        if (!request.district().isBlank())
+            user.setDistrict(request.district());
         if (!request.address().isBlank())
             user.setAddress(request.address());
         if (!request.phone().isBlank())
             user.setPhone(request.phone());
-        userRepository.save(user);
-        return convertToUserDetail(user);
+        return objectMapperUtil.mapUserDetail(userRepository.save(user));
     }
 
     @Override
@@ -256,8 +270,7 @@ public class UserServiceImplement implements UserService {
         User user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setAvatar(request.avatar());
-        userRepository.save(user);
-        return convertToUserDetail(user);
+        return objectMapperUtil.mapUserDetail(userRepository.save(user));
     }
 
     private UserDetail getUserResponse(UserModifyRequest request, User user) {
@@ -266,18 +279,14 @@ public class UserServiceImplement implements UserService {
         user.setGender(request.gender());
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
+        user.setProvince(request.province());
+        user.setDistrict(request.district());
         user.setAddress(request.address());
         user.setPhone(request.phone());
         user.setAvatar(request.avatar());
         user.setRole(request.role());
         user.setStatus(request.status());
-        userRepository.save(user);
-        return convertToUserDetail(user);
+        return objectMapperUtil.mapUserDetail(userRepository.save(user));
     }
 
-    private UserDetail convertToUserDetail(User user) {
-        return new UserDetail(user.getId(), user.getName(), user.getDob(), user.getGender(), user.getEmail(),
-                user.getAddress(), user.getPhone(), user.getAvatar(), user.getRole(), user.getStatus(),
-                user.getCreatedBy(), user.getCreatedDate(), user.getUpdatedBy(), user.getUpdatedDate());
-    }
 }

@@ -1,6 +1,5 @@
 package com.nextrad.vietphucstore.entities.order;
 
-import com.nextrad.vietphucstore.entities.product.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,19 +23,15 @@ public class Feedback {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-
-    @Column(nullable = false)
-    private String content = "";
+    @OneToOne(optional = false, orphanRemoval = true)
+    @JoinColumn(name = "order_detail_id", nullable = false)
+    private OrderDetail orderDetail;
 
     @Column(nullable = false)
     private int rating = 5;
+
+    @Column(nullable = false)
+    private String content = "";
 
     @Column(nullable = false)
     private boolean deleted = false;
@@ -50,8 +45,8 @@ public class Feedback {
     @CreatedDate
     private Date createdDate;
 
-    @LastModifiedBy
     @Column(nullable = false)
+    @LastModifiedBy
     private String updatedBy;
 
     @LastModifiedDate

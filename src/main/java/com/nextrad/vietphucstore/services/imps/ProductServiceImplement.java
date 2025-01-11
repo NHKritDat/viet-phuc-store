@@ -5,14 +5,20 @@ import com.nextrad.vietphucstore.dtos.requests.product.ModifyCollectionRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyTypeRequest;
+import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
+import com.nextrad.vietphucstore.dtos.responses.product.ProductCollectionResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.ProductDetail;
 import com.nextrad.vietphucstore.dtos.responses.product.SearchProduct;
+import com.nextrad.vietphucstore.dtos.responses.product.SearchProductForStaff;
+import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.product.*;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
 import com.nextrad.vietphucstore.enums.product.ProductStatus;
 import com.nextrad.vietphucstore.exceptions.AppException;
+import com.nextrad.vietphucstore.repositories.order.FeedbackRepository;
 import com.nextrad.vietphucstore.repositories.product.*;
 import com.nextrad.vietphucstore.services.ProductService;
+import com.nextrad.vietphucstore.utils.ObjectMapperUtil;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,16 +35,21 @@ public class ProductServiceImplement implements ProductService {
     private final ProductCollectionRepository productCollectionRepository;
     private final ProductSizeRepository productSizeRepository;
     private final ProductQuantityRepository productQuantityRepository;
+    private final FeedbackRepository feedbackRepository;
     private final PageableUtil pageableUtil;
+    private final ObjectMapperUtil objectMapperUtil;
 
     @Override
-    public Page<SearchProduct> getProducts(String search, String[] sizes, String[] types, String[] collections,
+    public Page<SearchProduct> getProducts(String search, double minPrice, double maxPrice,
+                                           String[] sizes, String[] types, String[] collections,
                                            PageableRequest request) {
         Page<Product> products;
         if (sizes.length != 0 && types.length != 0 && collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(types),
                             Arrays.asList(collections),
@@ -48,8 +58,10 @@ public class ProductServiceImplement implements ProductService {
                     );
         } else if (sizes.length != 0 && types.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(types),
                             Arrays.asList(sizes),
@@ -57,8 +69,10 @@ public class ProductServiceImplement implements ProductService {
                     );
         } else if (sizes.length != 0 && collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(collections),
                             Arrays.asList(sizes),
@@ -66,8 +80,10 @@ public class ProductServiceImplement implements ProductService {
                     );
         } else if (types.length != 0 && collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameInAndProductCollection_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductCollection_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(types),
                             Arrays.asList(collections),
@@ -75,48 +91,63 @@ public class ProductServiceImplement implements ProductService {
                     );
         } else if (sizes.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (types.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductType_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(types),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNotAndProductCollection_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductCollection_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             Arrays.asList(collections),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndStatusNot(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNot(
                             search,
+                            minPrice,
+                            maxPrice,
                             ProductStatus.DELETED,
                             pageableUtil.getPageable(Product.class, request)
                     );
 
         }
-        return products.map(this::convertProductToSearchProduct);
+        return products.map(p -> objectMapperUtil.mapSearchProduct(
+                p, feedbackRepository
+                        .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(p.getId(), false)
+                        .stream().mapToDouble(Feedback::getRating).average().orElse(0)
+        ));
     }
 
     @Override
-    public Page<SearchProduct> getProductsForStaff(String search, String[] sizes, String[] types, String[] collections,
-                                                   PageableRequest request) {
+    public Page<SearchProductForStaff> getProductsForStaff(String search, double minPrice, double maxPrice,
+                                                           String[] sizes, String[] types, String[] collections,
+                                                           PageableRequest request) {
         Page<Product> products;
         if (sizes.length != 0 && types.length != 0 && collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(types),
                             Arrays.asList(collections),
                             Arrays.asList(sizes),
@@ -124,70 +155,110 @@ public class ProductServiceImplement implements ProductService {
                     );
         } else if (sizes.length != 0 && types.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(types),
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (sizes.length != 0 && collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(collections),
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (types.length != 0 && collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductType_NameInAndProductCollection_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductCollection_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(types),
                             Arrays.asList(collections),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (sizes.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductQuantities_ProductSize_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductQuantities_ProductSize_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (types.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductType_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(types),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (collections.length != 0) {
             products = productRepository
-                    .findByNameContainsIgnoreCaseAndProductCollection_NameIn(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductCollection_NameIn(
                             search,
+                            minPrice,
+                            maxPrice,
                             Arrays.asList(collections),
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else {
             products = productRepository
-                    .findByNameContainsIgnoreCase(
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetween(
                             search,
+                            minPrice,
+                            maxPrice,
                             pageableUtil.getPageable(Product.class, request)
                     );
         }
-        return products.map(this::convertProductToSearchProduct);
+        return products.map(p -> objectMapperUtil.mapSearchProductForStaff(
+                p, feedbackRepository
+                        .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(p.getId(), false)
+                        .stream().mapToDouble(Feedback::getRating).average().orElse(0)
+        ));
     }
 
     @Override
     public ProductDetail getProduct(UUID id) {
-        Product product = productRepository.findByIdAndStatusNot(id, ProductStatus.DELETED)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        return convertProductToProductDetail(product);
+        return objectMapperUtil.mapProductDetail(
+                productRepository.findByIdAndStatusNotAndProductQuantities_Deleted(
+                        id,
+                        ProductStatus.DELETED,
+                        false
+                ).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
+        );
+    }
+
+    @Override
+    public ProductDetail getProductForStaff(UUID id) {
+        return objectMapperUtil.mapProductDetail(
+                productRepository.findByIdAndProductQuantities_Deleted(id, false)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
+        );
     }
 
     @Override
     public ProductDetail createProduct(ModifyProductRequest request) {
-        Product product = setProduct(request, new Product());
-        productRepository.save(product);
+        Product product = productRepository.save(
+                objectMapperUtil.mapProduct(
+                        request, new Product(), productTypeRepository
+                                .findByIdAndDeleted(request.typeId(), false)
+                                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND)),
+                        request.collectionId() != null ? productCollectionRepository
+                                .findByIdAndDeleted(request.collectionId(), false)
+                                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
+                                : null
+                )
+        );
+
         request.sizeQuantities().forEach((sizeId, quantity) -> {
             ProductQuantity productQuantity = new ProductQuantity();
             productQuantity.setProduct(product);
@@ -196,23 +267,39 @@ public class ProductServiceImplement implements ProductService {
             productQuantity.setQuantity(quantity);
             productQuantityRepository.save(productQuantity);
         });
-        return convertProductToProductDetail(product);
+
+        return objectMapperUtil.mapProductDetail(
+                productRepository.findById(product.getId())
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
+        );
     }
 
     @Override
     public ProductDetail updateProduct(UUID id, ModifyProductRequest request) {
-        Product product = setProduct(request, productRepository.findByIdAndStatusNot(id, ProductStatus.DELETED)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)));
+        Product product = objectMapperUtil.mapProduct(
+                request, productRepository
+                        .findById(id)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)),
+                productTypeRepository
+                        .findByIdAndDeleted(request.typeId(), false)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND)),
+                request.collectionId() != null ? productCollectionRepository
+                        .findByIdAndDeleted(request.collectionId(), false)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
+                        : null
+        );
+
         product.getProductQuantities().forEach(pq -> {
             if (!request.sizeQuantities().containsKey(pq.getProductSize().getId())) {
-                productQuantityRepository.delete(pq);
+                pq.setDeleted(true);
+                productQuantityRepository.save(pq);
             }
         });
+
         request.sizeQuantities().forEach((sizeId, quantity) -> {
             ProductQuantity productQuantity = product.getProductQuantities().stream()
                     .filter(pq -> pq.getProductSize().getId().equals(sizeId))
-                    .findFirst()
-                    .orElseGet(() -> {
+                    .findFirst().orElseGet(() -> {
                         ProductQuantity pq = new ProductQuantity();
                         pq.setProduct(product);
                         pq.setProductSize(productSizeRepository.findByIdAndDeleted(sizeId, false)
@@ -220,10 +307,11 @@ public class ProductServiceImplement implements ProductService {
                         return pq;
                     });
             productQuantity.setQuantity(quantity);
+            productQuantity.setDeleted(false);
             productQuantityRepository.save(productQuantity);
         });
-        productRepository.save(product);
-        return convertProductToProductDetail(product);
+
+        return objectMapperUtil.mapProductDetail(productRepository.save(product));
     }
 
     @Override
@@ -232,7 +320,7 @@ public class ProductServiceImplement implements ProductService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         product.setStatus(ProductStatus.DELETED);
         productRepository.save(product);
-        return "Delete product successfully.";
+        return "Sản phẩm đã được xóa.";
     }
 
     @Override
@@ -273,7 +361,7 @@ public class ProductServiceImplement implements ProductService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND));
         size.setDeleted(true);
         productSizeRepository.save(size);
-        return "Delete size successfully.";
+        return "Kích thước đã được xóa.";
     }
 
     @Override
@@ -314,39 +402,60 @@ public class ProductServiceImplement implements ProductService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND));
         type.setDeleted(true);
         productTypeRepository.save(type);
-        return "Delete type successfully.";
+        return "Loại sản phẩm đã được xóa.";
     }
 
     @Override
-    public Page<ProductCollection> getProductCollections(PageableRequest request) {
-        return productCollectionRepository.findByDeleted(false,
-                pageableUtil.getPageable(ProductCollection.class, request));
+    public Page<ProductCollectionResponse> getProductCollections(PageableRequest request) {
+        return productCollectionRepository
+                .findByDeleted(false, pageableUtil.getPageable(ProductCollection.class, request))
+                .map(objectMapperUtil::mapProductCollectionResponse);
     }
 
     @Override
-    public Page<ProductCollection> getProductCollectionsForStaff(PageableRequest request) {
-        return productCollectionRepository.findAll(pageableUtil.getPageable(ProductCollection.class, request));
+    public Page<ProductCollectionResponse> getProductCollectionsForStaff(PageableRequest request) {
+        return productCollectionRepository
+                .findAll(pageableUtil.getPageable(ProductCollection.class, request))
+                .map(objectMapperUtil::mapProductCollectionResponse);
     }
 
     @Override
-    public ProductCollection getProductCollection(UUID id) {
-        return productCollectionRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND));
+    public ProductCollectionResponse getProductCollection(UUID id) {
+        return objectMapperUtil.mapProductCollectionResponse(
+                productCollectionRepository.findByIdAndDeleted(id, false)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
+        );
     }
 
     @Override
-    public ProductCollection createProductCollection(ModifyCollectionRequest request) {
-        ProductCollection collection = new ProductCollection();
-        collection.setName(request.name());
-        return productCollectionRepository.save(collection);
+    public ProductCollectionResponse getProductCollectionForStaff(UUID id) {
+        return objectMapperUtil.mapProductCollectionResponse(
+                productCollectionRepository.findById(id)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
+        );
     }
 
     @Override
-    public ProductCollection updateProductCollection(UUID id, ModifyCollectionRequest request) {
-        ProductCollection collection = productCollectionRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND));
-        collection.setName(request.name());
-        return productCollectionRepository.save(collection);
+    public ProductCollectionResponse createProductCollection(ModifyCollectionRequest request) {
+        return objectMapperUtil.mapProductCollectionResponse(
+                productCollectionRepository.save(
+                        objectMapperUtil.mapProductCollection(request, new ProductCollection())
+                )
+        );
+    }
+
+    @Override
+    public ProductCollectionResponse updateProductCollection(UUID id, ModifyCollectionRequest request) {
+        return objectMapperUtil.mapProductCollectionResponse(
+                productCollectionRepository.save(
+                        objectMapperUtil.mapProductCollection(
+                                request,
+                                productCollectionRepository.findById(id)
+                                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)
+                                        )
+                        )
+                )
+        );
     }
 
     @Override
@@ -355,47 +464,59 @@ public class ProductServiceImplement implements ProductService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND));
         collection.setDeleted(true);
         productCollectionRepository.save(collection);
-        return "Delete collection successfully.";
+        return "Bộ sưu tập đã được xóa.";
     }
 
-    private ProductDetail convertProductToProductDetail(Product product) {
-        return new ProductDetail(
-                product.getId(), product.getName(), product.getDescription(), product.getUnitPrice(),
-                Arrays
-                        .asList(product.getPictures()
-                                .substring(1, product.getPictures().length() - 1)
-                                .split(", ")),
-                product.getStatus(), product.getProductCollection().getName(), product.getProductType().getName(),
-                product.getProductQuantities().stream().collect(
-                        Collectors.toMap(
-                                pq -> pq.getProductSize().getName(),
-                                ProductQuantity::getQuantity
-                        )
-                )
-        );
+    @Override
+    public Page<FeedbackResponse> getFeedbacks(UUID productId, PageableRequest request) {
+        return feedbackRepository
+                .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
+                        productId, false, pageableUtil.getPageable(Feedback.class, request)
+                ).map(objectMapperUtil::mapFeedbackResponse);
     }
 
-    private SearchProduct convertProductToSearchProduct(Product product) {
-        return new SearchProduct(product.getId(), product.getName(), product.getUnitPrice(),
-                Arrays
-                        .asList(product.getPictures()
-                                .substring(1, product.getPictures().length() - 1)
-                                .split(", "))
-                        .get(0));
+    @Override
+    public Page<FeedbackResponse> getFeedbacksForStaff(UUID productId, PageableRequest request) {
+        return feedbackRepository
+                .findByOrderDetail_ProductQuantity_Product_Id(
+                        productId, pageableUtil.getPageable(Feedback.class, request)
+                ).map(objectMapperUtil::mapFeedbackResponse);
     }
 
-    private Product setProduct(ModifyProductRequest request, Product product) {
-        product.setName(request.name());
-        product.setDescription(request.description());
-        product.setUnitPrice(request.unitPrice());
-        product.setPictures(request.pictures().toString());
-        product.setStatus(request.status());
-        product.setProductType(productTypeRepository.findByIdAndDeleted(request.typeId(), false)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND)));
-        if (!request.collectionId().toString().isBlank())
-            product.setProductCollection(productCollectionRepository.findByIdAndDeleted(request.collectionId(), false)
-                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)));
-        return product;
+    @Override
+    public String reactiveProduct(UUID id) {
+        Product product = productRepository.findByIdAndStatus(id, ProductStatus.DELETED)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        product.setStatus(ProductStatus.IN_STOCK);
+        productRepository.save(product);
+        return "Bạn đã kích hoạt lại sản phẩm.";
+    }
+
+    @Override
+    public String reactiveProductType(UUID id) {
+        ProductType type = productTypeRepository.findByIdAndDeleted(id, true)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND));
+        type.setDeleted(false);
+        productTypeRepository.save(type);
+        return "Bạn đã kích hoạt lại loại sản phẩm.";
+    }
+
+    @Override
+    public String reactiveProductCollection(UUID id) {
+        ProductCollection collection = productCollectionRepository.findByIdAndDeleted(id, true)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND));
+        collection.setDeleted(false);
+        productCollectionRepository.save(collection);
+        return "Bạn đã kích hoạt lại bộ sưu tập sản phẩm.";
+    }
+
+    @Override
+    public String reactiveProductSize(UUID id) {
+        ProductSize size = productSizeRepository.findByIdAndDeleted(id, true)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND));
+        size.setDeleted(false);
+        productSizeRepository.save(size);
+        return "Bạn đã kích hoạt lại số đo sản phẩm.";
     }
 
 }

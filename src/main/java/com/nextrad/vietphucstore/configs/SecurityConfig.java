@@ -1,6 +1,7 @@
 package com.nextrad.vietphucstore.configs;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -29,15 +30,26 @@ public class SecurityConfig {
             "/users/auth/**",
             "/products",
             "/products/{id}",
+            "/products/{id}/feedbacks",
             "/products/sizes",
             "/products/types",
             "/products/collections",
+            "/products/collections/{id}",
     };
     private static final String[] PUBLIC_PUT_ENDPOINTS = {
             "/users/auth/password/forgot",
             "/users/auth/password/reset",
     };
     private final JwtDecoderConfig jwtDecoderConfig;
+
+    @Value("${ALLOWED_ORIGINS}")
+    private String allowedOrigins;
+    @Value("${ALLOWED_METHODS}")
+    private String allowedMethods;
+    @Value("${ALLOWED_HEADERS}")
+    private String allowedHeaders;
+    @Value("${ALLOWED_CREDENTIALS}")
+    private boolean allowedCredentials;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -62,10 +74,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(List.of("*"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(false);
+        configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
+        configuration.setAllowedMethods(List.of(allowedMethods.split(",")));
+        configuration.setAllowedHeaders(List.of(allowedHeaders.split(",")));
+        configuration.setAllowCredentials(allowedCredentials);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
