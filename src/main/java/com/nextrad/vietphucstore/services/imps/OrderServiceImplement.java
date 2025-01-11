@@ -1,9 +1,6 @@
 package com.nextrad.vietphucstore.services.imps;
 
-import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
-import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
-import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
-import com.nextrad.vietphucstore.dtos.requests.order.PreparedOrder;
+import com.nextrad.vietphucstore.dtos.requests.order.*;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.SelectedProductRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.*;
@@ -14,6 +11,7 @@ import com.nextrad.vietphucstore.entities.order.OrderDetail;
 import com.nextrad.vietphucstore.entities.product.ProductQuantity;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
 import com.nextrad.vietphucstore.enums.order.OrderStatus;
+import com.nextrad.vietphucstore.enums.product.ProductStatus;
 import com.nextrad.vietphucstore.exceptions.AppException;
 import com.nextrad.vietphucstore.repositories.order.CartRepository;
 import com.nextrad.vietphucstore.repositories.order.FeedbackRepository;
@@ -322,6 +320,31 @@ public class OrderServiceImplement implements OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND)));
 
         return "Bạn đã thực hiện thành công đơn hàng";
+    }
+
+    @Override
+    public OrderResponse updateOrderForStaff(UpdateOrder request, String orderId) {
+        Order existingOrder = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        existingOrder.setEmail(request.email());
+        existingOrder.setName(request.name());
+        existingOrder.setPhone(request.phone());
+        existingOrder.setStatus(request.status());
+        existingOrder.setId(orderId);
+        orderRepository.save(existingOrder);
+        return objectMapperUtil.mapOrderResponse(existingOrder);
+    }
+
+    @Override
+    public OrderResponse cancelOrderForStaff(String orderId) {
+        Order existingOrder = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        if(existingOrder.getStatus() == OrderStatus.PENDING) {
+            existingOrder.setStatus(OrderStatus.CANCELED);
+            orderRepository.save(existingOrder);
+            return objectMapperUtil.mapOrderResponse(existingOrder);
+        } else
+            throw new AppException(ErrorCode.CAN_NOT_CANCELED);
     }
 
     private String getCurrentUserEmail() {

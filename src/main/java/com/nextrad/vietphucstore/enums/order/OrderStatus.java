@@ -5,5 +5,6 @@ public enum OrderStatus {
     AWAITING_PICKUP,
     AWAITING_DELIVERY,
     IN_TRANSIT,
-    DELIVERED
+    DELIVERED,
+    CANCELED
 }
