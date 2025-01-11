@@ -154,7 +154,7 @@ public class ObjectMapperUtil {
 
     public SearchOrder mapSearchOrder(Order order) {
         return new SearchOrder(
-                order.getId(), order.getUser().getEmail(), order.getProductTotal(),
+                order.getId(), order.getEmail(), order.getProductTotal(),
                 order.getShippingFee(), order.getShippingMethod(), order.getPaymentMethod(), order.getStatus()
         );
     }

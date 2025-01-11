@@ -1,14 +1,13 @@
 package com.nextrad.vietphucstore.controllers;
 
-import com.nextrad.vietphucstore.dtos.requests.order.CreateOrder;
-import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
-import com.nextrad.vietphucstore.dtos.requests.order.ModifyCartRequest;
+import com.nextrad.vietphucstore.dtos.requests.order.*;
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.*;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
 import com.nextrad.vietphucstore.services.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -193,6 +192,27 @@ public class OrderController {
                 response.getTotalPages(),
                 "Đây là lịch sử giao dịch của bạn"
         ));
+    }
+
+    @PostMapping("/staff")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<OrderResponse>> createOrderForStaff(@RequestBody PreparedOrder request) {
+        return ResponseEntity.ok(new ApiItemResponse<>(null, orderService.createOrderForStaff(request)));
+    }
+
+    @PutMapping("/staff")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<OrderResponse>> updateOrderForStaff(
+            @RequestBody UpdateOrder request,
+            @RequestParam String orderId) {
+        return ResponseEntity.ok(new ApiItemResponse<>(orderService.updateOrderForStaff(request, orderId), "Cập nhật đơn hàng thành công"));
+    }
+
+    @DeleteMapping("/staff")
+    @PreAuthorize("hasRole('STAFF')")
+    public ResponseEntity<ApiItemResponse<OrderResponse>> cancelOrderForStaff(
+            @RequestParam String orderId) {
+        return ResponseEntity.ok(new ApiItemResponse<>(orderService.cancelOrderForStaff(orderId), "Xóa đơn hàng thành công"));
     }
 }
 
