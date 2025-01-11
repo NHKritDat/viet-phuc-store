@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.nextrad</groupId>
     <artifactId>viet-phuc-store</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.6</version>
     <name>viet-phuc-store</name>
     <description>viet-phuc-store</description>
     <url/>
@@ -56,11 +56,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
@@ -74,11 +69,6 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.github.cdimascio</groupId>
-            <artifactId>java-dotenv</artifactId>
-            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.auth</groupId>

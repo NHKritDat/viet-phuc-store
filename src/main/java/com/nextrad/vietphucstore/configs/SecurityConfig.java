@@ -1,6 +1,7 @@
 package com.nextrad.vietphucstore.configs;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -8,8 +9,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,10 +23,33 @@ import java.util.List;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private static final String[] PUBLIC_POST_ENDPOINTS = {};
-    private static final String[] PUBLIC_GET_ENDPOINTS = {};
-    private static final String[] PUBLIC_PUT_ENDPOINTS = {};
+    private static final String[] PUBLIC_POST_ENDPOINTS = {
+            "/users/auth/**",
+    };
+    private static final String[] PUBLIC_GET_ENDPOINTS = {
+            "/users/auth/**",
+            "/products",
+            "/products/{id}",
+            "/products/{id}/feedbacks",
+            "/products/sizes",
+            "/products/types",
+            "/products/collections",
+            "/products/collections/{id}",
+    };
+    private static final String[] PUBLIC_PUT_ENDPOINTS = {
+            "/users/auth/password/forgot",
+            "/users/auth/password/reset",
+    };
     private final JwtDecoderConfig jwtDecoderConfig;
+
+    @Value("${ALLOWED_ORIGINS}")
+    private String allowedOrigins;
+    @Value("${ALLOWED_METHODS}")
+    private String allowedMethods;
+    @Value("${ALLOWED_HEADERS}")
+    private String allowedHeaders;
+    @Value("${ALLOWED_CREDENTIALS}")
+    private boolean allowedCredentials;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -52,10 +74,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(List.of("*"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(false);
+        configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
+        configuration.setAllowedMethods(List.of(allowedMethods.split(",")));
+        configuration.setAllowedHeaders(List.of(allowedHeaders.split(",")));
+        configuration.setAllowCredentials(allowedCredentials);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -72,8 +94,4 @@ public class SecurityConfig {
         return jwtAuthenticationConverter;
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
-    }
 }

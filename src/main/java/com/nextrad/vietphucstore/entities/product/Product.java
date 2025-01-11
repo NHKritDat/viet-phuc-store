@@ -4,13 +4,20 @@ import com.nextrad.vietphucstore.enums.product.ProductStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "products")
+@EntityListeners(AuditingEntityListener.class)
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -26,16 +33,14 @@ public class Product {
     @Column(nullable = false)
     private double unitPrice;
 
-    @Column(nullable = false)
-    private int quantity;
+    @Lob
+    private String pictures;
 
-    private String picture;
+    private int weight;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProductStatus status = ProductStatus.IN_STOCK;
-
-    private String sizes;
 
     @ManyToOne
     @JoinColumn(name = "product_collection_id")
@@ -45,4 +50,16 @@ public class Product {
     @JoinColumn(name = "product_type_id", nullable = false)
     private ProductType productType;
 
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
+    private Set<ProductQuantity> productQuantities = new LinkedHashSet<>();
+
+    @CreatedDate
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
+    private Date createdDate;
+
+    @LastModifiedDate
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
+    private Date updatedDate;
 }

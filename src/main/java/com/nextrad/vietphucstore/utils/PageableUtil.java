@@ -1,5 +1,6 @@
 package com.nextrad.vietphucstore.utils;
 
+import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -12,8 +13,9 @@ import java.util.List;
 @Component
 public class PageableUtil {
 
-    public <T> Pageable getPageable(Class<T> t, int page, int size, Sort.Direction direction, String... properties) {
-        return PageRequest.of(page, size, Sort.by(direction, validProperties(t, properties)));
+    public <T> Pageable getPageable(Class<T> t, PageableRequest request) {
+        return PageRequest.of(request.page(), request.size(), Sort.by(request.direction(),
+                validProperties(t, request.properties())));
     }
 
     private <T> String[] validProperties(Class<T> t, String... properties) {
