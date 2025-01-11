@@ -200,19 +200,19 @@ public class OrderController {
         return ResponseEntity.ok(new ApiItemResponse<>(null, orderService.createOrderForStaff(request)));
     }
 
-    @PutMapping("/staff")
+    @PutMapping("/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<OrderResponse>> updateOrderForStaff(
             @RequestBody UpdateOrder request,
-            @RequestParam String orderId) {
-        return ResponseEntity.ok(new ApiItemResponse<>(orderService.updateOrderForStaff(request, orderId), "Cập nhật đơn hàng thành công"));
+            @PathVariable String id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(orderService.updateOrderForStaff(request, id), "Cập nhật đơn hàng thành công"));
     }
 
-    @DeleteMapping("/staff")
+    @DeleteMapping("/{id}/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<OrderResponse>> cancelOrderForStaff(
-            @RequestParam String orderId) {
-        return ResponseEntity.ok(new ApiItemResponse<>(orderService.cancelOrderForStaff(orderId), "Xóa đơn hàng thành công"));
+            @PathVariable String id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(orderService.cancelOrderForStaff(id), "Xóa đơn hàng thành công"));
     }
 }
 
