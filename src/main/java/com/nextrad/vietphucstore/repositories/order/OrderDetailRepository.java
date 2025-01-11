@@ -21,6 +21,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, UUID> 
             value = "select sum(product_total) as total from orders " +
                     "where week(created_date) = week(current_date) " +
                     "and year(created_date) = year(current_date) " +
+                    "and status != 'CANCELED' " +
                     "and (status = 'DELIVERED' or payment_method = 'QR')"
     )
     long sumRevenueThisWeek();
@@ -30,13 +31,14 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, UUID> 
             value = "select sum(product_total) as total from orders " +
                     "where week(created_date) < week(current_date) " +
                     "and year(created_date) = year(current_date) " +
+                    "and status != 'CANCELED' " +
                     "and (status = 'DELIVERED' or payment_method = 'QR')"
     )
     long sumRevenueLastWeek();
   
     @Query(
             nativeQuery = true,
-            value = "select p.id, p.name, p.unit_price, p.pictures,  sum(od.quantity) as total " +
+            value = "select p.id, p.name, p.unit_price, p.pictures, sum(od.quantity) as total " +
                     "from order_details od " +
                     "left join product_quantities pq on od.product_quantity_id = pq.id " +
                     "left join products p on pq.product_id = p.id " +

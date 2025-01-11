@@ -8,6 +8,7 @@ public record DashboardResponse(
     long totalAwaitingDeliveryOrders,
     long totalInTransitOrders,
     long totalDeliveredOrders,
+    long totalCanceledOrders,
     long totalSell,
     long totalRevenueThisWeek,
     long totalRevenueLastWeek

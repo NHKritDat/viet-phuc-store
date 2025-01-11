@@ -32,13 +32,14 @@ public class DashboardServiceImplement implements DashboardService {
         long totalAwaitingDeliveryOrders = orders.stream().filter(o -> o.getStatus() == OrderStatus.AWAITING_DELIVERY).count();
         long totalInTransitOrders = orders.stream().filter(o -> o.getStatus() == OrderStatus.IN_TRANSIT).count();
         long totalDeliveredOrders = orders.stream().filter(o -> o.getStatus() == OrderStatus.DELIVERED).count();
+        long totalCanceledOrders = orders.stream().filter(o -> o.getStatus() == OrderStatus.CANCELED).count();
         long totalSell = orderDetailRepository.findAll().stream()
                 .map(od -> od.getProductQuantity().getProduct()).distinct().count();
         long totalRevenueThisWeek = orderDetailRepository.sumRevenueThisWeek();
         long totalRevenueLastWeek = orderDetailRepository.sumRevenueLastWeek();
         return new DashboardResponse(
                 totalNewUsers, totalOldUsers, totalPendingOrders, totalAwaitingPickupOrders,
-                totalAwaitingDeliveryOrders, totalInTransitOrders, totalDeliveredOrders,
+                totalAwaitingDeliveryOrders, totalInTransitOrders, totalDeliveredOrders, totalCanceledOrders,
                 totalSell, totalRevenueThisWeek, totalRevenueLastWeek
         );
     }
