@@ -327,7 +327,6 @@ public class OrderServiceImplement implements OrderService {
         existingOrder.setEmail(request.email());
         existingOrder.setName(request.name());
         existingOrder.setPhone(request.phone());
-        existingOrder.setStatus(request.status());
         existingOrder.setId(orderId);
         orderRepository.save(existingOrder);
         return objectMapperUtil.mapOrderResponse(existingOrder);
@@ -341,8 +340,10 @@ public class OrderServiceImplement implements OrderService {
             existingOrder.setStatus(OrderStatus.CANCELED);
             orderRepository.save(existingOrder);
             return objectMapperUtil.mapOrderResponse(existingOrder);
-        } else
-            throw new AppException(ErrorCode.CAN_NOT_CANCELED);
+        } else if (existingOrder.getStatus() == OrderStatus.CANCELED)
+            throw new AppException(ErrorCode.ALREADY_CANCELED);
+        else
+            throw new AppException(ErrorCode.CAN_NOT_CANCEL);
     }
 
     private String getCurrentUserEmail() {

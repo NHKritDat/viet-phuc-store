@@ -39,8 +39,8 @@ public enum ErrorCode {
     NO_PERMISSION("Bạn không có quyền thực hiện yêu cầu này", HttpStatus.FORBIDDEN),
     PRODUCT_QUANTITY_NOT_ENOUGH("Số lượng sản phẩm bạn đặt hiện không đủ", HttpStatus.BAD_REQUEST),
     MISSING_SELECT_PRODUCT("Vui lòng chọn ít nhất một sản phẩm", HttpStatus.BAD_REQUEST),
-    CAN_NOT_CANCELED("Đơn hàng đã rời kho", HttpStatus.BAD_REQUEST),
-    ;
+    ALREADY_CANCELED("Đơn hàng đã được hủy", HttpStatus.BAD_REQUEST),
+    CAN_NOT_CANCEL("Đơn hàng đã rời kho", HttpStatus.BAD_REQUEST);
     String message;
     HttpStatus status;
 }
