@@ -11,14 +11,12 @@ import com.nextrad.vietphucstore.entities.order.OrderDetail;
 import com.nextrad.vietphucstore.entities.product.ProductQuantity;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
 import com.nextrad.vietphucstore.enums.order.OrderStatus;
-import com.nextrad.vietphucstore.enums.product.ProductStatus;
 import com.nextrad.vietphucstore.exceptions.AppException;
 import com.nextrad.vietphucstore.repositories.order.CartRepository;
 import com.nextrad.vietphucstore.repositories.order.FeedbackRepository;
 import com.nextrad.vietphucstore.repositories.order.OrderDetailRepository;
 import com.nextrad.vietphucstore.repositories.order.OrderRepository;
 import com.nextrad.vietphucstore.repositories.product.ProductQuantityRepository;
-import com.nextrad.vietphucstore.repositories.product.ProductRepository;
 import com.nextrad.vietphucstore.repositories.user.UserRepository;
 import com.nextrad.vietphucstore.services.OrderService;
 import com.nextrad.vietphucstore.utils.EmailUtil;
@@ -286,7 +284,7 @@ public class OrderServiceImplement implements OrderService {
         order.setPhone(request.phone());
 
         List<SelectedProductRequest> products = request.details();
-        if(products.isEmpty())
+        if (products.isEmpty())
             throw new AppException(ErrorCode.MISSING_SELECT_PRODUCT);
 
         double productTotal = products.stream().mapToDouble(
@@ -339,7 +337,7 @@ public class OrderServiceImplement implements OrderService {
     public OrderResponse cancelOrderForStaff(String orderId) {
         Order existingOrder = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
-        if(existingOrder.getStatus() == OrderStatus.PENDING) {
+        if (existingOrder.getStatus() == OrderStatus.PENDING) {
             existingOrder.setStatus(OrderStatus.CANCELED);
             orderRepository.save(existingOrder);
             return objectMapperUtil.mapOrderResponse(existingOrder);

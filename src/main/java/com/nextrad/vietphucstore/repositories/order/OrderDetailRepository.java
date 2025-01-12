@@ -35,7 +35,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, UUID> 
                     "and (status = 'DELIVERED' or payment_method = 'QR')"
     )
     long sumRevenueLastWeek();
-  
+
     @Query(
             nativeQuery = true,
             value = "select p.id, p.name, p.unit_price, p.pictures, sum(od.quantity) as total " +
