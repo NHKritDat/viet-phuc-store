@@ -2,15 +2,13 @@ package com.nextrad.vietphucstore.controllers;
 
 import com.nextrad.vietphucstore.dtos.responses.dashboard.DashboardResponse;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
+import com.nextrad.vietphucstore.services.DashboardService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.nextrad.vietphucstore.services.DashboardService;
-
-import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/dashboard")
