@@ -10,5 +10,6 @@ import java.util.UUID;
 @Repository
 public interface ProductQuantityRepository extends JpaRepository<ProductQuantity, UUID> {
     Optional<ProductQuantity> findByIdAndDeleted(UUID id, boolean deleted);
+
     ProductQuantity findByProduct_IdAndDeleted(UUID id, boolean deleted);
 }
