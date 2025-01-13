@@ -32,3 +32,9 @@ server:
   port: 8082
   servlet:
     context-path: /nextrad/api
+  ssl:
+    key-store-type: ${SSL_KEY_STORE_TYPE}
+    key-store: ${SSL_KEY_STORE_PATH}
+    key-alias: ${SSL_KEY_ALIAS}
+    key-store-password: ${SSL_KEY_STORE_PASSWORD}
+    enabled: true
