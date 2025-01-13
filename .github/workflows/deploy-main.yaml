@@ -195,7 +195,8 @@ jobs:
 
       - name: Create SSL Key Store
         run: |
-          echo "${{ secrets.SSL_KEYSTORE_BASE64 }}" | base64 --decode > nextrad-dapvietbe.p12
+          echo "${{ secrets.SSL_KEYSTORE_BASE64 }}" >> key.p12.base64
+          base64 -d key.p12.base64 > nextrad-dapvietbe.p12
           chmod 600 nextrad-dapvietbe.p12
 
       - name: Store SSH key
