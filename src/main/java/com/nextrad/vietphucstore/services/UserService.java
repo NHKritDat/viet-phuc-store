@@ -2,6 +2,7 @@ package com.nextrad.vietphucstore.services;
 
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.requests.user.*;
+import com.nextrad.vietphucstore.dtos.responses.user.LoginResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.SearchUser;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
@@ -12,7 +13,7 @@ import java.util.UUID;
 public interface UserService {
     boolean existsByIdAndStatus(UUID id, boolean status);
 
-    TokenResponse login(LoginPassword request);
+    LoginResponse login(LoginPassword request);
 
     TokenResponse login(LoginGoogle request);
 

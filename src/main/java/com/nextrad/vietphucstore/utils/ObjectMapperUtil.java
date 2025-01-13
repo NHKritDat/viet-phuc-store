@@ -6,6 +6,7 @@ import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.TopProductRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.*;
 import com.nextrad.vietphucstore.dtos.responses.product.*;
+import com.nextrad.vietphucstore.dtos.responses.user.LoginResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.SearchUser;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
@@ -24,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -227,5 +227,9 @@ public class ObjectMapperUtil {
                 rating,
                 0
         );
+    }
+
+    public LoginResponse mapToLoginResponse(TokenResponse response, String message) {
+        return new LoginResponse(response, message);
     }
 }
