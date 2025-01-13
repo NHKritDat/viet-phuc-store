@@ -3,6 +3,7 @@ package com.nextrad.vietphucstore.utils;
 import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyCollectionRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
+import com.nextrad.vietphucstore.dtos.requests.product.TopProductRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.*;
 import com.nextrad.vietphucstore.dtos.responses.product.*;
 import com.nextrad.vietphucstore.dtos.responses.user.SearchUser;
@@ -206,14 +207,14 @@ public class ObjectMapperUtil {
         );
     }
 
-    public TopProduct mapTopProductResponse(Object[] request, double rating) {
+    public TopProduct mapTopProductResponse(TopProductRequest request, double rating) {
         return new TopProduct(
-                UUID.nameUUIDFromBytes(request[0].toString().getBytes()),
-                request[1].toString(),
-                Double.parseDouble(request[2].toString()),
-                imagesUtil.convertStringToImages(request[3].toString()).get(0),
+                request.id(),
+                request.name(),
+                request.unitPrice(),
+                imagesUtil.convertStringToImages(request.pictures()).get(0),
                 rating,
-                Integer.parseInt(request[4].toString())
+                request.count()
         );
     }
 

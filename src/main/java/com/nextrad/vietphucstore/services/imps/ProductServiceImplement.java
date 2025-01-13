@@ -1,10 +1,7 @@
 package com.nextrad.vietphucstore.services.imps;
 
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.requests.product.ModifyCollectionRequest;
-import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
-import com.nextrad.vietphucstore.dtos.requests.product.ModifySizeRequest;
-import com.nextrad.vietphucstore.dtos.requests.product.ModifyTypeRequest;
+import com.nextrad.vietphucstore.dtos.requests.product.*;
 import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
 import com.nextrad.vietphucstore.dtos.responses.product.*;
 import com.nextrad.vietphucstore.entities.order.Feedback;
@@ -521,7 +518,7 @@ public class ProductServiceImplement implements ProductService {
 
     @Override
     public List<TopProduct> getTopProduct(PageableRequest pageableRequest) {
-        List<Object[]> result = orderDetailRepository.findTopProduct(pageableRequest.size());
+        List<TopProductRequest> result = orderDetailRepository.findTopProduct(pageableRequest.size());
         return result.isEmpty() ?
                 productRepository.findAll(pageableUtil.getPageable(Product.class, pageableRequest))
                         .map(p -> objectMapperUtil.mapTopProductResponse(
@@ -534,7 +531,7 @@ public class ProductServiceImplement implements ProductService {
                 result.stream().map(p -> objectMapperUtil.mapTopProductResponse(
                         p, feedbackRepository
                                 .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
-                                        UUID.nameUUIDFromBytes(p[0].toString().getBytes()),
+                                        p.id(),
                                         false)
                                 .stream().mapToDouble(Feedback::getRating).average().orElse(0)
                 )).toList();

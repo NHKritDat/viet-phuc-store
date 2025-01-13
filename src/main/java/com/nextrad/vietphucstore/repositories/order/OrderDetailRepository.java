@@ -1,5 +1,6 @@
 package com.nextrad.vietphucstore.repositories.order;
 
+import com.nextrad.vietphucstore.dtos.requests.product.TopProductRequest;
 import com.nextrad.vietphucstore.entities.order.OrderDetail;
 import com.nextrad.vietphucstore.enums.order.OrderStatus;
 import org.springframework.data.domain.Page;
@@ -37,14 +38,14 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, UUID> 
     double sumRevenueLastWeek();
 
     @Query(
-            nativeQuery = true,
-            value = "select p.id, p.name, p.unit_price, p.pictures, sum(od.quantity) as total " +
-                    "from order_details od " +
-                    "left join product_quantities pq on od.product_quantity_id = pq.id " +
-                    "left join products p on pq.product_id = p.id " +
+            value = "select new com.nextrad.vietphucstore.dtos.requests.product" +
+                    ".TopProductRequest(p.id, p.name, p.unitPrice, p.pictures, sum(od.quantity))  " +
+                    "from OrderDetail od " +
+                    "left join ProductQuantity pq on od.productQuantity.id = pq.id " +
+                    "left join Product p on pq.product.id = p.id " +
                     "group by p.id " +
-                    "order by total desc " +
+                    "order by sum(od.quantity) desc " +
                     "limit :size"
     )
-    List<Object[]> findTopProduct(@Param("size") int size);
+    List<TopProductRequest> findTopProduct(@Param("size") int size);
 }
