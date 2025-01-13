@@ -34,6 +34,10 @@ env:
   ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
   ALLOWED_METHODS: ${{ vars.ALLOWED_METHODS }}
   ALLOWED_HEADERS: ${{ vars.ALLOWED_HEADERS }}
+  SSL_KEY_STORE_PATH: ${{ secrets.SSL_KEY_STORE_PATH }}
+  SSL_KEY_ALIAS: ${{ secrets.SSL_KEY_ALIAS }}
+  SSL_KEY_STORE_PASSWORD: ${{ secrets.SSL_KEY_STORE_PASSWORD }}
+  SSL_KEY_STORE_TYPE: ${{ secrets.SSL_KEY_STORE_TYPE }}
 
 jobs:
   compile:
@@ -184,6 +188,15 @@ jobs:
           echo "ALLOWED_ORIGINS=${ALLOWED_ORIGINS}" >> .env
           echo "ALLOWED_METHODS=${ALLOWED_METHODS}" >> .env
           echo "ALLOWED_HEADERS=${ALLOWED_HEADERS}" >> .env
+          echo "SSL_KEY_STORE_PATH=${SSL_KEY_STORE_PATH}" >> .env
+          echo "SSL_KEY_ALIAS=${SSL_KEY_ALIAS}" >> .env
+          echo "SSL_KEY_STORE_PASSWORD=${SSL_KEY_STORE_PASSWORD}" >> .env
+          echo "SSL_KEY_STORE_TYPE=${SSL_KEY_STORE_TYPE}" >> .env
+
+      - name: Create SSL Key Store
+        run: |
+          echo "${{ secrets.SSL_KEYSTORE_BASE64 }}" | base64 --decode > nextrad-dapvietbe.p12
+          chmod 600 nextrad-dapvietbe.p12
 
       - name: Store SSH key
         run: |
@@ -193,8 +206,10 @@ jobs:
       - name: Create deployment folder
         run: ssh -i "aws-server.pem" -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} "mkdir -p dap-viet-be-ci-cd"
 
-      - name: Copy environment file to server
-        run: scp -i "aws-server.pem" -o StrictHostKeyChecking=no .env ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}:dap-viet-be-ci-cd/.env
+      - name: Copy environment file and ssl key store to server
+        run: |
+          scp -i "aws-server.pem" -o StrictHostKeyChecking=no .env ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}:dap-viet-be-ci-cd/.env
+          scp -i "aws-server.pem" -o StrictHostKeyChecking=no nextrad-dapvietbe.p12 ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}:dap-viet-be-ci-cd/nextrad-dapvietbe.p12
 
       - name: Deploy
         run: |
@@ -202,5 +217,5 @@ jobs:
           cd dap-viet-be-ci-cd
           sudo docker stop dap-viet-be
           sudo docker image prune -a -f
-          sudo docker run -d --rm --name dap-viet-be -p 80:8082 --env-file .env ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }}
+          sudo docker run -d --rm --name dap-viet-be -p 443:8082 --env-file .env ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }}
           EOF
