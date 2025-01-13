@@ -10,8 +10,8 @@ public record DashboardResponse(
         long totalDeliveredOrders,
         long totalCanceledOrders,
         long totalSell,
-        long totalRevenueThisWeek,
-        long totalRevenueLastWeek
+        double totalRevenueThisWeek,
+        double totalRevenueLastWeek
 ) {
 
 }

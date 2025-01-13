@@ -18,23 +18,23 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, UUID> 
 
     @Query(
             nativeQuery = true,
-            value = "select sum(product_total) as total from orders " +
+            value = "select ifnull(sum(product_total), 0) as total from orders " +
                     "where week(created_date) = week(current_date) " +
                     "and year(created_date) = year(current_date) " +
                     "and status != 'CANCELED' " +
                     "and (status = 'DELIVERED' or payment_method = 'QR')"
     )
-    long sumRevenueThisWeek();
+    double sumRevenueThisWeek();
 
     @Query(
             nativeQuery = true,
-            value = "select sum(product_total) as total from orders " +
+            value = "select ifnull(sum(product_total), 0) as total from orders " +
                     "where week(created_date) < week(current_date) " +
                     "and year(created_date) = year(current_date) " +
                     "and status != 'CANCELED' " +
                     "and (status = 'DELIVERED' or payment_method = 'QR')"
     )
-    long sumRevenueLastWeek();
+    double sumRevenueLastWeek();
 
     @Query(
             nativeQuery = true,
