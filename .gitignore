@@ -32,3 +32,5 @@ build/
 ### VS Code ###
 .vscode/
 .env
+nextrad-dapvietbe.p12
+nextrad-dapvietbe.p12.base64
