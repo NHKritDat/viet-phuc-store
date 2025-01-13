@@ -15,7 +15,7 @@ FROM sapmachine:17-jre-headless-ubuntu
 WORKDIR /app
 
 COPY --from=build /build/target/viet-phuc-store-*.jar /app/app.jar
-COPY src/main/resources/nextrad-dapvietbe.p12 /app/nextrad-dapvietbe.p12
+#COPY src/main/resources/nextrad-dapvietbe.p12 /app/nextrad-dapvietbe.p12
 
 EXPOSE 8082
 
