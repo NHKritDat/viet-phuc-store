@@ -193,12 +193,6 @@ jobs:
           echo "SSL_KEY_STORE_PASSWORD=${SSL_KEY_STORE_PASSWORD}" >> .env
           echo "SSL_KEY_STORE_TYPE=${SSL_KEY_STORE_TYPE}" >> .env
 
-      - name: Create SSL Key Store
-        run: |
-          echo "${{ secrets.SSL_KEYSTORE_BASE64 }}" >> key.p12.base64
-          base64 -d key.p12.base64 > nextrad-dapvietbe.p12
-          chmod 600 nextrad-dapvietbe.p12
-
       - name: Store SSH key
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > aws-server.pem
@@ -207,10 +201,9 @@ jobs:
       - name: Create deployment folder
         run: ssh -i "aws-server.pem" -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} "mkdir -p dap-viet-be-ci-cd"
 
-      - name: Copy environment file and ssl key store to server
+      - name: Copy environment file to server
         run: |
           scp -i "aws-server.pem" -o StrictHostKeyChecking=no .env ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}:dap-viet-be-ci-cd/.env
-          scp -i "aws-server.pem" -o StrictHostKeyChecking=no nextrad-dapvietbe.p12 ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }}:dap-viet-be-ci-cd/nextrad-dapvietbe.p12
 
       - name: Deploy
         run: |
