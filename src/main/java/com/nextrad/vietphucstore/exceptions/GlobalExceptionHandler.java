@@ -3,6 +3,7 @@ package com.nextrad.vietphucstore.exceptions;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import org.hibernate.LazyInitializationException;
 import org.springframework.aop.AopInvocationException;
+import org.springframework.core.convert.ConverterNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -57,6 +58,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AopInvocationException.class)
     public ResponseEntity<ApiItemResponse<String>> handleAopInvocationException(AopInvocationException e) {
+        return ResponseEntity.status(500)
+                .body(new ApiItemResponse<>(e.getClass().getName(), e.getMessage()));
+    }
+
+    @ExceptionHandler(ConverterNotFoundException.class)
+    public ResponseEntity<ApiItemResponse<String>> handleConverterNotFoundException(ConverterNotFoundException e) {
+        return ResponseEntity.status(500)
+                .body(new ApiItemResponse<>(e.getClass().getName(), e.getMessage()));
+    }
+
+    @ExceptionHandler(UnsupportedOperationException.class)
+    public ResponseEntity<ApiItemResponse<String>> handleUnsupportedOperationException(UnsupportedOperationException e) {
         return ResponseEntity.status(500)
                 .body(new ApiItemResponse<>(e.getClass().getName(), e.getMessage()));
     }

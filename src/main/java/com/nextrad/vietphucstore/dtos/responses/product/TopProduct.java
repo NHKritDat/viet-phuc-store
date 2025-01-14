@@ -8,6 +8,6 @@ public record TopProduct(
         double unitPrice,
         String picture,
         double rating,
-        int count
+        long count
 ) {
 }

@@ -3,8 +3,10 @@ package com.nextrad.vietphucstore.utils;
 import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyCollectionRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
+import com.nextrad.vietphucstore.dtos.requests.product.TopProductRequest;
 import com.nextrad.vietphucstore.dtos.responses.order.*;
 import com.nextrad.vietphucstore.dtos.responses.product.*;
+import com.nextrad.vietphucstore.dtos.responses.user.LoginResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.SearchUser;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
@@ -23,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -206,14 +207,14 @@ public class ObjectMapperUtil {
         );
     }
 
-    public TopProduct mapTopProductResponse(Object[] request, double rating) {
+    public TopProduct mapTopProductResponse(TopProductRequest request, double rating) {
         return new TopProduct(
-                UUID.nameUUIDFromBytes(request[0].toString().getBytes()),
-                request[1].toString(),
-                Double.parseDouble(request[2].toString()),
-                imagesUtil.convertStringToImages(request[3].toString()).get(0),
+                request.id(),
+                request.name(),
+                request.unitPrice(),
+                imagesUtil.convertStringToImages(request.pictures()).get(0),
                 rating,
-                Integer.parseInt(request[4].toString())
+                request.count()
         );
     }
 
@@ -226,5 +227,9 @@ public class ObjectMapperUtil {
                 rating,
                 0
         );
+    }
+
+    public LoginResponse mapToLoginResponse(TokenResponse response, String message) {
+        return new LoginResponse(response, message);
     }
 }

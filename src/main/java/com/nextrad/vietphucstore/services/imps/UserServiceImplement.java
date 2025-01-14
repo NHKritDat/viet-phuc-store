@@ -2,10 +2,7 @@ package com.nextrad.vietphucstore.services.imps;
 
 import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.requests.user.*;
-import com.nextrad.vietphucstore.dtos.responses.user.CheckTokenResult;
-import com.nextrad.vietphucstore.dtos.responses.user.SearchUser;
-import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
-import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
+import com.nextrad.vietphucstore.dtos.responses.user.*;
 import com.nextrad.vietphucstore.entities.user.Token;
 import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
@@ -45,14 +42,20 @@ public class UserServiceImplement implements UserService {
     }
 
     @Override
-    public TokenResponse login(LoginPassword request) {
+    public LoginResponse login(LoginPassword request) {
         User user = userRepository.findByEmailAndStatus((request.email()), UserStatus.VERIFIED)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if (!passwordEncoder.matches(request.password(), user.getPassword()))
             throw new AppException(ErrorCode.WRONG_PASSWORD);
+        String message = user.getRole() != UserRole.STAFF ?
+                "Bạn đã đăng nhập thành công" :
+                "Bạn đã đăng nhập thành công trang cho Staff";
         String refreshToken = tokenUtil.genRefreshToken(user);
         tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
-        return objectMapperUtil.mapTokenResponse(tokenUtil.genAccessToken(user), refreshToken);
+        return objectMapperUtil.mapToLoginResponse(
+                objectMapperUtil.mapTokenResponse(tokenUtil.genAccessToken(user), refreshToken),
+                message
+        );
     }
 
     @Override

@@ -131,6 +131,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
+#
+#      - name: Copy SSL file
+#        run: |
+#          echo ${{ secrets.SSL_KEYSTORE_BASE64 }} >> nextrad-dapvietbe.p12.base64
+#          base64 -d nextrad-dapvietbe.p12.base64 > ./src/main/resources/nextrad-dapvietbe.p12
+#          chmod 600 ./src/main/resources/nextrad-dapvietbe.p12
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -211,5 +217,6 @@ jobs:
           cd dap-viet-be-ci-cd
           sudo docker stop dap-viet-be
           sudo docker image prune -a -f
-          sudo docker run -d --rm --name dap-viet-be -p 443:8082 --env-file .env ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }}
+          sudo docker run -d --rm --name dap-viet-be -p 80:8082 --env-file .env ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }}
+#          sudo docker run -d --rm --name dap-viet-be -p 443:8082 --env-file .env ${{ secrets.DOCKER_HUB_USERNAME }}/dap-viet-be:${{ steps.extract_version.outputs.VERSION }}
           EOF

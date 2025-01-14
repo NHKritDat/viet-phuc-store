@@ -4,6 +4,7 @@ import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.requests.user.*;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
+import com.nextrad.vietphucstore.dtos.responses.user.LoginResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.SearchUser;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
@@ -26,9 +27,10 @@ public class UserController {
 
     @PostMapping("/auth/login")
     public ResponseEntity<ApiItemResponse<TokenResponse>> login(@RequestBody LoginPassword request) {
+        LoginResponse response = userService.login(request);
         return ResponseEntity.ok(new ApiItemResponse<>(
-                userService.login(request),
-                "Bạn đã đăng nhập thành công"
+                response.response(),
+                response.message()
         ));
     }
 
