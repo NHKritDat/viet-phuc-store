@@ -3,14 +3,13 @@ package com.nextrad.vietphucstore.utils;
 import com.nextrad.vietphucstore.dtos.requests.api.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyCollectionRequest;
 import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyProductRequest;
-import com.nextrad.vietphucstore.dtos.requests.inner.product.TopProductRequest;
+import com.nextrad.vietphucstore.dtos.requests.api.user.LoginGoogle;
+import com.nextrad.vietphucstore.dtos.requests.api.user.RegisterRequest;
 import com.nextrad.vietphucstore.dtos.requests.api.user.UserModifyRequest;
-import com.nextrad.vietphucstore.dtos.responses.api.dashboard.DashboardResponse;
+import com.nextrad.vietphucstore.dtos.requests.inner.product.TopProductRequest;
 import com.nextrad.vietphucstore.dtos.responses.api.order.*;
 import com.nextrad.vietphucstore.dtos.responses.api.product.*;
-import com.nextrad.vietphucstore.dtos.responses.inner.user.LoginResponse;
 import com.nextrad.vietphucstore.dtos.responses.api.user.SearchUser;
-import com.nextrad.vietphucstore.dtos.responses.api.user.TokenResponse;
 import com.nextrad.vietphucstore.dtos.responses.api.user.UserDetail;
 import com.nextrad.vietphucstore.entities.order.Cart;
 import com.nextrad.vietphucstore.entities.order.Feedback;
@@ -23,6 +22,8 @@ import com.nextrad.vietphucstore.entities.product.ProductType;
 import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.order.OrderStatus;
 import com.nextrad.vietphucstore.enums.order.PaymentMethod;
+import com.nextrad.vietphucstore.enums.user.UserRole;
+import com.nextrad.vietphucstore.enums.user.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -109,10 +110,6 @@ public class ObjectMapperUtil {
 
     public SearchUser mapSearchUser(User user) {
         return new SearchUser(user.getId(), user.getName(), user.getEmail(), user.getAvatar(), user.getStatus());
-    }
-
-    public TokenResponse mapTokenResponse(String accessToken, String refreshToken) {
-        return new TokenResponse(accessToken, refreshToken);
     }
 
     public ProductCollection mapProductCollection(ModifyCollectionRequest request, ProductCollection collection) {
@@ -249,21 +246,31 @@ public class ObjectMapperUtil {
         );
     }
 
-    public LoginResponse mapToLoginResponse(TokenResponse response, String message) {
-        return new LoginResponse(response, message);
+    public User mapUser(LoginGoogle request, User user) {
+        user.setEmail(request.email());
+        user.setName(request.name());
+        user.setAvatar(request.avatar());
+        user.setStatus(UserStatus.VERIFIED);
+        user.setCreatedBy(request.email());
+        user.setUpdatedBy(request.email());
+        return user;
     }
 
-    public DashboardResponse mapDashboardResponse(
-            long totalNewUsers, long totalOldUsers, long totalPendingOrders,
-            long totalAwaitingPickupOrders, long totalAwaitingDeliveryOrders,
-            long totalInTransitOrders, long totalDeliveredOrders, long totalCanceledOrders,
-            long totalSell, double totalRevenueThisWeek, double totalRevenueLastWeek
-    ) {
-        return new DashboardResponse(
-                totalNewUsers, totalOldUsers, totalPendingOrders, totalAwaitingPickupOrders,
-                totalAwaitingDeliveryOrders, totalInTransitOrders, totalDeliveredOrders, totalCanceledOrders,
-                totalSell, totalRevenueThisWeek, totalRevenueLastWeek
-        );
+    public User mapUser(String[] jwtInfo, User user) {
+        user.setName(jwtInfo[1]);
+        user.setEmail(jwtInfo[2]);
+        user.setAvatar(jwtInfo[3]);
+        user.setRole(UserRole.valueOf(jwtInfo[4]));
+        return user;
+    }
+
+    public User mapUser(RegisterRequest request, User user) {
+        user.setName(request.name());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setCreatedBy(request.email());
+        user.setUpdatedBy(request.email());
+        return user;
     }
 }
 

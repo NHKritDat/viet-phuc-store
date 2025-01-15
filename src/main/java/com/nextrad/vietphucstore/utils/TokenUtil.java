@@ -20,21 +20,9 @@ import java.util.UUID;
 
 @Component
 public class TokenUtil {
-    private static final String ID_FIELD = "id";
     private static final String NAME_FIELD = "name";
-    private static final String DOB_FIELD = "dob";
-    private static final String GENDER_FIELD = "gender";
-    private static final String PROVINCE_FIELD = "province";
-    private static final String DISTRICT_FIELD = "district";
-    private static final String ADDRESS_FIELD = "address";
-    private static final String PHONE_FIELD = "phone";
     private static final String AVATAR_FIELD = "avatar";
     private static final String ROLE_FIELD = "scope";
-    private static final String STATUS_FIELD = "status";
-    private static final String CREATED_BY_FIELD = "createdBy";
-    private static final String CREATED_DATE_FIELD = "createdDate";
-    private static final String UPDATED_BY_FIELD = "updatedBy";
-    private static final String UPDATED_DATE_FIELD = "updatedDate";
 
     @Value("${ISSUER}")
     private String issuer;
@@ -70,22 +58,10 @@ public class TokenUtil {
             JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
             return new String[]{
                     claimsSet.getJWTID(),
-                    claimsSet.getStringClaim(ID_FIELD),
                     claimsSet.getStringClaim(NAME_FIELD),
                     claimsSet.getSubject(),
-                    claimsSet.getStringClaim(ADDRESS_FIELD),
-                    claimsSet.getStringClaim(PHONE_FIELD),
                     claimsSet.getStringClaim(AVATAR_FIELD),
-                    claimsSet.getStringClaim(ROLE_FIELD),
-                    claimsSet.getStringClaim(STATUS_FIELD),
-                    claimsSet.getStringClaim(CREATED_BY_FIELD),
-                    claimsSet.getClaim(CREATED_DATE_FIELD).toString(),
-                    claimsSet.getStringClaim(UPDATED_BY_FIELD),
-                    claimsSet.getClaim(UPDATED_DATE_FIELD).toString(),
-                    claimsSet.getClaim(DOB_FIELD).toString(),
-                    claimsSet.getStringClaim(GENDER_FIELD),
-                    claimsSet.getStringClaim(PROVINCE_FIELD),
-                    claimsSet.getStringClaim(DISTRICT_FIELD)
+                    claimsSet.getStringClaim(ROLE_FIELD)
             };
         } catch (ParseException e) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
@@ -154,21 +130,9 @@ public class TokenUtil {
                 .expirationTime(new Date(System.currentTimeMillis() + expTime))
                 .jwtID(UUID.randomUUID().toString())
                 .subject(user.getEmail())
-                .claim(ID_FIELD, user.getId().toString())
                 .claim(NAME_FIELD, user.getName())
-                .claim(DOB_FIELD, user.getDob())
-                .claim(GENDER_FIELD, user.getGender().name())
-                .claim(PROVINCE_FIELD, user.getProvince())
-                .claim(DISTRICT_FIELD, user.getDistrict())
-                .claim(ADDRESS_FIELD, user.getAddress())
-                .claim(PHONE_FIELD, user.getPhone())
-                .claim(AVATAR_FIELD, user.getAvatar() != null ? user.getAvatar() : "")
+                .claim(AVATAR_FIELD, user.getAvatar())
                 .claim(ROLE_FIELD, user.getRole().name())
-                .claim(STATUS_FIELD, user.getStatus())
-                .claim(CREATED_BY_FIELD, user.getCreatedBy())
-                .claim(CREATED_DATE_FIELD, user.getCreatedDate())
-                .claim(UPDATED_BY_FIELD, user.getUpdatedBy())
-                .claim(UPDATED_DATE_FIELD, user.getUpdatedDate())
                 .build();
         Payload payload = new Payload(claimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(header, payload);

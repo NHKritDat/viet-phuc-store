@@ -2,10 +2,10 @@ package com.nextrad.vietphucstore.services;
 
 import com.nextrad.vietphucstore.dtos.requests.api.user.*;
 import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.responses.inner.user.LoginResponse;
 import com.nextrad.vietphucstore.dtos.responses.api.user.SearchUser;
 import com.nextrad.vietphucstore.dtos.responses.api.user.TokenResponse;
 import com.nextrad.vietphucstore.dtos.responses.api.user.UserDetail;
+import com.nextrad.vietphucstore.dtos.responses.inner.user.LoginResponse;
 import com.nextrad.vietphucstore.enums.user.UserRole;
 import com.nextrad.vietphucstore.enums.user.UserStatus;
 import org.springframework.data.domain.Page;

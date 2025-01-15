@@ -10,7 +10,6 @@ import com.nextrad.vietphucstore.dtos.responses.inner.user.LoginResponse;
 import com.nextrad.vietphucstore.entities.user.Token;
 import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
-import com.nextrad.vietphucstore.enums.user.UserGender;
 import com.nextrad.vietphucstore.enums.user.UserRole;
 import com.nextrad.vietphucstore.enums.user.UserStatus;
 import com.nextrad.vietphucstore.exceptions.AppException;
@@ -56,8 +55,8 @@ public class UserServiceImplement implements UserService {
                 "Bạn đã đăng nhập thành công trang cho Staff";
         String refreshToken = tokenUtil.genRefreshToken(user);
         tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
-        return objectMapperUtil.mapToLoginResponse(
-                objectMapperUtil.mapTokenResponse(tokenUtil.genAccessToken(user), refreshToken),
+        return new LoginResponse(
+                new TokenResponse(tokenUtil.genAccessToken(user), refreshToken),
                 message
         );
     }
@@ -68,51 +67,26 @@ public class UserServiceImplement implements UserService {
         if (user.isPresent()) {
             String refreshToken = tokenUtil.genRefreshToken(user.get());
             tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
-            return objectMapperUtil.mapTokenResponse(tokenUtil.genAccessToken(user.get()), refreshToken);
+            return new TokenResponse(tokenUtil.genAccessToken(user.get()), refreshToken);
         } else {
-            User newUser = new User();
-            newUser.setEmail(request.email());
-            newUser.setName(request.name());
-            newUser.setAvatar(request.avatar());
-            newUser.setStatus(UserStatus.VERIFIED);
-            newUser.setCreatedBy(request.email());
-            newUser.setUpdatedBy(request.email());
-            newUser = userRepository.save(newUser);
-
+            User newUser = userRepository.save(objectMapperUtil.mapUser(request, new User()));
             String refreshToken = tokenUtil.genRefreshToken(newUser);
             tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
-            return objectMapperUtil.mapTokenResponse(tokenUtil.genAccessToken(newUser), refreshToken);
+            return new TokenResponse(tokenUtil.genAccessToken(newUser), refreshToken);
         }
     }
 
     @Override
     public TokenResponse getAccessToken(AuthRequest request) {
-        String[] tokenId = tokenUtil.getJwtInfo(request.auth());
-        Token token = tokenRepository.findById(UUID.fromString(tokenId[0]))
+        String[] jwtInfo = tokenUtil.getJwtInfo(request.auth());
+        Token token = tokenRepository.findById(UUID.fromString(jwtInfo[0]))
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
         if (!token.isAvailable())
             throw new AppException(ErrorCode.UNAVAILABLE_TOKEN);
         token.setAvailable(false);
         tokenRepository.save(token);
 
-        User user = new User();
-        user.setId(UUID.fromString(tokenId[1]));
-        user.setName(tokenId[2]);
-        user.setEmail(tokenId[3]);
-        user.setAddress(tokenId[4]);
-        user.setPhone(tokenId[5]);
-        user.setAvatar(tokenId[6]);
-        user.setRole(UserRole.valueOf(tokenId[7]));
-        user.setStatus(UserStatus.valueOf(tokenId[8]));
-        user.setCreatedBy(tokenId[9]);
-        user.setCreatedDate(new Date(Long.parseLong(tokenId[10])));
-        user.setUpdatedBy(tokenId[11]);
-        user.setUpdatedDate(new Date(Long.parseLong(tokenId[12])));
-        user.setDob(new Date(Long.parseLong(tokenId[13])));
-        user.setGender(UserGender.valueOf(tokenId[14]));
-        user.setProvince(tokenId[15]);
-        user.setDistrict(tokenId[16]);
-
+        User user = objectMapperUtil.mapUser(jwtInfo, new User());
         String refreshToken = tokenUtil.genRefreshToken(user);
         tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
         return new TokenResponse(tokenUtil.genAccessToken(user), refreshToken);
@@ -139,13 +113,7 @@ public class UserServiceImplement implements UserService {
         if (regexUtil.invalidPassword(request.password()))
             throw new AppException(ErrorCode.PASSWORD_NOT_STRONG);
 
-        User user = new User();
-        user.setName(request.name());
-        user.setEmail(request.email());
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.setCreatedBy(request.email());
-        user.setUpdatedBy(request.email());
-        userRepository.save(user);
+        User user = userRepository.save(objectMapperUtil.mapUser(request, new User()));
 
         emailUtil.verifyEmail(request.email(), request.name(), tokenUtil.genAccessToken(user));
         return "Vui lòng kiểm tra email để xác thực tài khoản.";
