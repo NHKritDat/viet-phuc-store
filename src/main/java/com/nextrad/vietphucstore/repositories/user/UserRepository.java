@@ -1,5 +1,6 @@
 package com.nextrad.vietphucstore.repositories.user;
 
+import com.nextrad.vietphucstore.dtos.responses.inner.dashboard.CountUser;
 import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.user.UserRole;
 import com.nextrad.vietphucstore.enums.user.UserStatus;
@@ -27,20 +28,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmailAndStatus(String email, UserStatus status);
 
     @Query(
-            nativeQuery = true,
-            value = "select count(*) as total from users " +
-                    "where week(created_date) = week(current_date) " +
-                    "and year(created_date) = year(current_date)"
+            value = "select new com.nextrad.vietphucstore.dtos.responses.inner.dashboard.CountUser(" +
+                    "sum(case when function('WEEK',createdDate) = function('WEEK',current date) then 1 else 0 end)," +
+                    "sum(case when function('WEEK',createdDate) != function('WEEK',current date)  then 1 else 0 end)) " +
+                    "from User"
     )
-    long countNewUsers();
-
-    @Query(
-            nativeQuery = true,
-            value = "select count(*) as total from users " +
-                    "where week(created_date) < week(current_date) " +
-                    "and year(created_date) = year(current_date)"
-    )
-    long countOldUsers();
+    CountUser countUser();
 
     boolean existsByEmail(String email);
 

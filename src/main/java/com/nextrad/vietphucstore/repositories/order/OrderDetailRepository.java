@@ -18,27 +18,6 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, UUID> 
     Page<OrderDetail> findByOrder_User_EmailAndOrder_Status(String orderUserEmail, OrderStatus orderStatus, Pageable pageable);
 
     @Query(
-            nativeQuery = true,
-            value = "select ifnull(sum(product_total), 0) as total from orders " +
-                    "where week(created_date) = week(current_date) " +
-                    "and year(created_date) = year(current_date) " +
-                    "and status != 'CANCELED' " +
-                    "and (status = 'DELIVERED' or payment_method = 'QR')"
-    )
-    double sumRevenueThisWeek();
-
-    @Query(
-            nativeQuery = true,
-            value = "select ifnull(sum(product_total), 0) as total from orders " +
-                    "where week(created_date) < week(current_date) " +
-                    "and year(created_date) = year(current_date) " +
-                    "and status != 'CANCELED' " +
-                    "and (status = 'DELIVERED' or payment_method = 'QR')"
-    )
-    double sumRevenueLastWeek();
-
-    @Query(
-            value = "select new com.nextrad.vietphucstore.dtos.requests.product" +
             value = "select new com.nextrad.vietphucstore.dtos.requests.inner.product" +
                     ".TopProductRequest(p.id, p.name, p.unitPrice, p.pictures, sum(od.quantity))  " +
                     "from OrderDetail od " +
@@ -49,4 +28,10 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, UUID> 
                     "limit :size"
     )
     List<TopProductRequest> findTopProduct(@Param("size") int size);
+
+    @Query(
+            value = "select nullif(sum(od.quantity),0) from OrderDetail od " +
+                    "where od.order.status != 'CANCELED'"
+    )
+    long totalProductSell();
 }
