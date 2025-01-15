@@ -14,29 +14,29 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
-public class AsyncDashboardServiceImpl {
+public class DashboardServiceImplAsync {
     private final OrderDetailRepository orderDetailRepository;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
 
     @Async
     public CompletableFuture<CountOrder> countOrdersAsync() {
-        return CompletableFuture.completedFuture(orderRepository.countOrder());
+        return CompletableFuture.supplyAsync(orderRepository::countOrder);
     }
 
     @Async
     public CompletableFuture<CountUser> countUsersAsync() {
-        return CompletableFuture.completedFuture(userRepository.countUser());
+        return CompletableFuture.supplyAsync(userRepository::countUser);
     }
 
     @Async
     public CompletableFuture<SumRevenue> sumRevenueAsync() {
-        return CompletableFuture.completedFuture(orderRepository.sumRevenue());
+        return CompletableFuture.supplyAsync(orderRepository::sumRevenue);
     }
 
     @Async
     public CompletableFuture<Long> totalProductSellAsync() {
-        return CompletableFuture.completedFuture(orderDetailRepository.totalProductSell());
+        return CompletableFuture.supplyAsync(orderDetailRepository::totalProductSell);
     }
 
 }

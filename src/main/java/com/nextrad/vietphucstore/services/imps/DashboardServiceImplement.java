@@ -13,26 +13,27 @@ import java.util.concurrent.CompletableFuture;
 @Service
 @RequiredArgsConstructor
 public class DashboardServiceImplement implements DashboardService {
-    private final AsyncDashboardServiceImpl asyncDashboardServiceImpl;
+    private final DashboardServiceImplAsync dashboardServiceImplAsync;
 
     @Override
     public DashboardResponse getDashboardResponse() {
-        CompletableFuture<CountOrder> countOrdersAsync = asyncDashboardServiceImpl.countOrdersAsync();
-        CompletableFuture<Long> totalProductSellAsync = asyncDashboardServiceImpl.totalProductSellAsync();
-        CompletableFuture<CountUser> countUsersAsync = asyncDashboardServiceImpl.countUsersAsync();
-        CompletableFuture<SumRevenue> sumRevenueAsync = asyncDashboardServiceImpl.sumRevenueAsync();
-        CompletableFuture.allOf(countOrdersAsync, totalProductSellAsync, countUsersAsync, sumRevenueAsync).join();
+        //Start async
+        CompletableFuture<CountOrder> countOrdersAsync = dashboardServiceImplAsync.countOrdersAsync();
+        CompletableFuture<Long> totalProductSellAsync = dashboardServiceImplAsync.totalProductSellAsync();
+        CompletableFuture<CountUser> countUsersAsync = dashboardServiceImplAsync.countUsersAsync();
+        CompletableFuture<SumRevenue> sumRevenueAsync = dashboardServiceImplAsync.sumRevenueAsync();
+
+        //Wait to get result from all async
+        CountUser countUser = countUsersAsync.join();
+        CountOrder countOrder = countOrdersAsync.join();
+        Long totalProductSold = totalProductSellAsync.join();
+        SumRevenue sumRevenue = sumRevenueAsync.join();
+
+        //return result
         return new DashboardResponse(
-                countUsersAsync.join().newUser(), countUsersAsync.join().oldUser(),
-                countOrdersAsync.join().pending(),
-                countOrdersAsync.join().pickup(),
-                countOrdersAsync.join().delivery(),
-                countOrdersAsync.join().transit(),
-                countOrdersAsync.join().delivered(),
-                countOrdersAsync.join().canceled(),
-                totalProductSellAsync.join(),
-                sumRevenueAsync.join().thisWeek(),
-                sumRevenueAsync.join().lastWeek()
+                countUser.newUser(), countUser.oldUser(), countOrder.pending(), countOrder.pickup(),
+                countOrder.delivery(), countOrder.transit(), countOrder.delivered(), countOrder.canceled(),
+                totalProductSold, sumRevenue.thisWeek(), sumRevenue.lastWeek()
         );
     }
 
