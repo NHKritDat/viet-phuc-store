@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,4 +41,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
                     "and year(created_date) = year(current_date)"
     )
     long countOldUsers();
+
+    boolean existsByEmail(String email);
+
+    void deleteByStatusAndUpdatedDateAfter(UserStatus status, Date date);
 }

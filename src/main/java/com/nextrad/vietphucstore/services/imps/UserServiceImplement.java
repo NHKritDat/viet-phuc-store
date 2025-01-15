@@ -290,6 +290,22 @@ public class UserServiceImplement implements UserService {
         user.setRole(request.role());
         user.setStatus(request.status());
         return objectMapperUtil.mapUserDetail(userRepository.save(user));
+    @Override
+    public boolean isEmailExist(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public void createDefaultUser(String email, UserRole role, UserStatus status) {
+        User user = new User();
+        user.setName(email);
+        user.setEmail(email);
+        user.setRole(role);
+        user.setStatus(status);
+        user.setCreatedBy(email);
+        user.setUpdatedBy(email);
+        userRepository.save(user);
+    }
     }
 
 }

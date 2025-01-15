@@ -6,6 +6,8 @@ import com.nextrad.vietphucstore.dtos.responses.user.LoginResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.SearchUser;
 import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
 import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
+import com.nextrad.vietphucstore.enums.user.UserRole;
+import com.nextrad.vietphucstore.enums.user.UserStatus;
 import org.springframework.data.domain.Page;
 
 import java.util.UUID;
@@ -46,4 +48,8 @@ public interface UserService {
     UserDetail updateProfile(UpdateProfileRequest request);
 
     UserDetail updateAvatar(UpdateAvatarRequest request);
+
+    boolean isEmailExist(String email);
+
+    void createDefaultUser(String email, UserRole role, UserStatus status);
 }
