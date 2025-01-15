@@ -1,7 +1,7 @@
 package com.nextrad.vietphucstore.controllers;
 
-import com.nextrad.vietphucstore.dtos.responses.dashboard.DashboardResponse;
-import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.dashboard.DashboardResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.services.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

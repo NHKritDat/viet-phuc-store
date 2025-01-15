@@ -1,6 +1,6 @@
 package com.nextrad.vietphucstore.services.imps;
 
-import com.nextrad.vietphucstore.dtos.responses.dashboard.DashboardResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.dashboard.DashboardResponse;
 import com.nextrad.vietphucstore.entities.order.Order;
 import com.nextrad.vietphucstore.enums.order.OrderStatus;
 import com.nextrad.vietphucstore.repositories.order.OrderDetailRepository;

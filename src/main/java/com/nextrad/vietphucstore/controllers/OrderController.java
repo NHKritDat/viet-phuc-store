@@ -1,10 +1,10 @@
 package com.nextrad.vietphucstore.controllers;
 
-import com.nextrad.vietphucstore.dtos.requests.order.*;
-import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.responses.order.*;
-import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
-import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
+import com.nextrad.vietphucstore.dtos.requests.api.order.*;
+import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
+import com.nextrad.vietphucstore.dtos.responses.api.order.*;
+import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiItemResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiListItemResponse;
 import com.nextrad.vietphucstore.services.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

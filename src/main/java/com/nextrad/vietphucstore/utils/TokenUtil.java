@@ -2,7 +2,7 @@ package com.nextrad.vietphucstore.utils;
 
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.TokenVerifier;
-import com.nextrad.vietphucstore.dtos.responses.user.CheckTokenResult;
+import com.nextrad.vietphucstore.dtos.responses.inner.user.CheckTokenResult;
 import com.nextrad.vietphucstore.entities.user.Token;
 import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;

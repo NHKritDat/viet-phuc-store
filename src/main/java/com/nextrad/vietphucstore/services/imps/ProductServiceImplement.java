@@ -1,9 +1,13 @@
 package com.nextrad.vietphucstore.services.imps;
 
-import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.requests.product.*;
-import com.nextrad.vietphucstore.dtos.responses.order.FeedbackResponse;
-import com.nextrad.vietphucstore.dtos.responses.product.*;
+import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyCollectionRequest;
+import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyProductRequest;
+import com.nextrad.vietphucstore.dtos.requests.api.product.ModifySizeRequest;
+import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyTypeRequest;
+import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
+import com.nextrad.vietphucstore.dtos.requests.inner.product.TopProductRequest;
+import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.product.*;
 import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.product.*;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;

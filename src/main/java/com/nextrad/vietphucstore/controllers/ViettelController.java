@@ -1,12 +1,12 @@
 package com.nextrad.vietphucstore.controllers;
 
-import com.nextrad.vietphucstore.dtos.requests.viettel.GetServicesRequest;
-import com.nextrad.vietphucstore.dtos.requests.viettel.PricingRequest;
-import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
-import com.nextrad.vietphucstore.dtos.responses.viettel.DistrictResponse;
-import com.nextrad.vietphucstore.dtos.responses.viettel.ProvinceResponse;
-import com.nextrad.vietphucstore.dtos.responses.viettel.ViettelPricingResponse;
-import com.nextrad.vietphucstore.dtos.responses.viettel.ViettelServicesResponse;
+import com.nextrad.vietphucstore.dtos.requests.api.viettel.GetServicesRequest;
+import com.nextrad.vietphucstore.dtos.requests.api.viettel.PricingRequest;
+import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiItemResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.viettel.DistrictResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.viettel.ProvinceResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.viettel.ViettelPricingResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.viettel.ViettelServicesResponse;
 import com.nextrad.vietphucstore.services.ViettelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

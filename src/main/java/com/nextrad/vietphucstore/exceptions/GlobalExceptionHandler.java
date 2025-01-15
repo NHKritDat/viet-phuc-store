@@ -1,6 +1,6 @@
 package com.nextrad.vietphucstore.exceptions;
 
-import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiItemResponse;
 import org.hibernate.LazyInitializationException;
 import org.springframework.aop.AopInvocationException;
 import org.springframework.core.convert.ConverterNotFoundException;

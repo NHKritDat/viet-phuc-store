@@ -1,8 +1,8 @@
 package com.nextrad.vietphucstore.services;
 
-import com.nextrad.vietphucstore.dtos.requests.order.*;
-import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.responses.order.*;
+import com.nextrad.vietphucstore.dtos.requests.api.order.*;
+import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
+import com.nextrad.vietphucstore.dtos.responses.api.order.*;
 import org.springframework.data.domain.Page;
 
 import java.util.UUID;

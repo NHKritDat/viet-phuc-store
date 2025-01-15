@@ -1,6 +1,6 @@
 package com.nextrad.vietphucstore.utils;
 
-import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
+import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

@@ -1,8 +1,12 @@
 package com.nextrad.vietphucstore.services.imps;
 
-import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.requests.user.*;
-import com.nextrad.vietphucstore.dtos.responses.user.*;
+import com.nextrad.vietphucstore.dtos.requests.api.user.*;
+import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
+import com.nextrad.vietphucstore.dtos.responses.api.user.SearchUser;
+import com.nextrad.vietphucstore.dtos.responses.api.user.TokenResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.user.UserDetail;
+import com.nextrad.vietphucstore.dtos.responses.inner.user.CheckTokenResult;
+import com.nextrad.vietphucstore.dtos.responses.inner.user.LoginResponse;
 import com.nextrad.vietphucstore.entities.user.Token;
 import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;

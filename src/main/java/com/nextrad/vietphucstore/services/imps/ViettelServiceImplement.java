@@ -1,7 +1,16 @@
 package com.nextrad.vietphucstore.services.imps;
 
-import com.nextrad.vietphucstore.dtos.requests.viettel.*;
-import com.nextrad.vietphucstore.dtos.responses.viettel.*;
+import com.nextrad.vietphucstore.dtos.requests.api.viettel.GetServicesRequest;
+import com.nextrad.vietphucstore.dtos.requests.api.viettel.PricingRequest;
+import com.nextrad.vietphucstore.dtos.requests.inner.viettel.ViettelGetServicesRequest;
+import com.nextrad.vietphucstore.dtos.requests.inner.viettel.ViettelLoginRequest;
+import com.nextrad.vietphucstore.dtos.requests.inner.viettel.ViettelPricingRequest;
+import com.nextrad.vietphucstore.dtos.responses.api.viettel.DistrictResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.viettel.ProvinceResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.viettel.ViettelPricingResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.viettel.ViettelServicesResponse;
+import com.nextrad.vietphucstore.dtos.responses.inner.viettel.ViettelDataResponse;
+import com.nextrad.vietphucstore.dtos.responses.inner.viettel.ViettelLoginResponse;
 import com.nextrad.vietphucstore.services.ViettelService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
