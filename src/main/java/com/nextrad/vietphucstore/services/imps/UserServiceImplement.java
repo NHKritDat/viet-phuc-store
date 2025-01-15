@@ -306,6 +306,10 @@ public class UserServiceImplement implements UserService {
         user.setUpdatedBy(email);
         userRepository.save(user);
     }
+
+    @Override
+    public void deleteUnverifiedUsers(long time) {
+        userRepository.deleteByStatusAndUpdatedDateAfter(UserStatus.UNVERIFIED, new Date(System.currentTimeMillis() + time));
     }
 
 }

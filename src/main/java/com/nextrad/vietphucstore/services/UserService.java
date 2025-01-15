@@ -52,4 +52,6 @@ public interface UserService {
     boolean isEmailExist(String email);
 
     void createDefaultUser(String email, UserRole role, UserStatus status);
+
+    void deleteUnverifiedUsers(long time);
 }
