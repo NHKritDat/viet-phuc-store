@@ -29,11 +29,11 @@ import java.util.UUID;
 public class UserServiceImplement implements UserService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final ObjectMapperUtil objectMapperUtil;
     private final PageableUtil pageableUtil;
     private final TokenUtil tokenUtil;
     private final EmailUtil emailUtil;
-    private final PasswordEncoder passwordEncoder;
-    private final ObjectMapperUtil objectMapperUtil;
     private final RegexUtil regexUtil;
 
     @Override
@@ -228,14 +228,14 @@ public class UserServiceImplement implements UserService {
     @Override
     public UserDetail createUser(UserModifyRequest request) {
         User user = new User();
-        return getUserResponse(request, user);
+        return objectMapperUtil.mapUserDetail(userRepository.save(objectMapperUtil.mapUser(request, user)));
     }
 
     @Override
     public UserDetail updateUser(UUID id, UserModifyRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return getUserResponse(request, user);
+        return objectMapperUtil.mapUserDetail(userRepository.save(objectMapperUtil.mapUser(request, user)));
     }
 
     @Override
@@ -276,20 +276,6 @@ public class UserServiceImplement implements UserService {
         return objectMapperUtil.mapUserDetail(userRepository.save(user));
     }
 
-    private UserDetail getUserResponse(UserModifyRequest request, User user) {
-        user.setName(request.name());
-        user.setDob(request.dob());
-        user.setGender(request.gender());
-        user.setEmail(request.email());
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.setProvince(request.province());
-        user.setDistrict(request.district());
-        user.setAddress(request.address());
-        user.setPhone(request.phone());
-        user.setAvatar(request.avatar());
-        user.setRole(request.role());
-        user.setStatus(request.status());
-        return objectMapperUtil.mapUserDetail(userRepository.save(user));
     @Override
     public boolean isEmailExist(String email) {
         return userRepository.existsByEmail(email);

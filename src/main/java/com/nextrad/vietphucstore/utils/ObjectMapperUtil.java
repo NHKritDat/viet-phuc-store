@@ -4,6 +4,8 @@ import com.nextrad.vietphucstore.dtos.requests.order.FeedbackRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyCollectionRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.requests.product.TopProductRequest;
+import com.nextrad.vietphucstore.dtos.requests.user.UserModifyRequest;
+import com.nextrad.vietphucstore.dtos.responses.dashboard.DashboardResponse;
 import com.nextrad.vietphucstore.dtos.responses.order.*;
 import com.nextrad.vietphucstore.dtos.responses.product.*;
 import com.nextrad.vietphucstore.dtos.responses.user.LoginResponse;
@@ -22,6 +24,7 @@ import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.order.OrderStatus;
 import com.nextrad.vietphucstore.enums.order.PaymentMethod;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ObjectMapperUtil {
     private final ImagesUtil imagesUtil;
+    private final PasswordEncoder passwordEncoder;
 
     public OrderHistory mapOrderHistory(OrderDetail od, boolean feedback) {
         return new OrderHistory(
@@ -85,6 +89,22 @@ public class ObjectMapperUtil {
                 user.getAvatar(), user.getRole(), user.getStatus(),
                 user.getCreatedBy(), user.getCreatedDate(), user.getUpdatedBy(), user.getUpdatedDate()
         );
+    }
+
+    public User mapUser(UserModifyRequest request, User user) {
+        user.setName(request.name());
+        user.setDob(request.dob());
+        user.setGender(request.gender());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setProvince(request.province());
+        user.setDistrict(request.district());
+        user.setAddress(request.address());
+        user.setPhone(request.phone());
+        user.setAvatar(request.avatar());
+        user.setRole(request.role());
+        user.setStatus(request.status());
+        return user;
     }
 
     public SearchUser mapSearchUser(User user) {
@@ -232,4 +252,18 @@ public class ObjectMapperUtil {
     public LoginResponse mapToLoginResponse(TokenResponse response, String message) {
         return new LoginResponse(response, message);
     }
+
+    public DashboardResponse mapDashboardResponse(
+            long totalNewUsers, long totalOldUsers, long totalPendingOrders,
+            long totalAwaitingPickupOrders, long totalAwaitingDeliveryOrders,
+            long totalInTransitOrders, long totalDeliveredOrders, long totalCanceledOrders,
+            long totalSell, double totalRevenueThisWeek, double totalRevenueLastWeek
+    ) {
+        return new DashboardResponse(
+                totalNewUsers, totalOldUsers, totalPendingOrders, totalAwaitingPickupOrders,
+                totalAwaitingDeliveryOrders, totalInTransitOrders, totalDeliveredOrders, totalCanceledOrders,
+                totalSell, totalRevenueThisWeek, totalRevenueLastWeek
+        );
+    }
 }
+
