@@ -25,10 +25,12 @@ import com.nextrad.vietphucstore.enums.order.PaymentMethod;
 import com.nextrad.vietphucstore.enums.user.UserRole;
 import com.nextrad.vietphucstore.enums.user.UserStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Component
@@ -62,12 +64,6 @@ public class ObjectMapperUtil {
                 feedback.getOrderDetail().getOrder().getUser().getName(), feedback.getCreatedDate(),
                 feedback.getOrderDetail().getProductQuantity().getProduct().getId()
         );
-    }
-
-    public Feedback mapFeedback(FeedbackRequest request, Feedback feedback) {
-        feedback.setRating(request.rating());
-        feedback.setContent(request.content());
-        return feedback;
     }
 
     public Feedback mapFeedback(FeedbackRequest request, Feedback feedback, OrderDetail orderDetail) {
@@ -130,20 +126,22 @@ public class ObjectMapperUtil {
         return collection;
     }
 
-    public SearchProduct mapSearchProduct(Product product, double rating) {
-        return new SearchProduct(
+    @Async
+    public CompletableFuture<SearchProduct> mapSearchProduct(Product product) {
+        return CompletableFuture.completedFuture(new SearchProduct(
                 product.getId(), product.getName(), product.getUnitPrice(),
                 imagesUtil.convertStringToImages(product.getPictures()).get(0),
-                rating
-        );
+                product.getAvgRating()
+        ));
     }
 
-    public SearchProductForStaff mapSearchProductForStaff(Product product, double rating) {
-        return new SearchProductForStaff(
+    @Async
+    public CompletableFuture<SearchProductForStaff> mapSearchProductForStaff(Product product) {
+        return CompletableFuture.completedFuture(new SearchProductForStaff(
                 product.getId(), product.getName(), product.getUnitPrice(),
                 imagesUtil.convertStringToImages(product.getPictures()).get(0),
-                rating, product.getStatus()
-        );
+                product.getAvgRating(), product.getStatus()
+        ));
     }
 
     public Product mapProduct(ModifyProductRequest request, Product product, ProductType type, ProductCollection collection) {
@@ -161,7 +159,8 @@ public class ObjectMapperUtil {
     public ProductDetail mapProductDetail(Product product) {
         return new ProductDetail(
                 product.getId(), product.getName(), product.getDescription(), product.getUnitPrice(),
-                imagesUtil.convertStringToImages(product.getPictures()), product.getWeight(), product.getStatus(),
+                imagesUtil.convertStringToImages(product.getPictures()),
+                product.getWeight(), product.getAvgRating(), product.getStatus(),
                 product.getProductCollection() != null ? product.getProductCollection().getName() : null,
                 product.getProductType().getName(),
                 product.getProductQuantities().stream().collect(Collectors.toMap(
@@ -171,6 +170,25 @@ public class ObjectMapperUtil {
                                 productQuantity.getQuantity()
                         )
                 ))
+        );
+    }
+
+    public ProductDetail mapProductDetailForCustomer(Product product) {
+        return new ProductDetail(
+                product.getId(), product.getName(), product.getDescription(), product.getUnitPrice(),
+                imagesUtil.convertStringToImages(product.getPictures()),
+                product.getWeight(), product.getAvgRating(), product.getStatus(),
+                product.getProductCollection() != null ? product.getProductCollection().getName() : null,
+                product.getProductType().getName(),
+                product.getProductQuantities().stream()
+                        .filter(pq -> !pq.isDeleted())
+                        .collect(Collectors.toMap(
+                                ProductQuantity::getId,
+                                productQuantity -> new SizeQuantityResponse(
+                                        productQuantity.getProductSize().getName(),
+                                        productQuantity.getQuantity()
+                                )
+                        ))
         );
     }
 

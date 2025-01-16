@@ -17,6 +17,7 @@ import com.nextrad.vietphucstore.repositories.order.FeedbackRepo;
 import com.nextrad.vietphucstore.repositories.order.OrderDetailRepo;
 import com.nextrad.vietphucstore.repositories.product.*;
 import com.nextrad.vietphucstore.services.ProductService;
+import com.nextrad.vietphucstore.utils.BinaryUtil;
 import com.nextrad.vietphucstore.utils.ObjectMapperUtil;
 import com.nextrad.vietphucstore.utils.PageableUtil;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -39,14 +41,17 @@ public class ProductServiceImpl implements ProductService {
     private final OrderDetailRepo orderDetailRepo;
     private final PageableUtil pageableUtil;
     private final ObjectMapperUtil objectMapperUtil;
+    private final BinaryUtil binaryUtil;
 
     @Override
     public Page<SearchProduct> getProducts(String search, double minPrice, double maxPrice,
                                            String[] sizes, String[] types, String[] collections,
                                            PageableRequest request) {
-        Page<Product> products;
-        if (sizes.length != 0 && types.length != 0 && collections.length != 0) {
-            products = productRepo
+        //Check sizes, types, collections empty
+        int check = binaryUtil.checkBinary(sizes, types, collections);
+        //Switch case sizes, types, collections empty
+        Page<Product> products = switch (check) {
+            case 111 -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -57,8 +62,7 @@ public class ProductServiceImpl implements ProductService {
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
-        } else if (sizes.length != 0 && types.length != 0) {
-            products = productRepo
+            case 110 -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -68,8 +72,7 @@ public class ProductServiceImpl implements ProductService {
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
-        } else if (sizes.length != 0 && collections.length != 0) {
-            products = productRepo
+            case 101 -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -79,8 +82,16 @@ public class ProductServiceImpl implements ProductService {
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
-        } else if (types.length != 0 && collections.length != 0) {
-            products = productRepo
+            case 100 -> productRepo
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductQuantities_ProductSize_NameIn(
+                            search,
+                            minPrice,
+                            maxPrice,
+                            ProductStatus.DELETED,
+                            Arrays.asList(sizes),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+            case 11 -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductCollection_NameIn(
                             search,
                             minPrice,
@@ -90,18 +101,7 @@ public class ProductServiceImpl implements ProductService {
                             Arrays.asList(collections),
                             pageableUtil.getPageable(Product.class, request)
                     );
-        } else if (sizes.length != 0) {
-            products = productRepo
-                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductQuantities_ProductSize_NameIn(
-                            search,
-                            minPrice,
-                            maxPrice,
-                            ProductStatus.DELETED,
-                            Arrays.asList(sizes),
-                            pageableUtil.getPageable(Product.class, request)
-                    );
-        } else if (types.length != 0) {
-            products = productRepo
+            case 10 -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameIn(
                             search,
                             minPrice,
@@ -110,8 +110,7 @@ public class ProductServiceImpl implements ProductService {
                             Arrays.asList(types),
                             pageableUtil.getPageable(Product.class, request)
                     );
-        } else if (collections.length != 0) {
-            products = productRepo
+            case 1 -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductCollection_NameIn(
                             search,
                             minPrice,
@@ -120,8 +119,7 @@ public class ProductServiceImpl implements ProductService {
                             Arrays.asList(collections),
                             pageableUtil.getPageable(Product.class, request)
                     );
-        } else {
-            products = productRepo
+            default -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNot(
                             search,
                             minPrice,
@@ -129,22 +127,22 @@ public class ProductServiceImpl implements ProductService {
                             ProductStatus.DELETED,
                             pageableUtil.getPageable(Product.class, request)
                     );
-
-        }
-        return products.map(p -> objectMapperUtil.mapSearchProduct(
-                p, feedbackRepo
-                        .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(p.getId(), false)
-                        .stream().mapToDouble(Feedback::getRating).average().orElse(0)
-        ));
+        };
+        //Async map to SearchProduct
+        Page<CompletableFuture<SearchProduct>> futures = products.map(objectMapperUtil::mapSearchProduct);
+        return CompletableFuture.allOf(futures.getContent().toArray(CompletableFuture[]::new))
+                .thenApply(v -> futures.map(CompletableFuture::join)).join();
     }
 
     @Override
     public Page<SearchProductForStaff> getProductsForStaff(String search, double minPrice, double maxPrice,
                                                            String[] sizes, String[] types, String[] collections,
                                                            PageableRequest request) {
-        Page<Product> products;
-        if (sizes.length != 0 && types.length != 0 && collections.length != 0) {
-            products = productRepo
+        //Check sizes, types, collections empty
+        int check = binaryUtil.checkBinary(sizes, types, collections);
+        //Switch case sizes, types, collections empty
+        Page<Product> products = switch (check) {
+            case 111 -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -154,8 +152,7 @@ public class ProductServiceImpl implements ProductService {
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
-        } else if (sizes.length != 0 && types.length != 0) {
-            products = productRepo
+            case 110 -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -164,8 +161,7 @@ public class ProductServiceImpl implements ProductService {
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
-        } else if (sizes.length != 0 && collections.length != 0) {
-            products = productRepo
+            case 101 -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -174,8 +170,7 @@ public class ProductServiceImpl implements ProductService {
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
-        } else if (types.length != 0 && collections.length != 0) {
-            products = productRepo
+            case 11 -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductCollection_NameIn(
                             search,
                             minPrice,
@@ -184,8 +179,7 @@ public class ProductServiceImpl implements ProductService {
                             Arrays.asList(collections),
                             pageableUtil.getPageable(Product.class, request)
                     );
-        } else if (sizes.length != 0) {
-            products = productRepo
+            case 100 -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -193,8 +187,7 @@ public class ProductServiceImpl implements ProductService {
                             Arrays.asList(sizes),
                             pageableUtil.getPageable(Product.class, request)
                     );
-        } else if (types.length != 0) {
-            products = productRepo
+            case 10 -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameIn(
                             search,
                             minPrice,
@@ -202,8 +195,7 @@ public class ProductServiceImpl implements ProductService {
                             Arrays.asList(types),
                             pageableUtil.getPageable(Product.class, request)
                     );
-        } else if (collections.length != 0) {
-            products = productRepo
+            case 1 -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductCollection_NameIn(
                             search,
                             minPrice,
@@ -211,37 +203,31 @@ public class ProductServiceImpl implements ProductService {
                             Arrays.asList(collections),
                             pageableUtil.getPageable(Product.class, request)
                     );
-        } else {
-            products = productRepo
+            default -> productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetween(
                             search,
                             minPrice,
                             maxPrice,
                             pageableUtil.getPageable(Product.class, request)
                     );
-        }
-        return products.map(p -> objectMapperUtil.mapSearchProductForStaff(
-                p, feedbackRepo
-                        .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(p.getId(), false)
-                        .stream().mapToDouble(Feedback::getRating).average().orElse(0)
-        ));
+        };
+        Page<CompletableFuture<SearchProductForStaff>> futures = products.map(objectMapperUtil::mapSearchProductForStaff);
+        return CompletableFuture.allOf(futures.getContent().toArray(CompletableFuture[]::new))
+                .thenApply(v -> futures.map(CompletableFuture::join)).join();
     }
 
     @Override
     public ProductDetail getProduct(UUID id) {
-        return objectMapperUtil.mapProductDetail(
-                productRepo.findByIdAndStatusNotAndProductQuantities_Deleted(
-                        id,
-                        ProductStatus.DELETED,
-                        false
-                ).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
+        return objectMapperUtil.mapProductDetailForCustomer(
+                productRepo.findByIdAndStatusNot(id, ProductStatus.DELETED)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
         );
     }
 
     @Override
     public ProductDetail getProductForStaff(UUID id) {
         return objectMapperUtil.mapProductDetail(
-                productRepo.findByIdAndProductQuantities_Deleted(id, false)
+                productRepo.findById(id)
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
         );
     }

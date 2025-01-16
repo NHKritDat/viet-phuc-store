@@ -13,6 +13,7 @@ public record ProductDetail(
         double unitPrice,
         List<String> pictures,
         int weight,
+        double avgRating,
         ProductStatus status,
         String collectionName,
         String typeName,
