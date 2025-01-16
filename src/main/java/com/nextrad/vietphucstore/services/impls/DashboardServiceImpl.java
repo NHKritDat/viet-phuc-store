@@ -25,17 +25,21 @@ public class DashboardServiceImpl implements DashboardService {
         CompletableFuture<SumRevenue> sumRevenueAsync = dashboardServiceImplAsync.sumRevenueAsync();
 
         //Wait to get result from all async
-        CountUser countUser = countUsersAsync.join();
-        CountOrder countOrder = countOrdersAsync.join();
-        Long totalProductSold = totalProductSellAsync.join();
-        SumRevenue sumRevenue = sumRevenueAsync.join();
+        return CompletableFuture.allOf(countOrdersAsync, totalProductSellAsync, countUsersAsync, sumRevenueAsync)
+                .thenApply(v -> {
+                    //Get result
+                    CountUser countUser = countUsersAsync.join();
+                    CountOrder countOrder = countOrdersAsync.join();
+                    Long totalProductSold = totalProductSellAsync.join();
+                    SumRevenue sumRevenue = sumRevenueAsync.join();
 
-        //return result
-        return new DashboardResponse(
-                countUser.newUser(), countUser.oldUser(), countOrder.pending(), countOrder.pickup(),
-                countOrder.delivery(), countOrder.transit(), countOrder.delivered(), countOrder.canceled(),
-                totalProductSold, sumRevenue.thisWeek(), sumRevenue.lastWeek()
-        );
+                    //return result
+                    return new DashboardResponse(
+                            countUser.newUser(), countUser.oldUser(), countOrder.pending(), countOrder.pickup(),
+                            countOrder.delivery(), countOrder.transit(), countOrder.delivered(), countOrder.canceled(),
+                            totalProductSold, sumRevenue.thisWeek(), sumRevenue.lastWeek()
+                    );
+                }).join();
     }
 
 }
