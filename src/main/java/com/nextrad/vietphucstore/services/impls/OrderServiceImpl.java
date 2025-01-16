@@ -7,6 +7,7 @@ import com.nextrad.vietphucstore.entities.order.Cart;
 import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.order.Order;
 import com.nextrad.vietphucstore.entities.order.OrderDetail;
+import com.nextrad.vietphucstore.entities.product.Product;
 import com.nextrad.vietphucstore.entities.product.ProductQuantity;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
 import com.nextrad.vietphucstore.enums.order.OrderStatus;
@@ -18,6 +19,7 @@ import com.nextrad.vietphucstore.repositories.order.OrderRepo;
 import com.nextrad.vietphucstore.repositories.product.ProductQuantityRepo;
 import com.nextrad.vietphucstore.repositories.user.UserRepo;
 import com.nextrad.vietphucstore.services.OrderService;
+import com.nextrad.vietphucstore.services.impls.async.OrderServiceImplAsync;
 import com.nextrad.vietphucstore.utils.EmailUtil;
 import com.nextrad.vietphucstore.utils.IdUtil;
 import com.nextrad.vietphucstore.utils.ObjectMapperUtil;
@@ -41,6 +43,7 @@ public class OrderServiceImpl implements OrderService {
     private final FeedbackRepo feedbackRepo;
     private final UserRepo userRepo;
     private final ProductQuantityRepo productQuantityRepo;
+    private final OrderServiceImplAsync orderServiceImplAsync;
     private final PageableUtil pageableUtil;
     private final IdUtil idUtil;
     private final ObjectMapperUtil objectMapperUtil;
@@ -189,29 +192,25 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public FeedbackResponse doFeedback(UUID orderDetailId, FeedbackRequest request) {
-        Optional<Feedback> feedback = feedbackRepo.findByOrderDetail_Id(orderDetailId);
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (feedback.isPresent()) {
-            if (!feedback.get().getOrderDetail().getOrder().getUser().getEmail().equals(email))
-                throw new AppException(ErrorCode.NO_PERMISSION);
-            return objectMapperUtil.mapFeedbackResponse(
-                    feedbackRepo.save(
-                            objectMapperUtil.mapFeedback(request, feedback.get())
-                    )
-            );
-        } else {
-            OrderDetail orderDetail = orderDetailRepo.findById(orderDetailId)
-                    .orElseThrow(() -> new AppException(ErrorCode.ORDER_DETAIL_NOT_FOUND));
-            if (!orderDetail.getOrder().getUser().getEmail().equals(email))
-                throw new AppException(ErrorCode.NO_PERMISSION);
-            Feedback newFeedback = new Feedback();
-            newFeedback.setOrderDetail(orderDetail);
-            return objectMapperUtil.mapFeedbackResponse(
-                    feedbackRepo.save(
-                            objectMapperUtil.mapFeedback(request, newFeedback)
-                    )
-            );
-        }
+        //Get order detail
+        OrderDetail orderDetail = orderDetailRepo.findById(orderDetailId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_DETAIL_NOT_FOUND));
+
+        //Check correct user order the product
+        if (!orderDetail.getOrder().getUser().getEmail().equals(SecurityContextHolder.getContext().getAuthentication().getName()))
+            throw new AppException(ErrorCode.NO_PERMISSION);
+
+        //Save feedback
+        Feedback feedback = feedbackRepo.save(objectMapperUtil.mapFeedback(request, new Feedback(), orderDetail));
+
+        //Update avg rating of product async
+        Product product = orderDetail.getProductQuantity().getProduct();
+        orderServiceImplAsync.avgRating(product.getId())
+                .thenComposeAsync(rating ->
+                        orderServiceImplAsync.assignRating(product, rating)
+                );
+
+        return objectMapperUtil.mapFeedbackResponse(feedback);
     }
 
     @Override

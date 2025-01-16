@@ -70,6 +70,17 @@ public class ObjectMapperUtil {
         return feedback;
     }
 
+    public Feedback mapFeedback(FeedbackRequest request, Feedback feedback, OrderDetail orderDetail) {
+        if (orderDetail.getFeedback() != null)
+            feedback = orderDetail.getFeedback();
+        else
+            //If feedback not exist, create new one
+            feedback.setOrderDetail(orderDetail);
+        feedback.setRating(request.rating());
+        feedback.setContent(request.content());
+        return feedback;
+    }
+
     public CartInfo mapCartInfo(Cart cart) {
         return new CartInfo(
                 cart.getProductQuantity().getId(),
