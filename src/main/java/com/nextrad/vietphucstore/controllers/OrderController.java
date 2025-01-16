@@ -1,10 +1,10 @@
 package com.nextrad.vietphucstore.controllers;
 
-import com.nextrad.vietphucstore.dtos.requests.order.*;
-import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.responses.order.*;
-import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
-import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
+import com.nextrad.vietphucstore.dtos.requests.api.order.*;
+import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
+import com.nextrad.vietphucstore.dtos.responses.api.order.*;
+import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiItemResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiListItemResponse;
 import com.nextrad.vietphucstore.services.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -70,13 +70,13 @@ public class OrderController {
     }
 
     @GetMapping("/order-details/current")
-    public ResponseEntity<ApiListItemResponse<OrderHistory>> getHistoryOrders(
+    public ResponseEntity<ApiListItemResponse<HistoryOrderProduct>> getHistoryOrderProducts(
             @RequestParam(defaultValue = "1", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int size,
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
             @RequestParam(defaultValue = "id", required = false) String... properties
     ) {
-        Page<OrderHistory> response = orderService.getHistoryOrders(
+        Page<HistoryOrderProduct> response = orderService.getHistoryOrderProducts(
                 new PageableRequest(page - 1, size, direction, properties)
         );
         return ResponseEntity.ok(new ApiListItemResponse<>(

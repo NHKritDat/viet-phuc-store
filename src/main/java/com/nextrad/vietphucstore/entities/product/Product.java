@@ -53,6 +53,8 @@ public class Product {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
     private Set<ProductQuantity> productQuantities = new LinkedHashSet<>();
 
+    private double avgRating = 0.0;
+
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
