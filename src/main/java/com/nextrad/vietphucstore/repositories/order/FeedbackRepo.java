@@ -28,4 +28,6 @@ public interface FeedbackRepo extends JpaRepository<Feedback, UUID> {
                     "and f.orderDetail.productQuantity.product.id=:productId"
     )
     double avgRatingByProductId(@Param("productId") UUID productId);
+
+    List<Feedback> findByOrderDetail_ProductQuantity_Product_Id(UUID id);
 }

@@ -6,6 +6,7 @@ import com.nextrad.vietphucstore.dtos.requests.api.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackSummary;
 import com.nextrad.vietphucstore.dtos.responses.api.product.*;
 import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiListItemResponse;
@@ -388,15 +389,15 @@ public class ProductController {
         return ResponseEntity.ok(new ApiItemResponse<>(null, productService.deleteProductCollection(id)));
     }
 
-    @GetMapping("/{productId}/feedbacks")
+    @GetMapping("/{id}/feedbacks")
     public ResponseEntity<ApiListItemResponse<FeedbackResponse>> getFeedbacks(
-            @PathVariable UUID productId,
+            @PathVariable UUID id,
             @RequestParam(defaultValue = "1", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int size,
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
             @RequestParam(defaultValue = "id", required = false) String... properties
     ) {
-        Page<FeedbackResponse> response = productService.getFeedbacks(productId,
+        Page<FeedbackResponse> response = productService.getFeedbacks(id,
                 new PageableRequest(page - 1, size, direction, properties));
         return ResponseEntity.ok(new ApiListItemResponse<>(
                 response.getContent(),
@@ -408,16 +409,16 @@ public class ProductController {
         ));
     }
 
-    @GetMapping("/{productId}/feedbacks/staff")
+    @GetMapping("/{id}/feedbacks/staff")
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiListItemResponse<FeedbackResponse>> getFeedbacksForStaff(
-            @PathVariable UUID productId,
+            @PathVariable UUID id,
             @RequestParam(defaultValue = "1", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int size,
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
             @RequestParam(defaultValue = "id", required = false) String... properties
     ) {
-        Page<FeedbackResponse> response = productService.getFeedbacksForStaff(productId,
+        Page<FeedbackResponse> response = productService.getFeedbacksForStaff(id,
                 new PageableRequest(page - 1, size, direction, properties));
         return ResponseEntity.ok(new ApiListItemResponse<>(
                 response.getContent(),
@@ -451,5 +452,22 @@ public class ProductController {
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiItemResponse<String>> reactiveProductSize(@PathVariable UUID id) {
         return ResponseEntity.ok(new ApiItemResponse<>(null, productService.reactiveProductSize(id)));
+    }
+
+    @GetMapping("/{id}/feedbacks/summary")
+    public ResponseEntity<ApiItemResponse<FeedbackSummary>> getFeedbackSummary(@PathVariable UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.getFeedbackSummary(id),
+                "Đây là tổng quan đánh giá sản phẩm"
+        ));
+    }
+
+    @GetMapping("/{id}/feedbacks/summary/staff")
+    @PreAuthorize("hasAuthority('STAFF')")
+    public ResponseEntity<ApiItemResponse<FeedbackSummary>> getFeedbackSummaryForStaff(@PathVariable UUID id) {
+        return ResponseEntity.ok(new ApiItemResponse<>(
+                productService.getFeedbackSummaryForStaff(id),
+                "Đây là tổng quan đánh giá sản phẩm"
+        ));
     }
 }

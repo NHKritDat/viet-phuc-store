@@ -30,6 +30,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -38,6 +40,19 @@ import java.util.stream.Collectors;
 public class ObjectMapperUtil {
     private final ImagesUtil imagesUtil;
     private final PasswordEncoder passwordEncoder;
+
+    public FeedbackSummary mapFeedbackSummary(List<Feedback> feedbacks) {
+        Map<Integer, Long> ratingCounts = feedbacks.stream()
+                .collect(Collectors.groupingBy(Feedback::getRating, Collectors.counting()));
+        return new FeedbackSummary(
+                ratingCounts.getOrDefault(5, 0L),
+                ratingCounts.getOrDefault(4, 0L),
+                ratingCounts.getOrDefault(3, 0L),
+                ratingCounts.getOrDefault(2, 0L),
+                ratingCounts.getOrDefault(1, 0L),
+                feedbacks.size()
+        );
+    }
 
     @Async
     public CompletableFuture<HistoryOrderProduct> mapHistoryOrderHistory(OrderDetail od) {

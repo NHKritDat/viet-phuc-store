@@ -6,6 +6,7 @@ import com.nextrad.vietphucstore.dtos.requests.api.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackSummary;
 import com.nextrad.vietphucstore.dtos.responses.api.product.*;
 import com.nextrad.vietphucstore.entities.product.ProductSize;
 import com.nextrad.vietphucstore.entities.product.ProductType;
@@ -84,4 +85,8 @@ public interface ProductService {
     String reactiveProductSize(UUID id);
 
     List<TopProduct> getTopProduct(PageableRequest pageableRequest);
+
+    FeedbackSummary getFeedbackSummary(UUID id);
+
+    FeedbackSummary getFeedbackSummaryForStaff(UUID id);
 }

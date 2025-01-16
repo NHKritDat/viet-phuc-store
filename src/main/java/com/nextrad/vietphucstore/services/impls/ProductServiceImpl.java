@@ -7,6 +7,7 @@ import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.requests.inner.product.TopProductRequest;
 import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackSummary;
 import com.nextrad.vietphucstore.dtos.responses.api.product.*;
 import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.product.*;
@@ -312,8 +313,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductSize> getSizes(PageableRequest request) {
-        return productSizeRepo.findByDeleted(false,
-                pageableUtil.getPageable(ProductSize.class, request));
+        return productSizeRepo.findByDeleted(false, pageableUtil.getPageable(ProductSize.class, request));
     }
 
     @Override
@@ -353,8 +353,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductType> getProductTypes(PageableRequest request) {
-        return productTypeRepo.findByDeleted(false,
-                pageableUtil.getPageable(ProductType.class, request));
+        return productTypeRepo.findByDeleted(false, pageableUtil.getPageable(ProductType.class, request));
     }
 
     @Override
@@ -438,8 +437,7 @@ public class ProductServiceImpl implements ProductService {
                         objectMapperUtil.mapProductCollection(
                                 request,
                                 productCollectionRepo.findById(id)
-                                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)
-                                        )
+                                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
                         )
                 )
         );
@@ -525,6 +523,20 @@ public class ProductServiceImpl implements ProductService {
                                         false)
                                 .stream().mapToDouble(Feedback::getRating).average().orElse(0)
                 )).toList();
+    }
+
+    @Override
+    public FeedbackSummary getFeedbackSummary(UUID id) {
+        return objectMapperUtil.mapFeedbackSummary(
+                feedbackRepo.findByOrderDetail_ProductQuantity_Product_IdAndDeleted(id, false)
+        );
+    }
+
+    @Override
+    public FeedbackSummary getFeedbackSummaryForStaff(UUID id) {
+        return objectMapperUtil.mapFeedbackSummary(
+                feedbackRepo.findByOrderDetail_ProductQuantity_Product_Id(id)
+        );
     }
 
 }
