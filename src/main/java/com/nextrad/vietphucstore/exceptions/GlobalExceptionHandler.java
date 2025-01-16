@@ -1,6 +1,6 @@
 package com.nextrad.vietphucstore.exceptions;
 
-import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiItemResponse;
 import org.hibernate.LazyInitializationException;
 import org.springframework.aop.AopInvocationException;
 import org.springframework.core.convert.ConverterNotFoundException;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.sql.SQLException;
+import java.util.concurrent.CompletionException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -70,6 +71,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnsupportedOperationException.class)
     public ResponseEntity<ApiItemResponse<String>> handleUnsupportedOperationException(UnsupportedOperationException e) {
+        return ResponseEntity.status(500)
+                .body(new ApiItemResponse<>(e.getClass().getName(), e.getMessage()));
+    }
+
+    @ExceptionHandler(CompletionException.class)
+    public ResponseEntity<ApiItemResponse<String>> handleCompletionException(CompletionException e) {
         return ResponseEntity.status(500)
                 .body(new ApiItemResponse<>(e.getClass().getName(), e.getMessage()));
     }

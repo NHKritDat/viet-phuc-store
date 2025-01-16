@@ -1,14 +1,15 @@
 package com.nextrad.vietphucstore.configs;
 
-import com.nextrad.vietphucstore.entities.user.User;
 import com.nextrad.vietphucstore.enums.user.UserRole;
 import com.nextrad.vietphucstore.enums.user.UserStatus;
-import com.nextrad.vietphucstore.repositories.user.UserRepository;
+import com.nextrad.vietphucstore.services.UserService;
 import com.nextrad.vietphucstore.services.ViettelService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -17,18 +18,10 @@ public class ApplicationInitConfig {
     private String adminEmail;
 
     @Bean
-    public ApplicationRunner applicationRunner(UserRepository userRepository, ViettelService viettelService) {
+    public ApplicationRunner applicationRunner(UserService userService, ViettelService viettelService) {
         return args -> {
-            if (userRepository.findByEmail(adminEmail).isEmpty()) {
-                User user = new User();
-                user.setName("admin");
-                user.setEmail(adminEmail);
-                user.setRole(UserRole.STAFF);
-                user.setStatus(UserStatus.VERIFIED);
-                user.setCreatedBy(adminEmail);
-                user.setUpdatedBy(adminEmail);
-                userRepository.save(user);
-            }
+            if (!userService.isEmailExist(adminEmail))
+                userService.createDefaultUser(adminEmail, UserRole.STAFF, UserStatus.VERIFIED);
             viettelService.setToken(viettelService.getAccessToken());
         };
     }
@@ -36,5 +29,10 @@ public class ApplicationInitConfig {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(12);
     }
 }

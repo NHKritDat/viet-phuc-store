@@ -53,4 +53,6 @@ public class OrderDetail {
     @Column(nullable = false)
     private Date updatedDate;
 
+    @OneToOne(mappedBy = "orderDetail", optional = false)
+    private Feedback feedback;
 }

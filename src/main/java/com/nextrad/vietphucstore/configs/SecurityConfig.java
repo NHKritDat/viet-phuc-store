@@ -32,6 +32,7 @@ public class SecurityConfig {
             "/products/top",
             "/products/{id}",
             "/products/{id}/feedbacks",
+            "/products/{id}/feedbacks/summary",
             "/products/sizes",
             "/products/types",
             "/products/collections",

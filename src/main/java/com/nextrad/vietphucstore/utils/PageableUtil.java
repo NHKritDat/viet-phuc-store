@@ -1,14 +1,15 @@
 package com.nextrad.vietphucstore.utils;
 
-import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
+import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
+import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class PageableUtil {
@@ -19,12 +20,8 @@ public class PageableUtil {
     }
 
     private <T> String[] validProperties(Class<T> t, String... properties) {
-        List<String> validProperties = new ArrayList<>();
-        //Check field contains in class
-        for (String property : properties) {
-            if (Arrays.stream(t.getDeclaredFields()).anyMatch(field -> field.getName().equals(property)))
-                validProperties.add(property);
-        }
-        return validProperties.toArray(String[]::new);
+        Set<String> fieldNames = Arrays.stream(t.getDeclaredFields()).map(Field::getName).collect(Collectors.toSet());
+        String[] validProperties = Arrays.stream(properties).filter(fieldNames::contains).toArray(String[]::new);
+        return validProperties.length > 0 ? validProperties : new String[]{"id"};
     }
 }

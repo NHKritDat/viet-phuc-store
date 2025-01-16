@@ -1,13 +1,13 @@
 package com.nextrad.vietphucstore.controllers;
 
-import com.nextrad.vietphucstore.dtos.requests.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.requests.user.*;
-import com.nextrad.vietphucstore.dtos.responses.standard.ApiItemResponse;
-import com.nextrad.vietphucstore.dtos.responses.standard.ApiListItemResponse;
-import com.nextrad.vietphucstore.dtos.responses.user.LoginResponse;
-import com.nextrad.vietphucstore.dtos.responses.user.SearchUser;
-import com.nextrad.vietphucstore.dtos.responses.user.TokenResponse;
-import com.nextrad.vietphucstore.dtos.responses.user.UserDetail;
+import com.nextrad.vietphucstore.dtos.requests.api.user.*;
+import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
+import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiItemResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiListItemResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.user.SearchUser;
+import com.nextrad.vietphucstore.dtos.responses.api.user.TokenResponse;
+import com.nextrad.vietphucstore.dtos.responses.api.user.UserDetail;
+import com.nextrad.vietphucstore.dtos.responses.inner.user.LoginResponse;
 import com.nextrad.vietphucstore.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
