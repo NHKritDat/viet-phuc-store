@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface FeedbackRepo extends JpaRepository<Feedback, UUID> {
+public interface FeedbackRepository extends JpaRepository<Feedback, UUID> {
     Optional<Feedback> findByOrderDetail_Id(UUID orderDetailId);
 
     Page<Feedback> findByOrderDetail_ProductQuantity_Product_IdAndDeleted(UUID orderDetailProductQuantityProductId, boolean deleted, Pageable pageable);

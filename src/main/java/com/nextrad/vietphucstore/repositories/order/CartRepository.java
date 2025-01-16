@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface CartRepo extends JpaRepository<Cart, UUID> {
+public interface CartRepository extends JpaRepository<Cart, UUID> {
     Optional<Cart> findByProductQuantity_Id(UUID productQuantityId);
 
     Page<Cart> findByUser_Email(String userEmail, Pageable pageable);

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface TokenRepo extends JpaRepository<Token, UUID> {
+public interface TokenRepository extends JpaRepository<Token, UUID> {
     boolean existsByIdAndAvailable(UUID id, boolean available);
 }
