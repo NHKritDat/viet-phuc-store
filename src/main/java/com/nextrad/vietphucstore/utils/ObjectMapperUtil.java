@@ -39,20 +39,16 @@ public class ObjectMapperUtil {
     private final ImagesUtil imagesUtil;
     private final PasswordEncoder passwordEncoder;
 
-    public OrderHistory mapOrderHistory(OrderDetail od, boolean feedback) {
-        return new OrderHistory(
-                od.getOrder().getId(),
-                od.getId(),
-                imagesUtil.convertStringToImages(od
-                        .getProductQuantity().getProduct().getPictures()).get(0),
-                od.getProductQuantity().getProduct().getName(),
-                od.getOrder().getPaymentMethod(),
-                od.getProductQuantity().getProductSize().getName(),
-                od.getQuantity(),
-                od.getProductQuantity().getProduct().getUnitPrice(),
-                od.getOrder().getShippingFee(),
-                feedback
-        );
+    @Async
+    public CompletableFuture<HistoryOrderProduct> mapHistoryOrderHistory(OrderDetail od) {
+        return CompletableFuture.completedFuture(new HistoryOrderProduct(
+                od.getOrder().getId(), od.getId(),
+                imagesUtil.convertStringToImages(od.getProductQuantity().getProduct().getPictures()).get(0),
+                od.getProductQuantity().getProduct().getName(), od.getOrder().getPaymentMethod(),
+                od.getProductQuantity().getProductSize().getName(), od.getQuantity(),
+                od.getProductQuantity().getProduct().getUnitPrice(), od.getOrder().getShippingFee(),
+                od.getFeedback() != null, od.getProductQuantity().getProduct().getId()
+        ));
     }
 
     public FeedbackResponse mapFeedbackResponse(Feedback feedback) {

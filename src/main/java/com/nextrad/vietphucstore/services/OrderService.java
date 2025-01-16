@@ -20,7 +20,7 @@ public interface OrderService {
 
     String previousStatus(String orderId);
 
-    Page<OrderHistory> getHistoryOrders(PageableRequest request);
+    Page<HistoryOrderProduct> getHistoryOrderProducts(PageableRequest request);
 
     FeedbackResponse doFeedback(UUID orderDetailId, FeedbackRequest request);
 

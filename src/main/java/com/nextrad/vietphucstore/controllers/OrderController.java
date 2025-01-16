@@ -70,13 +70,13 @@ public class OrderController {
     }
 
     @GetMapping("/order-details/current")
-    public ResponseEntity<ApiListItemResponse<OrderHistory>> getHistoryOrders(
+    public ResponseEntity<ApiListItemResponse<HistoryOrderProduct>> getHistoryOrderProducts(
             @RequestParam(defaultValue = "1", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int size,
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
             @RequestParam(defaultValue = "id", required = false) String... properties
     ) {
-        Page<OrderHistory> response = orderService.getHistoryOrders(
+        Page<HistoryOrderProduct> response = orderService.getHistoryOrderProducts(
                 new PageableRequest(page - 1, size, direction, properties)
         );
         return ResponseEntity.ok(new ApiListItemResponse<>(

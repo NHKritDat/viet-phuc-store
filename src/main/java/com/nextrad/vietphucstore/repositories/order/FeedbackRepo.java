@@ -22,8 +22,6 @@ public interface FeedbackRepo extends JpaRepository<Feedback, UUID> {
 
     List<Feedback> findByOrderDetail_ProductQuantity_Product_IdAndDeleted(UUID orderDetailProductQuantityProductId, boolean deleted);
 
-    boolean existsByOrderDetail_Id(UUID orderDetailId);
-
     @Query(
             value = "select avg(f.rating) from Feedback f " +
                     "where f.deleted=false " +

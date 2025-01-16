@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -178,16 +179,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<OrderHistory> getHistoryOrders(PageableRequest request) {
+    public Page<HistoryOrderProduct> getHistoryOrderProducts(PageableRequest request) {
         Page<OrderDetail> orderDetails = orderDetailRepo
                 .findByOrder_User_EmailAndOrder_Status(
                         SecurityContextHolder.getContext().getAuthentication().getName(),
                         OrderStatus.DELIVERED,
                         pageableUtil.getPageable(OrderDetail.class, request)
                 );
-        return orderDetails.map(od ->
-                objectMapperUtil.mapOrderHistory(od, feedbackRepo.existsByOrderDetail_Id(od.getId()))
-        );
+        Page<CompletableFuture<HistoryOrderProduct>> futures = orderDetails.map(objectMapperUtil::mapHistoryOrderHistory);
+        return CompletableFuture.allOf(futures.getContent().toArray(CompletableFuture[]::new))
+                .thenApply(v -> futures.map(CompletableFuture::join)).join();
     }
 
     @Override
