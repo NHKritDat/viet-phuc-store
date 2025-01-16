@@ -1,4 +1,4 @@
-package com.nextrad.vietphucstore.services.imps;
+package com.nextrad.vietphucstore.services.impls;
 
 import com.nextrad.vietphucstore.dtos.requests.api.viettel.GetServicesRequest;
 import com.nextrad.vietphucstore.dtos.requests.api.viettel.PricingRequest;
@@ -29,7 +29,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class ViettelServiceImplement implements ViettelService {
+public class ViettelServiceImpl implements ViettelService {
     private final RestTemplate restTemplate;
     @Getter
     @Setter

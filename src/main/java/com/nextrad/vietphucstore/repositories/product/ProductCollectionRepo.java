@@ -1,6 +1,6 @@
 package com.nextrad.vietphucstore.repositories.product;
 
-import com.nextrad.vietphucstore.entities.product.ProductSize;
+import com.nextrad.vietphucstore.entities.product.ProductCollection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,8 +10,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ProductSizeRepository extends JpaRepository<ProductSize, UUID> {
-    Page<ProductSize> findByDeleted(boolean deleted, Pageable pageable);
+public interface ProductCollectionRepo extends JpaRepository<ProductCollection, UUID> {
+    Optional<ProductCollection> findByIdAndDeleted(UUID id, boolean deleted);
 
-    Optional<ProductSize> findByIdAndDeleted(UUID id, boolean deleted);
+    Page<ProductCollection> findByDeleted(boolean deleted, Pageable pageable);
 }

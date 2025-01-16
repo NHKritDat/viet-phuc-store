@@ -1,10 +1,11 @@
-package com.nextrad.vietphucstore.services.imps;
+package com.nextrad.vietphucstore.services.impls;
 
 import com.nextrad.vietphucstore.dtos.responses.api.dashboard.DashboardResponse;
 import com.nextrad.vietphucstore.dtos.responses.inner.dashboard.CountOrder;
 import com.nextrad.vietphucstore.dtos.responses.inner.dashboard.CountUser;
 import com.nextrad.vietphucstore.dtos.responses.inner.dashboard.SumRevenue;
 import com.nextrad.vietphucstore.services.DashboardService;
+import com.nextrad.vietphucstore.services.impls.async.DashboardServiceImplAsync;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
-public class DashboardServiceImplement implements DashboardService {
+public class DashboardServiceImpl implements DashboardService {
     private final DashboardServiceImplAsync dashboardServiceImplAsync;
 
     @Override

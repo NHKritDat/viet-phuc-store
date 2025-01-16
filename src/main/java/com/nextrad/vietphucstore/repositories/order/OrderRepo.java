@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, String> {
+public interface OrderRepo extends JpaRepository<Order, String> {
     Page<Order> findByEmailContainingIgnoreCase(String email, Pageable pageable);
 
     Page<Order> findByUser_Email(String userEmail, Pageable pageable);

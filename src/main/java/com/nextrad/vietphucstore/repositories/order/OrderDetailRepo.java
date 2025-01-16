@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface OrderDetailRepository extends JpaRepository<OrderDetail, UUID> {
+public interface OrderDetailRepo extends JpaRepository<OrderDetail, UUID> {
     Page<OrderDetail> findByOrder_User_EmailAndOrder_Status(String orderUserEmail, OrderStatus orderStatus, Pageable pageable);
 
     @Query(

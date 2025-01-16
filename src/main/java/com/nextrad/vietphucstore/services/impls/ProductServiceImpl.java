@@ -1,4 +1,4 @@
-package com.nextrad.vietphucstore.services.imps;
+package com.nextrad.vietphucstore.services.impls;
 
 import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyCollectionRequest;
 import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyProductRequest;
@@ -13,8 +13,8 @@ import com.nextrad.vietphucstore.entities.product.*;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
 import com.nextrad.vietphucstore.enums.product.ProductStatus;
 import com.nextrad.vietphucstore.exceptions.AppException;
-import com.nextrad.vietphucstore.repositories.order.FeedbackRepository;
-import com.nextrad.vietphucstore.repositories.order.OrderDetailRepository;
+import com.nextrad.vietphucstore.repositories.order.FeedbackRepo;
+import com.nextrad.vietphucstore.repositories.order.OrderDetailRepo;
 import com.nextrad.vietphucstore.repositories.product.*;
 import com.nextrad.vietphucstore.services.ProductService;
 import com.nextrad.vietphucstore.utils.ObjectMapperUtil;
@@ -29,14 +29,14 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ProductServiceImplement implements ProductService {
-    private final ProductRepository productRepository;
-    private final ProductTypeRepository productTypeRepository;
-    private final ProductCollectionRepository productCollectionRepository;
-    private final ProductSizeRepository productSizeRepository;
-    private final ProductQuantityRepository productQuantityRepository;
-    private final FeedbackRepository feedbackRepository;
-    private final OrderDetailRepository orderDetailRepository;
+public class ProductServiceImpl implements ProductService {
+    private final ProductRepo productRepo;
+    private final ProductTypeRepo productTypeRepo;
+    private final ProductCollectionRepo productCollectionRepo;
+    private final ProductSizeRepo productSizeRepo;
+    private final ProductQuantityRepo productQuantityRepo;
+    private final FeedbackRepo feedbackRepo;
+    private final OrderDetailRepo orderDetailRepo;
     private final PageableUtil pageableUtil;
     private final ObjectMapperUtil objectMapperUtil;
 
@@ -46,7 +46,7 @@ public class ProductServiceImplement implements ProductService {
                                            PageableRequest request) {
         Page<Product> products;
         if (sizes.length != 0 && types.length != 0 && collections.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -58,7 +58,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (sizes.length != 0 && types.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -69,7 +69,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (sizes.length != 0 && collections.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -80,7 +80,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (types.length != 0 && collections.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductCollection_NameIn(
                             search,
                             minPrice,
@@ -91,7 +91,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (sizes.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -101,7 +101,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (types.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameIn(
                             search,
                             minPrice,
@@ -111,7 +111,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (collections.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductCollection_NameIn(
                             search,
                             minPrice,
@@ -121,7 +121,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNot(
                             search,
                             minPrice,
@@ -132,7 +132,7 @@ public class ProductServiceImplement implements ProductService {
 
         }
         return products.map(p -> objectMapperUtil.mapSearchProduct(
-                p, feedbackRepository
+                p, feedbackRepo
                         .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(p.getId(), false)
                         .stream().mapToDouble(Feedback::getRating).average().orElse(0)
         ));
@@ -144,7 +144,7 @@ public class ProductServiceImplement implements ProductService {
                                                            PageableRequest request) {
         Page<Product> products;
         if (sizes.length != 0 && types.length != 0 && collections.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -155,7 +155,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (sizes.length != 0 && types.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -165,7 +165,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (sizes.length != 0 && collections.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -175,7 +175,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (types.length != 0 && collections.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameInAndProductCollection_NameIn(
                             search,
                             minPrice,
@@ -185,7 +185,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (sizes.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductQuantities_ProductSize_NameIn(
                             search,
                             minPrice,
@@ -194,7 +194,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (types.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductType_NameIn(
                             search,
                             minPrice,
@@ -203,7 +203,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else if (collections.length != 0) {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndProductCollection_NameIn(
                             search,
                             minPrice,
@@ -212,7 +212,7 @@ public class ProductServiceImplement implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         } else {
-            products = productRepository
+            products = productRepo
                     .findByNameContainsIgnoreCaseAndUnitPriceBetween(
                             search,
                             minPrice,
@@ -221,7 +221,7 @@ public class ProductServiceImplement implements ProductService {
                     );
         }
         return products.map(p -> objectMapperUtil.mapSearchProductForStaff(
-                p, feedbackRepository
+                p, feedbackRepo
                         .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(p.getId(), false)
                         .stream().mapToDouble(Feedback::getRating).average().orElse(0)
         ));
@@ -230,7 +230,7 @@ public class ProductServiceImplement implements ProductService {
     @Override
     public ProductDetail getProduct(UUID id) {
         return objectMapperUtil.mapProductDetail(
-                productRepository.findByIdAndStatusNotAndProductQuantities_Deleted(
+                productRepo.findByIdAndStatusNotAndProductQuantities_Deleted(
                         id,
                         ProductStatus.DELETED,
                         false
@@ -241,19 +241,19 @@ public class ProductServiceImplement implements ProductService {
     @Override
     public ProductDetail getProductForStaff(UUID id) {
         return objectMapperUtil.mapProductDetail(
-                productRepository.findByIdAndProductQuantities_Deleted(id, false)
+                productRepo.findByIdAndProductQuantities_Deleted(id, false)
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
         );
     }
 
     @Override
     public ProductDetail createProduct(ModifyProductRequest request) {
-        Product product = productRepository.save(
+        Product product = productRepo.save(
                 objectMapperUtil.mapProduct(
-                        request, new Product(), productTypeRepository
+                        request, new Product(), productTypeRepo
                                 .findByIdAndDeleted(request.typeId(), false)
                                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND)),
-                        request.collectionId() != null ? productCollectionRepository
+                        request.collectionId() != null ? productCollectionRepo
                                 .findByIdAndDeleted(request.collectionId(), false)
                                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
                                 : null
@@ -263,14 +263,14 @@ public class ProductServiceImplement implements ProductService {
         request.sizeQuantities().forEach((sizeId, quantity) -> {
             ProductQuantity productQuantity = new ProductQuantity();
             productQuantity.setProduct(product);
-            productQuantity.setProductSize(productSizeRepository.findByIdAndDeleted(sizeId, false)
+            productQuantity.setProductSize(productSizeRepo.findByIdAndDeleted(sizeId, false)
                     .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND)));
             productQuantity.setQuantity(quantity);
-            productQuantityRepository.save(productQuantity);
+            productQuantityRepo.save(productQuantity);
         });
 
         return objectMapperUtil.mapProductDetail(
-                productRepository.findById(product.getId())
+                productRepo.findById(product.getId())
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND))
         );
     }
@@ -278,13 +278,13 @@ public class ProductServiceImplement implements ProductService {
     @Override
     public ProductDetail updateProduct(UUID id, ModifyProductRequest request) {
         Product product = objectMapperUtil.mapProduct(
-                request, productRepository
+                request, productRepo
                         .findById(id)
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)),
-                productTypeRepository
+                productTypeRepo
                         .findByIdAndDeleted(request.typeId(), false)
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND)),
-                request.collectionId() != null ? productCollectionRepository
+                request.collectionId() != null ? productCollectionRepo
                         .findByIdAndDeleted(request.collectionId(), false)
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
                         : null
@@ -293,7 +293,7 @@ public class ProductServiceImplement implements ProductService {
         product.getProductQuantities().forEach(pq -> {
             if (!request.sizeQuantities().containsKey(pq.getProductSize().getId())) {
                 pq.setDeleted(true);
-                productQuantityRepository.save(pq);
+                productQuantityRepo.save(pq);
             }
         });
 
@@ -303,41 +303,41 @@ public class ProductServiceImplement implements ProductService {
                     .findFirst().orElseGet(() -> {
                         ProductQuantity pq = new ProductQuantity();
                         pq.setProduct(product);
-                        pq.setProductSize(productSizeRepository.findByIdAndDeleted(sizeId, false)
+                        pq.setProductSize(productSizeRepo.findByIdAndDeleted(sizeId, false)
                                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND)));
                         return pq;
                     });
             productQuantity.setQuantity(quantity);
             productQuantity.setDeleted(false);
-            productQuantityRepository.save(productQuantity);
+            productQuantityRepo.save(productQuantity);
         });
 
-        return objectMapperUtil.mapProductDetail(productRepository.save(product));
+        return objectMapperUtil.mapProductDetail(productRepo.save(product));
     }
 
     @Override
     public String deleteProduct(UUID id) {
-        Product product = productRepository.findByIdAndStatusNot(id, ProductStatus.DELETED)
+        Product product = productRepo.findByIdAndStatusNot(id, ProductStatus.DELETED)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         product.setStatus(ProductStatus.DELETED);
-        productRepository.save(product);
+        productRepo.save(product);
         return "Sản phẩm đã được xóa.";
     }
 
     @Override
     public Page<ProductSize> getSizes(PageableRequest request) {
-        return productSizeRepository.findByDeleted(false,
+        return productSizeRepo.findByDeleted(false,
                 pageableUtil.getPageable(ProductSize.class, request));
     }
 
     @Override
     public Page<ProductSize> getSizesForStaff(PageableRequest request) {
-        return productSizeRepository.findAll(pageableUtil.getPageable(ProductSize.class, request));
+        return productSizeRepo.findAll(pageableUtil.getPageable(ProductSize.class, request));
     }
 
     @Override
     public ProductSize getSize(UUID id) {
-        return productSizeRepository.findById(id)
+        return productSizeRepo.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND));
     }
 
@@ -345,40 +345,40 @@ public class ProductServiceImplement implements ProductService {
     public ProductSize createProductSize(ModifySizeRequest request) {
         ProductSize size = new ProductSize();
         size.setName(request.name());
-        return productSizeRepository.save(size);
+        return productSizeRepo.save(size);
     }
 
     @Override
     public ProductSize updateProductSize(UUID id, ModifySizeRequest request) {
-        ProductSize size = productSizeRepository.findById(id)
+        ProductSize size = productSizeRepo.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND));
         size.setName(request.name());
-        return productSizeRepository.save(size);
+        return productSizeRepo.save(size);
     }
 
     @Override
     public String deleteProductSize(UUID id) {
-        ProductSize size = productSizeRepository.findById(id)
+        ProductSize size = productSizeRepo.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND));
         size.setDeleted(true);
-        productSizeRepository.save(size);
+        productSizeRepo.save(size);
         return "Kích thước đã được xóa.";
     }
 
     @Override
     public Page<ProductType> getProductTypes(PageableRequest request) {
-        return productTypeRepository.findByDeleted(false,
+        return productTypeRepo.findByDeleted(false,
                 pageableUtil.getPageable(ProductType.class, request));
     }
 
     @Override
     public Page<ProductType> getProductTypesForStaff(PageableRequest request) {
-        return productTypeRepository.findAll(pageableUtil.getPageable(ProductType.class, request));
+        return productTypeRepo.findAll(pageableUtil.getPageable(ProductType.class, request));
     }
 
     @Override
     public ProductType getProductType(UUID id) {
-        return productTypeRepository.findById(id)
+        return productTypeRepo.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND));
     }
 
@@ -386,36 +386,36 @@ public class ProductServiceImplement implements ProductService {
     public ProductType createProductType(ModifyTypeRequest request) {
         ProductType type = new ProductType();
         type.setName(request.name());
-        return productTypeRepository.save(type);
+        return productTypeRepo.save(type);
     }
 
     @Override
     public ProductType updateProductType(UUID id, ModifyTypeRequest request) {
-        ProductType type = productTypeRepository.findById(id)
+        ProductType type = productTypeRepo.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND));
         type.setName(request.name());
-        return productTypeRepository.save(type);
+        return productTypeRepo.save(type);
     }
 
     @Override
     public String deleteProductType(UUID id) {
-        ProductType type = productTypeRepository.findById(id)
+        ProductType type = productTypeRepo.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND));
         type.setDeleted(true);
-        productTypeRepository.save(type);
+        productTypeRepo.save(type);
         return "Loại sản phẩm đã được xóa.";
     }
 
     @Override
     public Page<ProductCollectionResponse> getProductCollections(PageableRequest request) {
-        return productCollectionRepository
+        return productCollectionRepo
                 .findByDeleted(false, pageableUtil.getPageable(ProductCollection.class, request))
                 .map(objectMapperUtil::mapProductCollectionResponse);
     }
 
     @Override
     public Page<ProductCollectionResponse> getProductCollectionsForStaff(PageableRequest request) {
-        return productCollectionRepository
+        return productCollectionRepo
                 .findAll(pageableUtil.getPageable(ProductCollection.class, request))
                 .map(objectMapperUtil::mapProductCollectionResponse);
     }
@@ -423,7 +423,7 @@ public class ProductServiceImplement implements ProductService {
     @Override
     public ProductCollectionResponse getProductCollection(UUID id) {
         return objectMapperUtil.mapProductCollectionResponse(
-                productCollectionRepository.findByIdAndDeleted(id, false)
+                productCollectionRepo.findByIdAndDeleted(id, false)
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
         );
     }
@@ -431,7 +431,7 @@ public class ProductServiceImplement implements ProductService {
     @Override
     public ProductCollectionResponse getProductCollectionForStaff(UUID id) {
         return objectMapperUtil.mapProductCollectionResponse(
-                productCollectionRepository.findById(id)
+                productCollectionRepo.findById(id)
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND))
         );
     }
@@ -439,7 +439,7 @@ public class ProductServiceImplement implements ProductService {
     @Override
     public ProductCollectionResponse createProductCollection(ModifyCollectionRequest request) {
         return objectMapperUtil.mapProductCollectionResponse(
-                productCollectionRepository.save(
+                productCollectionRepo.save(
                         objectMapperUtil.mapProductCollection(request, new ProductCollection())
                 )
         );
@@ -448,10 +448,10 @@ public class ProductServiceImplement implements ProductService {
     @Override
     public ProductCollectionResponse updateProductCollection(UUID id, ModifyCollectionRequest request) {
         return objectMapperUtil.mapProductCollectionResponse(
-                productCollectionRepository.save(
+                productCollectionRepo.save(
                         objectMapperUtil.mapProductCollection(
                                 request,
-                                productCollectionRepository.findById(id)
+                                productCollectionRepo.findById(id)
                                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND)
                                         )
                         )
@@ -461,16 +461,16 @@ public class ProductServiceImplement implements ProductService {
 
     @Override
     public String deleteProductCollection(UUID id) {
-        ProductCollection collection = productCollectionRepository.findById(id)
+        ProductCollection collection = productCollectionRepo.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND));
         collection.setDeleted(true);
-        productCollectionRepository.save(collection);
+        productCollectionRepo.save(collection);
         return "Bộ sưu tập đã được xóa.";
     }
 
     @Override
     public Page<FeedbackResponse> getFeedbacks(UUID productId, PageableRequest request) {
-        return feedbackRepository
+        return feedbackRepo
                 .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
                         productId, false, pageableUtil.getPageable(Feedback.class, request)
                 ).map(objectMapperUtil::mapFeedbackResponse);
@@ -478,7 +478,7 @@ public class ProductServiceImplement implements ProductService {
 
     @Override
     public Page<FeedbackResponse> getFeedbacksForStaff(UUID productId, PageableRequest request) {
-        return feedbackRepository
+        return feedbackRepo
                 .findByOrderDetail_ProductQuantity_Product_Id(
                         productId, pageableUtil.getPageable(Feedback.class, request)
                 ).map(objectMapperUtil::mapFeedbackResponse);
@@ -486,54 +486,54 @@ public class ProductServiceImplement implements ProductService {
 
     @Override
     public String reactiveProduct(UUID id) {
-        Product product = productRepository.findByIdAndStatus(id, ProductStatus.DELETED)
+        Product product = productRepo.findByIdAndStatus(id, ProductStatus.DELETED)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         product.setStatus(ProductStatus.IN_STOCK);
-        productRepository.save(product);
+        productRepo.save(product);
         return "Bạn đã kích hoạt lại sản phẩm.";
     }
 
     @Override
     public String reactiveProductType(UUID id) {
-        ProductType type = productTypeRepository.findByIdAndDeleted(id, true)
+        ProductType type = productTypeRepo.findByIdAndDeleted(id, true)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_TYPE_NOT_FOUND));
         type.setDeleted(false);
-        productTypeRepository.save(type);
+        productTypeRepo.save(type);
         return "Bạn đã kích hoạt lại loại sản phẩm.";
     }
 
     @Override
     public String reactiveProductCollection(UUID id) {
-        ProductCollection collection = productCollectionRepository.findByIdAndDeleted(id, true)
+        ProductCollection collection = productCollectionRepo.findByIdAndDeleted(id, true)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_COLLECTION_NOT_FOUND));
         collection.setDeleted(false);
-        productCollectionRepository.save(collection);
+        productCollectionRepo.save(collection);
         return "Bạn đã kích hoạt lại bộ sưu tập sản phẩm.";
     }
 
     @Override
     public String reactiveProductSize(UUID id) {
-        ProductSize size = productSizeRepository.findByIdAndDeleted(id, true)
+        ProductSize size = productSizeRepo.findByIdAndDeleted(id, true)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND));
         size.setDeleted(false);
-        productSizeRepository.save(size);
+        productSizeRepo.save(size);
         return "Bạn đã kích hoạt lại số đo sản phẩm.";
     }
 
     @Override
     public List<TopProduct> getTopProduct(PageableRequest pageableRequest) {
-        List<TopProductRequest> result = orderDetailRepository.findTopProduct(pageableRequest.size());
+        List<TopProductRequest> result = orderDetailRepo.findTopProduct(pageableRequest.size());
         return result.isEmpty() ?
-                productRepository.findAll(pageableUtil.getPageable(Product.class, pageableRequest))
+                productRepo.findAll(pageableUtil.getPageable(Product.class, pageableRequest))
                         .map(p -> objectMapperUtil.mapTopProductResponse(
-                                p, feedbackRepository
+                                p, feedbackRepo
                                         .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
                                                 p.getId(),
                                                 false
                                         ).stream().mapToDouble(Feedback::getRating).average().orElse(0)
                         )).stream().toList() :
                 result.stream().map(p -> objectMapperUtil.mapTopProductResponse(
-                        p, feedbackRepository
+                        p, feedbackRepo
                                 .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
                                         p.id(),
                                         false)
