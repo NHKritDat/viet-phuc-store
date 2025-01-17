@@ -6,7 +6,6 @@ import com.nextrad.vietphucstore.dtos.requests.api.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.requests.inner.product.TopProductRequest;
-import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackResponse;
 import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackSummary;
 import com.nextrad.vietphucstore.dtos.responses.api.product.*;
 import com.nextrad.vietphucstore.entities.order.Feedback;
@@ -453,19 +452,23 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<FeedbackResponse> getFeedbacks(UUID productId, PageableRequest request) {
-        return feedbackRepository
+    public Page<ProductFeedback> getFeedbacks(UUID productId, PageableRequest request) {
+        Page<CompletableFuture<ProductFeedback>> futures = feedbackRepository
                 .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
                         productId, false, pageableUtil.getPageable(Feedback.class, request)
-                ).map(objectMapperUtil::mapFeedbackResponse);
+                ).map(objectMapperUtil::mapProductFeedback);
+        return CompletableFuture.allOf(futures.getContent().toArray(CompletableFuture[]::new))
+                .thenApply(v -> futures.map(CompletableFuture::join)).join();
     }
 
     @Override
-    public Page<FeedbackResponse> getFeedbacksForStaff(UUID productId, PageableRequest request) {
-        return feedbackRepository
+    public Page<ProductFeedback> getFeedbacksForStaff(UUID productId, PageableRequest request) {
+        Page<CompletableFuture<ProductFeedback>> futures = feedbackRepository
                 .findByOrderDetail_ProductQuantity_Product_Id(
                         productId, pageableUtil.getPageable(Feedback.class, request)
-                ).map(objectMapperUtil::mapFeedbackResponse);
+                ).map(objectMapperUtil::mapProductFeedback);
+        return CompletableFuture.allOf(futures.getContent().toArray(CompletableFuture[]::new))
+                .thenApply(v -> futures.map(CompletableFuture::join)).join();
     }
 
     @Override
