@@ -5,7 +5,6 @@ import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.requests.api.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackResponse;
 import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackSummary;
 import com.nextrad.vietphucstore.dtos.responses.api.product.*;
 import com.nextrad.vietphucstore.entities.product.ProductSize;
@@ -72,9 +71,9 @@ public interface ProductService {
 
     String deleteProductCollection(UUID id);
 
-    Page<FeedbackResponse> getFeedbacks(UUID productId, PageableRequest request);
+    Page<ProductFeedback> getFeedbacks(UUID productId, PageableRequest request);
 
-    Page<FeedbackResponse> getFeedbacksForStaff(UUID productId, PageableRequest request);
+    Page<ProductFeedback> getFeedbacksForStaff(UUID productId, PageableRequest request);
 
     String reactiveProduct(UUID id);
 

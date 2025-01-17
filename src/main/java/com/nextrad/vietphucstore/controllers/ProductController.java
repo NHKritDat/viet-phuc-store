@@ -5,7 +5,6 @@ import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyProductRequest;
 import com.nextrad.vietphucstore.dtos.requests.api.product.ModifySizeRequest;
 import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
-import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackResponse;
 import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackSummary;
 import com.nextrad.vietphucstore.dtos.responses.api.product.*;
 import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiItemResponse;
@@ -390,14 +389,14 @@ public class ProductController {
     }
 
     @GetMapping("/{id}/feedbacks")
-    public ResponseEntity<ApiListItemResponse<FeedbackResponse>> getFeedbacks(
+    public ResponseEntity<ApiListItemResponse<ProductFeedback>> getFeedbacks(
             @PathVariable UUID id,
             @RequestParam(defaultValue = "1", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int size,
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
             @RequestParam(defaultValue = "id", required = false) String... properties
     ) {
-        Page<FeedbackResponse> response = productService.getFeedbacks(id,
+        Page<ProductFeedback> response = productService.getFeedbacks(id,
                 new PageableRequest(page - 1, size, direction, properties));
         return ResponseEntity.ok(new ApiListItemResponse<>(
                 response.getContent(),
@@ -411,14 +410,14 @@ public class ProductController {
 
     @GetMapping("/{id}/feedbacks/staff")
     @PreAuthorize("hasRole('STAFF')")
-    public ResponseEntity<ApiListItemResponse<FeedbackResponse>> getFeedbacksForStaff(
+    public ResponseEntity<ApiListItemResponse<ProductFeedback>> getFeedbacksForStaff(
             @PathVariable UUID id,
             @RequestParam(defaultValue = "1", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int size,
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
             @RequestParam(defaultValue = "id", required = false) String... properties
     ) {
-        Page<FeedbackResponse> response = productService.getFeedbacksForStaff(id,
+        Page<ProductFeedback> response = productService.getFeedbacksForStaff(id,
                 new PageableRequest(page - 1, size, direction, properties));
         return ResponseEntity.ok(new ApiListItemResponse<>(
                 response.getContent(),

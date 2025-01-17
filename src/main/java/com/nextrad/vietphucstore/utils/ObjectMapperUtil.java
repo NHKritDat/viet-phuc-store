@@ -41,6 +41,18 @@ public class ObjectMapperUtil {
     private final ImagesUtil imagesUtil;
     private final PasswordEncoder passwordEncoder;
 
+    @Async
+    public CompletableFuture<ProductFeedback> mapProductFeedback(Feedback feedback) {
+        return CompletableFuture.completedFuture(new ProductFeedback(
+                feedback.getId(),
+                feedback.getContent(),
+                feedback.getRating(),
+                feedback.getCreatedBy(),
+                feedback.getOrderDetail().getOrder().getUser().getAvatar(),
+                feedback.getCreatedDate()
+        ));
+    }
+
     public FeedbackSummary mapFeedbackSummary(List<Feedback> feedbacks) {
         Map<Integer, Long> ratingCounts = feedbacks.stream()
                 .collect(Collectors.groupingBy(Feedback::getRating, Collectors.counting()));
