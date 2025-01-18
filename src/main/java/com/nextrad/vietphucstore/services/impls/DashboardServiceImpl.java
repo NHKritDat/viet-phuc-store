@@ -4,8 +4,10 @@ import com.nextrad.vietphucstore.dtos.responses.api.dashboard.DashboardResponse;
 import com.nextrad.vietphucstore.dtos.responses.inner.dashboard.CountOrder;
 import com.nextrad.vietphucstore.dtos.responses.inner.dashboard.CountUser;
 import com.nextrad.vietphucstore.dtos.responses.inner.dashboard.SumRevenue;
+import com.nextrad.vietphucstore.repositories.order.OrderDetailRepository;
+import com.nextrad.vietphucstore.repositories.order.OrderRepository;
+import com.nextrad.vietphucstore.repositories.user.UserRepository;
 import com.nextrad.vietphucstore.services.DashboardService;
-import com.nextrad.vietphucstore.services.impls.async.DashboardServiceImplAsync;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,15 +16,21 @@ import java.util.concurrent.CompletableFuture;
 @Service
 @RequiredArgsConstructor
 public class DashboardServiceImpl implements DashboardService {
-    private final DashboardServiceImplAsync dashboardServiceImplAsync;
+    private final OrderDetailRepository orderDetailRepository;
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
 
     @Override
     public DashboardResponse getDashboardResponse() {
         //Start async
-        CompletableFuture<CountOrder> countOrdersAsync = dashboardServiceImplAsync.countOrdersAsync();
-        CompletableFuture<Long> totalProductSellAsync = dashboardServiceImplAsync.totalProductSellAsync();
-        CompletableFuture<CountUser> countUsersAsync = dashboardServiceImplAsync.countUsersAsync();
-        CompletableFuture<SumRevenue> sumRevenueAsync = dashboardServiceImplAsync.sumRevenueAsync();
+        CompletableFuture<CountOrder> countOrdersAsync = CompletableFuture.supplyAsync(orderRepository::countOrder)
+                .exceptionally(v -> new CountOrder(0, 0, 0, 0, 0, 0));
+        CompletableFuture<Long> totalProductSellAsync = CompletableFuture.supplyAsync(orderDetailRepository::totalProductSell)
+                .exceptionally(v -> 0L);
+        CompletableFuture<CountUser> countUsersAsync = CompletableFuture.supplyAsync(userRepository::countUser)
+                .exceptionally(v -> new CountUser(0, 0));
+        CompletableFuture<SumRevenue> sumRevenueAsync = CompletableFuture.supplyAsync(orderRepository::sumRevenue)
+                .exceptionally(v -> new SumRevenue(0, 0));
 
         //Wait to get result from all async
         return CompletableFuture.allOf(countOrdersAsync, totalProductSellAsync, countUsersAsync, sumRevenueAsync)

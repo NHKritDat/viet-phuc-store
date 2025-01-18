@@ -25,14 +25,12 @@ import com.nextrad.vietphucstore.enums.order.PaymentMethod;
 import com.nextrad.vietphucstore.enums.user.UserRole;
 import com.nextrad.vietphucstore.enums.user.UserStatus;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Component
@@ -41,16 +39,15 @@ public class ObjectMapperUtil {
     private final ImagesUtil imagesUtil;
     private final PasswordEncoder passwordEncoder;
 
-    @Async
-    public CompletableFuture<ProductFeedback> mapProductFeedback(Feedback feedback) {
-        return CompletableFuture.completedFuture(new ProductFeedback(
+    public ProductFeedback mapProductFeedback(Feedback feedback) {
+        return new ProductFeedback(
                 feedback.getId(),
                 feedback.getContent(),
                 feedback.getRating(),
                 feedback.getCreatedBy(),
                 feedback.getOrderDetail().getOrder().getUser().getAvatar(),
                 feedback.getCreatedDate()
-        ));
+        );
     }
 
     public FeedbackSummary mapFeedbackSummary(List<Feedback> feedbacks) {
@@ -66,16 +63,15 @@ public class ObjectMapperUtil {
         );
     }
 
-    @Async
-    public CompletableFuture<HistoryOrderProduct> mapHistoryOrderHistory(OrderDetail od) {
-        return CompletableFuture.completedFuture(new HistoryOrderProduct(
+    public HistoryOrderProduct mapHistoryOrderHistory(OrderDetail od) {
+        return new HistoryOrderProduct(
                 od.getOrder().getId(), od.getId(),
                 imagesUtil.convertStringToImages(od.getProductQuantity().getProduct().getPictures()).get(0),
                 od.getProductQuantity().getProduct().getName(), od.getOrder().getPaymentMethod(),
                 od.getProductQuantity().getProductSize().getName(), od.getQuantity(),
                 od.getProductQuantity().getProduct().getUnitPrice(), od.getOrder().getShippingFee(),
                 od.getFeedback() != null, od.getProductQuantity().getProduct().getId()
-        ));
+        );
     }
 
     public FeedbackResponse mapFeedbackResponse(Feedback feedback) {
@@ -149,22 +145,20 @@ public class ObjectMapperUtil {
         return collection;
     }
 
-    @Async
-    public CompletableFuture<SearchProduct> mapSearchProduct(Product product) {
-        return CompletableFuture.completedFuture(new SearchProduct(
+    public SearchProduct mapSearchProduct(Product product) {
+        return new SearchProduct(
                 product.getId(), product.getName(), product.getUnitPrice(),
                 imagesUtil.convertStringToImages(product.getPictures()).get(0),
                 product.getAvgRating()
-        ));
+        );
     }
 
-    @Async
-    public CompletableFuture<SearchProductForStaff> mapSearchProductForStaff(Product product) {
-        return CompletableFuture.completedFuture(new SearchProductForStaff(
+    public SearchProductForStaff mapSearchProductForStaff(Product product) {
+        return new SearchProductForStaff(
                 product.getId(), product.getName(), product.getUnitPrice(),
                 imagesUtil.convertStringToImages(product.getPictures()).get(0),
                 product.getAvgRating(), product.getStatus()
-        ));
+        );
     }
 
     public Product mapProduct(ModifyProductRequest request, Product product, ProductType type, ProductCollection collection) {
@@ -276,24 +270,24 @@ public class ObjectMapperUtil {
         );
     }
 
-    public TopProduct mapTopProductResponse(TopProductRequest request, double rating) {
+    public TopProduct mapTopProductResponse(TopProductRequest request) {
         return new TopProduct(
                 request.id(),
                 request.name(),
                 request.unitPrice(),
                 imagesUtil.convertStringToImages(request.pictures()).get(0),
-                rating,
+                request.avgRating(),
                 request.count()
         );
     }
 
-    public TopProduct mapTopProductResponse(Product request, double rating) {
+    public TopProduct mapTopProductResponse(Product request) {
         return new TopProduct(
                 request.getId(),
                 request.getName(),
                 request.getUnitPrice(),
                 imagesUtil.convertStringToImages(request.getPictures()).get(0),
-                rating,
+                request.getAvgRating(),
                 0
         );
     }

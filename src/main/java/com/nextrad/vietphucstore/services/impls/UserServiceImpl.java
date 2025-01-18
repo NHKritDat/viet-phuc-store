@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +55,7 @@ public class UserServiceImpl implements UserService {
                 "Bạn đã đăng nhập thành công" :
                 "Bạn đã đăng nhập thành công trang cho Staff";
         String refreshToken = tokenUtil.genRefreshToken(user);
-        tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
+        CompletableFuture.runAsync(() -> tokenRepository.save(tokenUtil.createEntity(refreshToken, true)));
         return new LoginResponse(
                 new TokenResponse(tokenUtil.genAccessToken(user), refreshToken),
                 message
@@ -66,12 +67,12 @@ public class UserServiceImpl implements UserService {
         Optional<User> user = userRepository.findByEmailAndStatus(request.email(), UserStatus.VERIFIED);
         if (user.isPresent()) {
             String refreshToken = tokenUtil.genRefreshToken(user.get());
-            tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
+            CompletableFuture.runAsync(() -> tokenRepository.save(tokenUtil.createEntity(refreshToken, true)));
             return new TokenResponse(tokenUtil.genAccessToken(user.get()), refreshToken);
         } else {
             User newUser = userRepository.save(objectMapperUtil.mapUser(request, new User()));
             String refreshToken = tokenUtil.genRefreshToken(newUser);
-            tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
+            CompletableFuture.runAsync(() -> tokenRepository.save(tokenUtil.createEntity(refreshToken, true)));
             return new TokenResponse(tokenUtil.genAccessToken(newUser), refreshToken);
         }
     }
@@ -83,12 +84,15 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
         if (!token.isAvailable())
             throw new AppException(ErrorCode.UNAVAILABLE_TOKEN);
-        token.setAvailable(false);
-        tokenRepository.save(token);
+
+        CompletableFuture.runAsync(() -> {
+            token.setAvailable(false);
+            tokenRepository.save(token);
+        });
 
         User user = objectMapperUtil.mapUser(jwtInfo, new User());
         String refreshToken = tokenUtil.genRefreshToken(user);
-        tokenRepository.save(tokenUtil.createEntity(refreshToken, true));
+        CompletableFuture.runAsync(() -> tokenRepository.save(tokenUtil.createEntity(refreshToken, true)));
         return new TokenResponse(tokenUtil.genAccessToken(user), refreshToken);
     }
 
@@ -96,11 +100,15 @@ public class UserServiceImpl implements UserService {
     public String logout(LogoutRequest request) {
         Token refreshToken = tokenRepository.findById(UUID.fromString(tokenUtil.getJwtId(request.refreshToken())))
                 .orElseThrow(() -> new AppException(ErrorCode.TOKEN_NOT_FOUND));
-        refreshToken.setAvailable(false);
-        tokenRepository.save(refreshToken);
-        CheckTokenResult result = tokenUtil.checkToken(request.accessToken(), false);
-        if (result.valid())
-            tokenRepository.save(result.token());
+        CompletableFuture.runAsync(() -> {
+            refreshToken.setAvailable(false);
+            tokenRepository.save(refreshToken);
+        });
+        CompletableFuture.runAsync(() -> {
+            CheckTokenResult result = tokenUtil.checkToken(request.accessToken(), false);
+            if (result.valid())
+                tokenRepository.save(result.token());
+        });
         return "Đăng xuất thành công!";
     }
 
@@ -126,9 +134,11 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setStatus(UserStatus.VERIFIED);
         userRepository.save(user);
-        CheckTokenResult result = tokenUtil.checkToken(token, false);
-        if (result.valid())
-            tokenRepository.save(result.token());
+        CompletableFuture.runAsync(() -> {
+            CheckTokenResult result = tokenUtil.checkToken(token, false);
+            if (result.valid())
+                tokenRepository.save(result.token());
+        });
         return "Email của bạn đã được xác thực thành công! Vui lòng đăng nhập lại để tiếp tục.";
     }
 
@@ -151,9 +161,11 @@ public class UserServiceImpl implements UserService {
             throw new AppException(ErrorCode.PASSWORD_NOT_STRONG);
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
-        CheckTokenResult result = tokenUtil.checkToken(request.auth(), false);
-        if (result.valid())
-            tokenRepository.save(result.token());
+        CompletableFuture.runAsync(() -> {
+            CheckTokenResult result = tokenUtil.checkToken(request.auth(), false);
+            if (result.valid())
+                tokenRepository.save(result.token());
+        });
         return "Mật khẩu của bạn đã được đặt lại thành công! Vui lòng đăng nhập lại để tiếp tục.";
     }
 
@@ -199,15 +211,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetail createUser(UserModifyRequest request) {
-        User user = new User();
-        return objectMapperUtil.mapUserDetail(userRepository.save(objectMapperUtil.mapUser(request, user)));
+        return objectMapperUtil.mapUserDetail(userRepository.save(
+                objectMapperUtil.mapUser(request, new User())
+        ));
     }
 
     @Override
     public UserDetail updateUser(UUID id, UserModifyRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return objectMapperUtil.mapUserDetail(userRepository.save(objectMapperUtil.mapUser(request, user)));
+        return objectMapperUtil.mapUserDetail(userRepository.save(
+                objectMapperUtil.mapUser(request, userRepository.findById(id)
+                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)))
+        ));
     }
 
     @Override

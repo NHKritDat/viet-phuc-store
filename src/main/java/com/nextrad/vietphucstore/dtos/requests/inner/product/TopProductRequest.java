@@ -7,6 +7,7 @@ public record TopProductRequest(
         String name,
         double unitPrice,
         String pictures,
-        long count
+        long count,
+        double avgRating
 ) {
 }
