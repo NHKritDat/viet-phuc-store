@@ -25,14 +25,12 @@ import com.nextrad.vietphucstore.enums.order.PaymentMethod;
 import com.nextrad.vietphucstore.enums.user.UserRole;
 import com.nextrad.vietphucstore.enums.user.UserStatus;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Component
@@ -65,16 +63,15 @@ public class ObjectMapperUtil {
         );
     }
 
-    @Async
-    public CompletableFuture<HistoryOrderProduct> mapHistoryOrderHistory(OrderDetail od) {
-        return CompletableFuture.completedFuture(new HistoryOrderProduct(
+    public HistoryOrderProduct mapHistoryOrderHistory(OrderDetail od) {
+        return new HistoryOrderProduct(
                 od.getOrder().getId(), od.getId(),
                 imagesUtil.convertStringToImages(od.getProductQuantity().getProduct().getPictures()).get(0),
                 od.getProductQuantity().getProduct().getName(), od.getOrder().getPaymentMethod(),
                 od.getProductQuantity().getProductSize().getName(), od.getQuantity(),
                 od.getProductQuantity().getProduct().getUnitPrice(), od.getOrder().getShippingFee(),
                 od.getFeedback() != null, od.getProductQuantity().getProduct().getId()
-        ));
+        );
     }
 
     public FeedbackResponse mapFeedbackResponse(Feedback feedback) {
