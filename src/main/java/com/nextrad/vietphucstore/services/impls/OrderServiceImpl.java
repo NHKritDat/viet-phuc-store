@@ -3,6 +3,7 @@ package com.nextrad.vietphucstore.services.impls;
 import com.nextrad.vietphucstore.dtos.requests.api.order.*;
 import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.api.order.*;
+import com.nextrad.vietphucstore.dtos.responses.inner.order.SelectedProduct;
 import com.nextrad.vietphucstore.entities.order.Cart;
 import com.nextrad.vietphucstore.entities.order.Feedback;
 import com.nextrad.vietphucstore.entities.order.Order;
@@ -11,15 +12,16 @@ import com.nextrad.vietphucstore.entities.product.Product;
 import com.nextrad.vietphucstore.entities.product.ProductQuantity;
 import com.nextrad.vietphucstore.enums.error.ErrorCode;
 import com.nextrad.vietphucstore.enums.order.OrderStatus;
+import com.nextrad.vietphucstore.enums.order.PaymentMethod;
 import com.nextrad.vietphucstore.exceptions.AppException;
 import com.nextrad.vietphucstore.repositories.order.CartRepository;
 import com.nextrad.vietphucstore.repositories.order.FeedbackRepository;
 import com.nextrad.vietphucstore.repositories.order.OrderDetailRepository;
 import com.nextrad.vietphucstore.repositories.order.OrderRepository;
 import com.nextrad.vietphucstore.repositories.product.ProductQuantityRepository;
+import com.nextrad.vietphucstore.repositories.product.ProductRepository;
 import com.nextrad.vietphucstore.repositories.user.UserRepository;
 import com.nextrad.vietphucstore.services.OrderService;
-import com.nextrad.vietphucstore.services.impls.async.OrderServiceImplAsync;
 import com.nextrad.vietphucstore.utils.EmailUtil;
 import com.nextrad.vietphucstore.utils.IdUtil;
 import com.nextrad.vietphucstore.utils.ObjectMapperUtil;
@@ -28,10 +30,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -43,8 +46,8 @@ public class OrderServiceImpl implements OrderService {
     private final CartRepository cartRepository;
     private final FeedbackRepository feedbackRepository;
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
     private final ProductQuantityRepository productQuantityRepository;
-    private final OrderServiceImplAsync orderServiceImplAsync;
     private final PageableUtil pageableUtil;
     private final IdUtil idUtil;
     private final ObjectMapperUtil objectMapperUtil;
@@ -52,59 +55,56 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public String addToCart(ModifyCartRequest request) {
-        Optional<Cart> cart = cartRepository.findByProductQuantity_Id(request.productQuantityId());
-        if (cart.isPresent()) {
-            cart.get().setQuantity(
-                    Math.min(cart.get().getQuantity() + request.quantity(),
-                            cart.get().getProductQuantity().getQuantity())
-            );
-            cartRepository.save(cart.get());
+        String email = getCurrentUserEmail();
+        Cart cart = cartRepository.findByProductQuantity_IdAndUser_Email(request.productQuantityId(), email)
+                .orElse(new Cart());
+        if (cart.getId() != null) {
+            cart.setQuantity(Math.min(
+                    cart.getQuantity() + request.quantity(),
+                    cart.getProductQuantity().getQuantity()
+            ));
         } else {
-            Cart newCart = new Cart();
-            newCart.setUser(userRepository.findByEmail(
-                    SecurityContextHolder.getContext().getAuthentication().getName()
-            ).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
+            cart.setUser(userRepository.findByEmail(email)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
             ProductQuantity productQuantity = productQuantityRepository.findByIdAndDeleted(
-                    request.productQuantityId(),
-                    false
+                    request.productQuantityId(), false
             ).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_QUANTITY_NOT_FOUND));
-            newCart.setProductQuantity(productQuantity);
-            newCart.setQuantity(Math.min(request.quantity(), productQuantity.getQuantity()));
-            cartRepository.save(newCart);
+            cart.setProductQuantity(productQuantity);
+            cart.setQuantity(Math.min(request.quantity(), productQuantity.getQuantity()));
         }
+        cartRepository.save(cart);
         return "Bạn đã thêm vào giỏ hàng thành công";
     }
 
     @Override
     public String removeFromCart(ModifyCartRequest request) {
-        Optional<Cart> cart = cartRepository.findByProductQuantity_Id(request.productQuantityId());
-        if (cart.isEmpty())
-            throw new AppException(ErrorCode.CART_NOT_FOUND);
-        else {
-            cart.get().setQuantity(
-                    Math.max(cart.get().getQuantity() - request.quantity(), 0)
-            );
-            if (cart.get().getQuantity() == 0)
-                cartRepository.delete(cart.get());
-            else
-                cartRepository.save(cart.get());
-        }
+        String email = getCurrentUserEmail();
+        Cart cart = cartRepository.findByProductQuantity_IdAndUser_Email(request.productQuantityId(), email)
+                .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
+        cart.setQuantity(Math.max(cart.getQuantity() - request.quantity(), 0));
+        if (cart.getQuantity() == 0)
+            cartRepository.delete(cart);
+        else
+            cartRepository.save(cart);
+
         return "Bạn đã bớt khỏi giỏ hàng thành công";
     }
 
     @Override
     public Page<CartInfo> getCartInfo(PageableRequest request) {
         Page<Cart> carts = cartRepository.findByUser_Email(
-                SecurityContextHolder.getContext().getAuthentication().getName(),
+                getCurrentUserEmail(),
                 pageableUtil.getPageable(Cart.class, request)
         );
         return carts.map(objectMapperUtil::mapCartInfo);
     }
 
     @Override
+    @Transactional
     public String checkout(CreateOrder request) {
+        String email = getCurrentUserEmail();
         Order order = new Order();
-        order.setUser(userRepository.findByEmail(getCurrentUserEmail())
+        order.setUser(userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
         order.setEmail(request.email());
         order.setName(request.name());
@@ -112,7 +112,7 @@ public class OrderServiceImpl implements OrderService {
         order.setDistrict(request.district());
         order.setAddress(request.address());
         order.setPhone(request.phone());
-        List<Cart> carts = cartRepository.findByUser_Email(getCurrentUserEmail());
+        List<Cart> carts = cartRepository.findByUser_Email(email);
         if (carts.isEmpty())
             throw new AppException(ErrorCode.CART_EMPTY);
         double productTotal = carts.stream().mapToDouble(
@@ -122,13 +122,9 @@ public class OrderServiceImpl implements OrderService {
                     return cart.getProductQuantity().getProduct().getUnitPrice() * cart.getQuantity();
                 }
         ).sum();
-        order.setProductTotal(productTotal);
-        order.setShippingFee(request.shippingFee());
-        order.setShippingMethod(request.shippingMethod());
-        order.setPaymentMethod(request.paymentMethod());
-        order.setId(idUtil.genId(productTotal + request.shippingFee(), new Date()));
-        orderRepository.save(order);
+        saveOrder(order, productTotal, request.shippingFee(), request.shippingMethod(), request.paymentMethod());
 
+        List<OrderDetail> orderDetails = new ArrayList<>();
         carts.forEach(cart -> {
             ProductQuantity productQuantity = cart.getProductQuantity();
             productQuantity.setQuantity(productQuantity.getQuantity() - cart.getQuantity());
@@ -138,9 +134,10 @@ public class OrderServiceImpl implements OrderService {
             orderDetail.setOrder(order);
             orderDetail.setProductQuantity(productQuantity);
             orderDetail.setQuantity(cart.getQuantity());
-            orderDetailRepository.save(orderDetail);
-            cartRepository.delete(cart);
+            orderDetails.add(orderDetail);
         });
+        orderDetailRepository.saveAll(orderDetails);
+        cartRepository.deleteAll(carts);
 
         emailUtil.orderDetail(orderRepository.findById(order.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND)));
@@ -180,15 +177,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<HistoryOrderProduct> getHistoryOrderProducts(PageableRequest request) {
-        Page<OrderDetail> orderDetails = orderDetailRepository
-                .findByOrder_User_EmailAndOrder_Status(
-                        SecurityContextHolder.getContext().getAuthentication().getName(),
-                        OrderStatus.DELIVERED,
-                        pageableUtil.getPageable(OrderDetail.class, request)
-                );
-        Page<CompletableFuture<HistoryOrderProduct>> futures = orderDetails.map(objectMapperUtil::mapHistoryOrderHistory);
-        return CompletableFuture.allOf(futures.getContent().toArray(CompletableFuture[]::new))
-                .thenApply(v -> futures.map(CompletableFuture::join)).join();
+        return orderDetailRepository.findByOrder_User_EmailAndOrder_Status(
+                getCurrentUserEmail(), OrderStatus.DELIVERED, pageableUtil.getPageable(OrderDetail.class, request)
+        ).map(objectMapperUtil::mapHistoryOrderHistory);
     }
 
     @Override
@@ -206,35 +197,32 @@ public class OrderServiceImpl implements OrderService {
 
         //Update avg rating of product async
         Product product = orderDetail.getProductQuantity().getProduct();
-        orderServiceImplAsync.avgRating(product.getId())
-                .thenComposeAsync(rating ->
-                        orderServiceImplAsync.assignRating(product, rating)
-                );
+        CompletableFuture.supplyAsync(() -> feedbackRepository.avgRatingByProductId(product.getId()))
+                .thenAcceptAsync(rating -> {
+                    product.setAvgRating(rating);
+                    productRepository.save(product);
+                });
 
         return objectMapperUtil.mapFeedbackResponse(feedback);
     }
 
     @Override
     public FeedbackResponse getFeedback(UUID orderDetailId) {
-        return objectMapperUtil.mapFeedbackResponse(
-                feedbackRepository.findByOrderDetail_Id(orderDetailId)
-                        .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND))
-        );
+        return objectMapperUtil.mapFeedbackResponse(feedbackRepository.findByOrderDetail_Id(orderDetailId)
+                .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND)));
     }
 
     @Override
     public Page<SearchOrder> getOrders(String search, PageableRequest request) {
         return orderRepository.findByEmailContainingIgnoreCase(
-                search,
-                pageableUtil.getPageable(Order.class, request)
+                search, pageableUtil.getPageable(Order.class, request)
         ).map(objectMapperUtil::mapSearchOrder);
     }
 
     @Override
     public OrderResponse getOrderDetailForStaff(String id) {
-        return orderRepository.findById(id)
-                .map(objectMapperUtil::mapOrderResponse)
-                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        return objectMapperUtil.mapOrderResponse(orderRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND)));
     }
 
     @Override
@@ -244,31 +232,26 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<CurrentOrderHistory> getCurrentOrderHistory(PageableRequest pageableRequest) {
-        Page<Order> orders = orderRepository.findByUser_Email(
-                SecurityContextHolder.getContext().getAuthentication().getName(),
-                pageableUtil.getPageable(Order.class, pageableRequest)
-        );
-        return orders.map(objectMapperUtil::mapCurrentOrderHistory);
+        return orderRepository.findByUser_Email(
+                getCurrentUserEmail(), pageableUtil.getPageable(Order.class, pageableRequest)
+        ).map(objectMapperUtil::mapCurrentOrderHistory);
     }
 
     @Override
     public OrderResponse getCurrentOrderDetailHistory(String id) {
-        return orderRepository.findByIdAndUser_Email(
-                        id,
-                        SecurityContextHolder.getContext().getAuthentication().getName()
-                ).map(objectMapperUtil::mapOrderResponse)
-                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        return objectMapperUtil.mapOrderResponse(orderRepository.findByIdAndUser_Email(id, getCurrentUserEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND)));
     }
 
     @Override
     public Page<TransactionsResponse> getOrderTransactionsHistory(PageableRequest pageableRequest) {
         return orderRepository.findByUser_Email(
-                SecurityContextHolder.getContext().getAuthentication().getName(),
-                pageableUtil.getPageable(Order.class, pageableRequest)
+                getCurrentUserEmail(), pageableUtil.getPageable(Order.class, pageableRequest)
         ).map(objectMapperUtil::mapTransactionsResponse);
     }
 
     @Override
+    @Transactional
     public String createOrderForStaff(PreparedOrder request) {
         //tạo order
         Order order = new Order();
@@ -282,27 +265,28 @@ public class OrderServiceImpl implements OrderService {
         order.setAddress(request.address());
         order.setPhone(request.phone());
 
-        List<SelectedProductRequest> products = request.details();
-        if (products.isEmpty())
+        if (request.details().isEmpty())
             throw new AppException(ErrorCode.MISSING_SELECT_PRODUCT);
 
-        double productTotal = products.stream().mapToDouble(
+        List<SelectedProduct> selectedProducts = new ArrayList<>();
+        request.details().forEach(detail -> selectedProducts.add(new SelectedProduct(
+                findProductQuantity(detail.productQuantityId()),
+                detail.quantity()
+        )));
+
+        double productTotal = selectedProducts.stream().mapToDouble(
                 product -> {
-                    if (findProductQuantity(product.productQuantityId()).getQuantity() < product.quantity())
+                    if (product.productQuantity().getQuantity() < product.quantity())
                         throw new AppException(ErrorCode.PRODUCT_QUANTITY_NOT_ENOUGH);
-                    return findProductQuantity(product.productQuantityId()).getProduct().getUnitPrice() * product.quantity();
+                    return product.productQuantity().getProduct().getUnitPrice() * product.quantity();
                 }
         ).sum();
 
-        order.setProductTotal(productTotal);
-        order.setShippingFee(request.shippingFee());
-        order.setShippingMethod(request.shippingMethod());
-        order.setPaymentMethod(request.paymentMethod());
-        order.setId(idUtil.genId(productTotal + request.shippingFee(), new Date()));
-        orderRepository.save(order);
+        saveOrder(order, productTotal, request.shippingFee(), request.shippingMethod(), request.paymentMethod());
 
-        products.forEach(product -> {
-            ProductQuantity productQuantity = findProductQuantity(product.productQuantityId());
+        List<OrderDetail> orderDetails = new ArrayList<>();
+        selectedProducts.forEach(product -> {
+            ProductQuantity productQuantity = product.productQuantity();
             productQuantity.setQuantity(productQuantity.getQuantity() - product.quantity());
             productQuantityRepository.save(productQuantity);
 
@@ -310,13 +294,23 @@ public class OrderServiceImpl implements OrderService {
             orderDetail.setOrder(order);
             orderDetail.setProductQuantity(productQuantity);
             orderDetail.setQuantity(product.quantity());
-            orderDetailRepository.save(orderDetail);
+            orderDetails.add(orderDetail);
         });
+        orderDetailRepository.saveAll(orderDetails);
 
         emailUtil.orderDetail(orderRepository.findById(order.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND)));
 
         return "Bạn đã thực hiện thành công đơn hàng";
+    }
+
+    private void saveOrder(Order order, double productTotal, double shippingFee, String shippingMethod, PaymentMethod paymentMethod) {
+        order.setProductTotal(productTotal);
+        order.setShippingFee(shippingFee);
+        order.setShippingMethod(shippingMethod);
+        order.setPaymentMethod(paymentMethod);
+        order.setId(idUtil.genId(productTotal + shippingFee, new Date()));
+        orderRepository.save(order);
     }
 
     @Override

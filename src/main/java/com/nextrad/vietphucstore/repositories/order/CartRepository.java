@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Repository
 public interface CartRepository extends JpaRepository<Cart, UUID> {
-    Optional<Cart> findByProductQuantity_Id(UUID productQuantityId);
+    Optional<Cart> findByProductQuantity_IdAndUser_Email(UUID productQuantityId, String userEmail);
 
     Page<Cart> findByUser_Email(String userEmail, Pageable pageable);
 
