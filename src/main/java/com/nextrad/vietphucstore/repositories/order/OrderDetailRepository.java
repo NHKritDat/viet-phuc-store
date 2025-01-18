@@ -19,7 +19,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, UUID> 
 
     @Query(
             value = "select new com.nextrad.vietphucstore.dtos.requests.inner.product" +
-                    ".TopProductRequest(p.id, p.name, p.unitPrice, p.pictures, sum(od.quantity))  " +
+                    ".TopProductRequest(p.id, p.name, p.unitPrice, p.pictures, sum(od.quantity), p.avgRating)  " +
                     "from OrderDetail od " +
                     "left join ProductQuantity pq on od.productQuantity.id = pq.id " +
                     "left join Product p on pq.product.id = p.id " +

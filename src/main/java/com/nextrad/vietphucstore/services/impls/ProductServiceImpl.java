@@ -23,11 +23,10 @@ import com.nextrad.vietphucstore.utils.PageableUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -129,9 +128,7 @@ public class ProductServiceImpl implements ProductService {
                     );
         };
         //Async map to SearchProduct
-        Page<CompletableFuture<SearchProduct>> futures = products.map(objectMapperUtil::mapSearchProduct);
-        return CompletableFuture.allOf(futures.getContent().toArray(CompletableFuture[]::new))
-                .thenApply(v -> futures.map(CompletableFuture::join)).join();
+        return products.map(objectMapperUtil::mapSearchProduct);
     }
 
     @Override
@@ -211,9 +208,7 @@ public class ProductServiceImpl implements ProductService {
                             pageableUtil.getPageable(Product.class, request)
                     );
         };
-        Page<CompletableFuture<SearchProductForStaff>> futures = products.map(objectMapperUtil::mapSearchProductForStaff);
-        return CompletableFuture.allOf(futures.getContent().toArray(CompletableFuture[]::new))
-                .thenApply(v -> futures.map(CompletableFuture::join)).join();
+        return products.map(objectMapperUtil::mapSearchProductForStaff);
     }
 
     @Override
@@ -233,6 +228,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductDetail createProduct(ModifyProductRequest request) {
         Product product = productRepository.save(
                 objectMapperUtil.mapProduct(
@@ -246,14 +242,16 @@ public class ProductServiceImpl implements ProductService {
                 )
         );
 
+        List<ProductQuantity> quantitiesToSave = new ArrayList<>();
         request.sizeQuantities().forEach((sizeId, quantity) -> {
             ProductQuantity productQuantity = new ProductQuantity();
             productQuantity.setProduct(product);
             productQuantity.setProductSize(productSizeRepository.findByIdAndDeleted(sizeId, false)
                     .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND)));
             productQuantity.setQuantity(quantity);
-            productQuantityRepository.save(productQuantity);
+            quantitiesToSave.add(productQuantity);
         });
+        productQuantityRepository.saveAll(quantitiesToSave);
 
         return objectMapperUtil.mapProductDetail(
                 productRepository.findById(product.getId())
@@ -262,6 +260,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductDetail updateProduct(UUID id, ModifyProductRequest request) {
         Product product = objectMapperUtil.mapProduct(
                 request, productRepository
@@ -276,27 +275,31 @@ public class ProductServiceImpl implements ProductService {
                         : null
         );
 
-        product.getProductQuantities().forEach(pq -> {
-            if (!request.sizeQuantities().containsKey(pq.getProductSize().getId())) {
+        Map<UUID, ProductQuantity> existingQuantities = product.getProductQuantities()
+                .stream().collect(Collectors.toMap(ProductQuantity::getId, pq -> pq));
+
+        List<ProductQuantity> quantitiesToSave = new ArrayList<>();
+
+        existingQuantities.forEach((sizeId, pq) -> {
+            if (!request.sizeQuantities().containsKey(sizeId)) {
                 pq.setDeleted(true);
-                productQuantityRepository.save(pq);
+                quantitiesToSave.add(pq);
             }
         });
 
         request.sizeQuantities().forEach((sizeId, quantity) -> {
-            ProductQuantity productQuantity = product.getProductQuantities().stream()
-                    .filter(pq -> pq.getProductSize().getId().equals(sizeId))
-                    .findFirst().orElseGet(() -> {
-                        ProductQuantity pq = new ProductQuantity();
-                        pq.setProduct(product);
-                        pq.setProductSize(productSizeRepository.findByIdAndDeleted(sizeId, false)
-                                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND)));
-                        return pq;
-                    });
+            ProductQuantity productQuantity = existingQuantities.get(sizeId);
+            if (productQuantity == null) {
+                productQuantity = new ProductQuantity();
+                productQuantity.setProduct(product);
+                productQuantity.setProductSize(productSizeRepository.findByIdAndDeleted(sizeId, false)
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_SIZE_NOT_FOUND)));
+            }
             productQuantity.setQuantity(quantity);
             productQuantity.setDeleted(false);
-            productQuantityRepository.save(productQuantity);
+            quantitiesToSave.add(productQuantity);
         });
+        productQuantityRepository.saveAll(quantitiesToSave);
 
         return objectMapperUtil.mapProductDetail(productRepository.save(product));
     }
@@ -453,22 +456,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductFeedback> getFeedbacks(UUID productId, PageableRequest request) {
-        Page<CompletableFuture<ProductFeedback>> futures = feedbackRepository
-                .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
-                        productId, false, pageableUtil.getPageable(Feedback.class, request)
-                ).map(objectMapperUtil::mapProductFeedback);
-        return CompletableFuture.allOf(futures.getContent().toArray(CompletableFuture[]::new))
-                .thenApply(v -> futures.map(CompletableFuture::join)).join();
+        return feedbackRepository.findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
+                productId, false, pageableUtil.getPageable(Feedback.class, request)
+        ).map(objectMapperUtil::mapProductFeedback);
     }
 
     @Override
     public Page<ProductFeedback> getFeedbacksForStaff(UUID productId, PageableRequest request) {
-        Page<CompletableFuture<ProductFeedback>> futures = feedbackRepository
-                .findByOrderDetail_ProductQuantity_Product_Id(
-                        productId, pageableUtil.getPageable(Feedback.class, request)
-                ).map(objectMapperUtil::mapProductFeedback);
-        return CompletableFuture.allOf(futures.getContent().toArray(CompletableFuture[]::new))
-                .thenApply(v -> futures.map(CompletableFuture::join)).join();
+        return feedbackRepository.findByOrderDetail_ProductQuantity_Product_Id(
+                productId, pageableUtil.getPageable(Feedback.class, request)
+        ).map(objectMapperUtil::mapProductFeedback);
     }
 
     @Override
@@ -512,20 +509,8 @@ public class ProductServiceImpl implements ProductService {
         List<TopProductRequest> result = orderDetailRepository.findTopProduct(pageableRequest.size());
         return result.isEmpty() ?
                 productRepository.findAll(pageableUtil.getPageable(Product.class, pageableRequest))
-                        .map(p -> objectMapperUtil.mapTopProductResponse(
-                                p, feedbackRepository
-                                        .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
-                                                p.getId(),
-                                                false
-                                        ).stream().mapToDouble(Feedback::getRating).average().orElse(0)
-                        )).stream().toList() :
-                result.stream().map(p -> objectMapperUtil.mapTopProductResponse(
-                        p, feedbackRepository
-                                .findByOrderDetail_ProductQuantity_Product_IdAndDeleted(
-                                        p.id(),
-                                        false)
-                                .stream().mapToDouble(Feedback::getRating).average().orElse(0)
-                )).toList();
+                        .map(objectMapperUtil::mapTopProductResponse).stream().toList() :
+                result.stream().map(objectMapperUtil::mapTopProductResponse).toList();
     }
 
     @Override
