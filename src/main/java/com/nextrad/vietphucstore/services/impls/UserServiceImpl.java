@@ -284,4 +284,9 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteByStatusAndUpdatedDateAfter(UserStatus.UNVERIFIED, new Date(System.currentTimeMillis() + time));
     }
 
+    @Override
+    public void deleteInvalidToken() {
+        tokenRepository.deleteByExpAtAfter(new Date());
+    }
+
 }

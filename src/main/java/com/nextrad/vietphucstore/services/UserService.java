@@ -54,4 +54,6 @@ public interface UserService {
     void createDefaultUser(String email, UserRole role, UserStatus status);
 
     void deleteUnverifiedUsers(long time);
+
+    void deleteInvalidToken();
 }
