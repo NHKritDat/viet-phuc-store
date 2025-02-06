@@ -243,9 +243,9 @@ public class UserServiceImpl implements UserService {
             user.setDob(request.dob());
         if (request.gender() != null)
             user.setGender(request.gender());
-        if (!request.province().isEmpty())
+        if (request.province() != null)
             user.setProvince(request.province());
-        if (!request.district().isEmpty())
+        if (request.district() != null)
             user.setDistrict(request.district());
         if (!request.address().isBlank())
             user.setAddress(request.address());
