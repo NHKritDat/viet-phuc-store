@@ -23,6 +23,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, UUID> 
                     "from OrderDetail od " +
                     "left join ProductQuantity pq on od.productQuantity.id = pq.id " +
                     "left join Product p on pq.product.id = p.id " +
+                    "where p.status != 'DELETED' " +
                     "group by p.id " +
                     "order by sum(od.quantity) desc " +
                     "limit :size"

@@ -508,7 +508,8 @@ public class ProductServiceImpl implements ProductService {
     public List<TopProduct> getTopProduct(PageableRequest pageableRequest) {
         List<TopProductRequest> result = orderDetailRepository.findTopProduct(pageableRequest.size());
         return result.isEmpty() ?
-                productRepository.findAll(pageableUtil.getPageable(Product.class, pageableRequest))
+                productRepository.findByStatusNot(ProductStatus.DELETED,
+                                pageableUtil.getPageable(Product.class, pageableRequest))
                         .map(objectMapperUtil::mapTopProductResponse).stream().toList() :
                 result.stream().map(objectMapperUtil::mapTopProductResponse).toList();
     }
