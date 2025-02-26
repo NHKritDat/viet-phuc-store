@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.nextrad</groupId>
     <artifactId>viet-phuc-store</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <name>viet-phuc-store</name>
     <description>viet-phuc-store</description>
     <url/>
