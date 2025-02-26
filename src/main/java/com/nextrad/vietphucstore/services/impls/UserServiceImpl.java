@@ -17,6 +17,7 @@ import com.nextrad.vietphucstore.repositories.user.TokenRepository;
 import com.nextrad.vietphucstore.repositories.user.UserRepository;
 import com.nextrad.vietphucstore.services.UserService;
 import com.nextrad.vietphucstore.utils.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -285,6 +286,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteInvalidToken() {
         tokenRepository.deleteByExpAtAfter(new Date());
     }
