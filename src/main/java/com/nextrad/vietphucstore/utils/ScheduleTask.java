@@ -26,9 +26,9 @@ public class ScheduleTask {
         userService.deleteUnverifiedUsers(accessTokenExp);
     }
 
-    @Scheduled(cron = "0 */30 * * * *")
-    public void deleteInvalidToken() {
-        userService.deleteInvalidToken();
-    }
+//    @Scheduled(cron = "0 */30 * * * *")
+//    public void deleteInvalidToken() {
+//        userService.deleteInvalidToken();
+//    }
 
 }
