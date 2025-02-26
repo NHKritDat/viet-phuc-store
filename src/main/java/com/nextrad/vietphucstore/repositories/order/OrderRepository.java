@@ -3,6 +3,7 @@ package com.nextrad.vietphucstore.repositories.order;
 import com.nextrad.vietphucstore.dtos.responses.inner.dashboard.CountOrder;
 import com.nextrad.vietphucstore.dtos.responses.inner.dashboard.SumRevenue;
 import com.nextrad.vietphucstore.entities.order.Order;
+import com.nextrad.vietphucstore.enums.order.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -40,4 +41,6 @@ public interface OrderRepository extends JpaRepository<Order, String> {
                     "from Order"
     )
     CountOrder countOrder();
+
+    Page<Order> findByEmailContainingIgnoreCaseAndStatus(String email, OrderStatus status, Pageable pageable);
 }

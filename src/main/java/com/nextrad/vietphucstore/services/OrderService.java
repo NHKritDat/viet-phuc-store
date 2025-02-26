@@ -3,6 +3,7 @@ package com.nextrad.vietphucstore.services;
 import com.nextrad.vietphucstore.dtos.requests.api.order.*;
 import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.api.order.*;
+import com.nextrad.vietphucstore.enums.order.OrderStatus;
 import org.springframework.data.domain.Page;
 
 import java.util.UUID;
@@ -26,7 +27,7 @@ public interface OrderService {
 
     FeedbackResponse getFeedback(UUID orderDetailId);
 
-    Page<SearchOrder> getOrders(String search, PageableRequest request);
+    Page<SearchOrder> getOrders(String search, OrderStatus status, PageableRequest request);
 
     OrderResponse getOrderDetailForStaff(String id);
 

@@ -211,10 +211,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<SearchOrder> getOrders(String search, PageableRequest request) {
-        return orderRepository.findByEmailContainingIgnoreCase(
+    public Page<SearchOrder> getOrders(String search, OrderStatus status, PageableRequest request) {
+        return status == null ? orderRepository.findByEmailContainingIgnoreCase(
                 search, pageableUtil.getPageable(Order.class, request)
-        ).map(objectMapperUtil::mapSearchOrder);
+        ).map(objectMapperUtil::mapSearchOrder) :
+                orderRepository.findByEmailContainingIgnoreCaseAndStatus(
+                        search, status, pageableUtil.getPageable(Order.class, request)
+                ).map(objectMapperUtil::mapSearchOrder);
     }
 
     @Override

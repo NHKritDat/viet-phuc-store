@@ -5,6 +5,7 @@ import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.api.order.*;
 import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiItemResponse;
 import com.nextrad.vietphucstore.dtos.responses.api.standard.ApiListItemResponse;
+import com.nextrad.vietphucstore.enums.order.OrderStatus;
 import com.nextrad.vietphucstore.services.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -112,6 +113,7 @@ public class OrderController {
     @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<ApiListItemResponse<SearchOrder>> getOrdersForStaff(
             @RequestParam(defaultValue = "", required = false) String search,
+            @RequestParam(defaultValue = "", required = false) OrderStatus status,
             @RequestParam(defaultValue = "1", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int size,
             @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
@@ -119,6 +121,7 @@ public class OrderController {
     ) {
         Page<SearchOrder> response = orderService.getOrders(
                 search,
+                status,
                 new PageableRequest(page - 1, size, direction, properties)
         );
         return ResponseEntity.ok(new ApiListItemResponse<>(
