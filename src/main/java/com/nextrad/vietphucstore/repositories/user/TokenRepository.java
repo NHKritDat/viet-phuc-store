@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface TokenRepository extends JpaRepository<Token, UUID> {
     boolean existsByIdAndAvailable(UUID id, boolean available);
 
-    void deleteByExpAtAfter(Date expAtAfter);
+    void deleteByExpAtBefore(Date expAtAfter);
 }

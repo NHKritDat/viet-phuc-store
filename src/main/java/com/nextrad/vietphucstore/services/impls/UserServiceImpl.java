@@ -288,7 +288,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteInvalidToken() {
-        tokenRepository.deleteByExpAtAfter(new Date());
+        tokenRepository.deleteByExpAtBefore(new Date());
     }
 
 }
