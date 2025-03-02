@@ -153,6 +153,14 @@ public class ObjectMapperUtil {
         );
     }
 
+    public SearchProductForAI mapSearchProductForAI(Product product) {
+        return new SearchProductForAI(
+                product.getId(), product.getName(), product.getUnitPrice(),
+                product.getDescription(),
+                product.getAvgRating()
+        );
+    }
+
     public SearchProductForStaff mapSearchProductForStaff(Product product) {
         return new SearchProductForStaff(
                 product.getId(), product.getName(), product.getUnitPrice(),
