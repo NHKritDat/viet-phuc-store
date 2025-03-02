@@ -43,6 +43,95 @@ public class ProductServiceImpl implements ProductService {
     private final BinaryUtil binaryUtil;
 
     @Override
+    public Page<SearchProductForAI> getProductsForAI(String search, double minPrice, double maxPrice,
+                                                     String[] sizes, String[] types, String[] collections,
+                                                     PageableRequest request) {
+        //Check sizes, types, collections empty
+        int check = binaryUtil.checkBinary(sizes, types, collections);
+        //Switch case sizes, types, collections empty
+        Page<Product> products = switch (check) {
+            case 111 -> productRepository
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                            search,
+                            minPrice,
+                            maxPrice,
+                            ProductStatus.DELETED,
+                            Arrays.asList(types),
+                            Arrays.asList(collections),
+                            Arrays.asList(sizes),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+            case 110 -> productRepository
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductQuantities_ProductSize_NameIn(
+                            search,
+                            minPrice,
+                            maxPrice,
+                            ProductStatus.DELETED,
+                            Arrays.asList(types),
+                            Arrays.asList(sizes),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+            case 101 -> productRepository
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductCollection_NameInAndProductQuantities_ProductSize_NameIn(
+                            search,
+                            minPrice,
+                            maxPrice,
+                            ProductStatus.DELETED,
+                            Arrays.asList(collections),
+                            Arrays.asList(sizes),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+            case 100 -> productRepository
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductQuantities_ProductSize_NameIn(
+                            search,
+                            minPrice,
+                            maxPrice,
+                            ProductStatus.DELETED,
+                            Arrays.asList(sizes),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+            case 11 -> productRepository
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameInAndProductCollection_NameIn(
+                            search,
+                            minPrice,
+                            maxPrice,
+                            ProductStatus.DELETED,
+                            Arrays.asList(types),
+                            Arrays.asList(collections),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+            case 10 -> productRepository
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductType_NameIn(
+                            search,
+                            minPrice,
+                            maxPrice,
+                            ProductStatus.DELETED,
+                            Arrays.asList(types),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+            case 1 -> productRepository
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNotAndProductCollection_NameIn(
+                            search,
+                            minPrice,
+                            maxPrice,
+                            ProductStatus.DELETED,
+                            Arrays.asList(collections),
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+            default -> productRepository
+                    .findByNameContainsIgnoreCaseAndUnitPriceBetweenAndStatusNot(
+                            search,
+                            minPrice,
+                            maxPrice,
+                            ProductStatus.DELETED,
+                            pageableUtil.getPageable(Product.class, request)
+                    );
+        };
+        //Async map to SearchProduct
+        return products.map(objectMapperUtil::mapSearchProductForAI);
+    }
+
+    @Override
     public Page<SearchProduct> getProducts(String search, double minPrice, double maxPrice,
                                            String[] sizes, String[] types, String[] collections,
                                            PageableRequest request) {

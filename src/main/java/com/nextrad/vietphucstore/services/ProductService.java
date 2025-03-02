@@ -15,6 +15,10 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ProductService {
+    Page<SearchProductForAI> getProductsForAI(String search, double minPrice, double maxPrice,
+                                    String[] sizes, String[] types, String[] collections,
+                                    PageableRequest request);
+
     Page<SearchProduct> getProducts(String search, double minPrice, double maxPrice,
                                     String[] sizes, String[] types, String[] collections,
                                     PageableRequest request);

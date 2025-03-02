@@ -1,9 +1,6 @@
 package com.nextrad.vietphucstore.controllers;
 
-import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyCollectionRequest;
-import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyProductRequest;
-import com.nextrad.vietphucstore.dtos.requests.api.product.ModifySizeRequest;
-import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyTypeRequest;
+import com.nextrad.vietphucstore.dtos.requests.api.product.*;
 import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackSummary;
 import com.nextrad.vietphucstore.dtos.responses.api.product.*;
@@ -467,6 +464,34 @@ public class ProductController {
         return ResponseEntity.ok(new ApiItemResponse<>(
                 productService.getFeedbackSummaryForStaff(id),
                 "Đây là tổng quan đánh giá sản phẩm"
+        ));
+    }
+    //Get product for ChatAI
+    @GetMapping("/AI")
+    public ResponseEntity<ApiListItemResponse<SearchProductForAI>> getProductsForAI(
+            @RequestParam(defaultValue = "", required = false) String search,
+            @RequestParam(defaultValue = "0", required = false) double minPrice,
+            @RequestParam(defaultValue = "10000000", required = false) double maxPrice,
+            @RequestParam(defaultValue = "", required = false) String[] sizes,
+            @RequestParam(defaultValue = "", required = false) String[] types,
+            @RequestParam(defaultValue = "", required = false) String[] collections,
+            @RequestParam(defaultValue = "1", required = false) int page,
+            @RequestParam(defaultValue = "10", required = false) int size,
+            @RequestParam(defaultValue = "ASC", required = false) Sort.Direction direction,
+            @RequestParam(defaultValue = "id", required = false) String... properties
+    ) {
+        Page<SearchProductForAI> response = productService.getProductsForAI(
+                search, minPrice, maxPrice,
+                sizes, types, collections,
+                new PageableRequest(page - 1, size, direction, properties)
+        );
+        return ResponseEntity.ok(new ApiListItemResponse<>(
+                response.getContent(),
+                response.getSize(),
+                response.getNumber() + 1,
+                response.getTotalElements(),
+                response.getTotalPages(),
+                "Đây là danh sách các sản phẩm hiện có"
         ));
     }
 }
