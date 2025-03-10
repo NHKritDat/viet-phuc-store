@@ -2,11 +2,27 @@ package com.nextrad.vietphucstore.utils;
 
 import org.springframework.stereotype.Component;
 
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class IdUtil {
+
+    public byte[] uuidToBytes(UUID uuid) {
+        ByteBuffer buffer = ByteBuffer.wrap(new byte[16]);
+        buffer.putLong(uuid.getMostSignificantBits());
+        buffer.putLong(uuid.getLeastSignificantBits());
+        return buffer.array();
+    }
+
+    public UUID bytesToUuid(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        long mostSignificantBits = buffer.getLong();
+        long leastSignificantBits = buffer.getLong();
+        return new UUID(mostSignificantBits, leastSignificantBits);
+    }
 
     public String genId(double totalPrice, Date date) {
         String price = String.valueOf(totalPrice);

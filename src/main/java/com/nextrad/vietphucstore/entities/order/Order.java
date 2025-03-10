@@ -23,7 +23,7 @@ import java.util.Set;
 @EntityListeners(AuditingEntityListener.class)
 public class Order {
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false, updatable = false)
     private String id;
 
     @ManyToOne(optional = false)

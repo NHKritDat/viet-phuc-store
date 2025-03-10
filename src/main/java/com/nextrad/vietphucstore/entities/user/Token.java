@@ -1,5 +1,6 @@
 package com.nextrad.vietphucstore.entities.user;
 
+import com.nextrad.vietphucstore.configs.UuidToBinaryConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +18,8 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public class Token {
     @Id
-    @Column(name = "id", nullable = false, updatable = false)
+    @Convert(converter = UuidToBinaryConverter.class)
+    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
     private UUID id;
 
     @Temporal(TemporalType.TIMESTAMP)
