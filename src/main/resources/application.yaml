@@ -5,16 +5,29 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        connection:
+          characterEncoding: UTF-8
+          useUnicode: true
+          charSet: UTF-8
+        jdbc:
+          batch_size: 25
+        order_updates: true
+        order_inserts: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
-      max-lifetime: 1800000
-      connection-test-query: SELECT 1
-      validation-timeout: 10000
-      idle-timeout: 600000
+      connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+      data-source-properties:
+        useSSL: false
+        characterEncoding: UTF-8
+        useUnicode: true
+        serverTimezone: Asia/Ho_Chi_Minh
   mail:
     host: smtp.gmail.com
     port: 587

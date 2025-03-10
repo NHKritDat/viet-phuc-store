@@ -1,6 +1,9 @@
 package com.nextrad.vietphucstore.controllers;
 
-import com.nextrad.vietphucstore.dtos.requests.api.product.*;
+import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyCollectionRequest;
+import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyProductRequest;
+import com.nextrad.vietphucstore.dtos.requests.api.product.ModifySizeRequest;
+import com.nextrad.vietphucstore.dtos.requests.api.product.ModifyTypeRequest;
 import com.nextrad.vietphucstore.dtos.requests.inner.pageable.PageableRequest;
 import com.nextrad.vietphucstore.dtos.responses.api.order.FeedbackSummary;
 import com.nextrad.vietphucstore.dtos.responses.api.product.*;
@@ -466,6 +469,7 @@ public class ProductController {
                 "Đây là tổng quan đánh giá sản phẩm"
         ));
     }
+
     //Get product for ChatAI
     @GetMapping("/AI")
     public ResponseEntity<ApiListItemResponse<SearchProductForAI>> getProductsForAI(
